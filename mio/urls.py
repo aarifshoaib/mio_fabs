@@ -14,22 +14,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from mioapp import views
+from django.urls import path, include
+from agent_candidate import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.Login.as_view(), name='login'),
-    path('admin-dashboard', views.AdminDashboard.as_view(), name='admin-dashboard'),
-    path('admin-logout', views.AdminLogout.as_view(), name='admin-logout'),
-    path('candidate/candidate-form', views.CandidateForm.as_view(), name='candidate-form'),
-    path('candidate/candidate-form/<int:id>', views.CandidateForm.as_view(), name='candidate-form'),
-    path('candidate/candidate-details', views.CandidateDetails.as_view(), name='candidate-details'),
-    path('candidate/candidate-delete/<int:id>', views.CandidateDelete.as_view(), name='candidate-delete'),
-    
-    path('agent/agent-form', views.AgentForm.as_view(), name='agent-form'),
-    path('agent/agent-form/<int:id>', views.AgentForm.as_view(), name='agent-form'),
-    path('agent/agent-details', views.AgentDetails.as_view(), name='agent-details'),
-    path('agent/agent-delete/<int:id>', views.AgentDelete.as_view(), name='agent-delete'),
-    
+    path('', views.Login.as_view()),
+    path('logout', views.Logout.as_view()),
+    path('dashboard', views.Dashboard.as_view()),
+
+    path('agent-candidate/', include('agent_candidate.urls')),
 ]
