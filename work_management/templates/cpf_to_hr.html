@@ -1,0 +1,220 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block csslink %}
+<style>
+.table-wrapper {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    height: fit-content;
+    max-height: 70vh;
+}
+
+table {
+    min-width: max-content;
+    border-collapse: separate;
+    border-spacing: 0px;
+}
+
+table th{
+    position: sticky;
+    top: 0px;
+    background-color: #2a2b2b;
+    color: rgb(255, 255, 255);
+}
+
+.strikethrough {
+  background: repeating-linear-gradient(
+    180deg,
+    red 0%,
+    red 100%
+  );
+  background-size: 100% 2px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+</style>
+{% endblock %}
+{% block content %}
+<div class="content container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">{{company.company_id}}-{{company.company_name}}</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item">ROC: {{company.roc}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>{{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-wrapper">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center">TYPE</th>
+                            <th style="text-align:center">NAME</th>
+                            <th style="text-align:center">CONTACT</th>
+                            <th style="text-align:center">DOCS</th>
+                            <th style="text-align:center">SOURCE</th>
+                            <th style="text-align:center">PP</th>
+                            <th style="text-align:center">FIN</th>
+                            <th style="text-align:center">DOB</th>
+                            <th style="text-align:center">Salary</th>
+                            <th style="text-align:center">Designation</th>
+                            <th style="text-align:center">ISSED</th>
+                            <th style="text-align:center">EXPIRY</th>
+                            <th style="text-align:center">RE-DUE</th>
+                            <th style="text-align:center">STATUS</th>
+                            <th style="text-align:center">CAN/EXPIRY</th>
+                            <th style="text-align:center">RemoveMark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for typ in hrtypes %}
+                            {% if company|ishrtrackeditable:typ %}
+                                <tr>
+                                    <td style="text-align:center" class="fixed-column">{{typ}}</td>
+                                    <td style="text-align:center" class="editable fixed-column col-lg-2" contenteditable="true" id="{{company.id}}_{{typ}}_name">{% with company.id|add:"_"|add:typ|add:"_name" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_contact">{% with company.id|add:"_"|add:typ|add:"_contact" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_docs">{% with company.id|add:"_"|add:typ|add:"_docs" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_source">{% with company.id|add:"_"|add:typ|add:"_source" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_pp">{% with company.id|add:"_"|add:typ|add:"_pp" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_fin">{% with company.id|add:"_"|add:typ|add:"_fin" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_dob">{% with company.id|add:"_"|add:typ|add:"_dob" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_salary">{% with company.id|add:"_"|add:typ|add:"_salary" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_designation">{% with company.id|add:"_"|add:typ|add:"_designation" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_issed">{% with company.id|add:"_"|add:typ|add:"_issed" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" onblur="ontimetypingexpiry_function('{{company.id}}_{{typ}}_expiry')" class="editable expiry_col" contenteditable="true" id="{{company.id}}_{{typ}}_expiry">{% with company.id|add:"_"|add:typ|add:"_expiry" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_redue"></td>
+                                    <td style="text-align:center">{% with company.id|add:"_"|add:typ|add:"_renewal_remark_reason" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" class="editable" contenteditable="true" id="{{company.id}}_{{typ}}_canexpiry">{% with company.id|add:"_"|add:typ|add:"_canexpiry" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center">-</td>
+                                </tr>
+                            {% else %}
+                                <tr class="strikethrough" id="{{company.id}}_{{typ}}">
+                                    <td style="text-align:center" class="fixed-column">{{typ}}</td>
+                                    <td style="text-align:center" class="fixed-column col-lg-2" id="{{company.id}}_{{typ}}_name">{% with company.id|add:"_"|add:typ|add:"_name" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_contact">{% with company.id|add:"_"|add:typ|add:"_contact" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_docs">{% with company.id|add:"_"|add:typ|add:"_docs" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_source">{% with company.id|add:"_"|add:typ|add:"_source" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_pp">{% with company.id|add:"_"|add:typ|add:"_pp" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_fin">{% with company.id|add:"_"|add:typ|add:"_fin" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_dob">{% with company.id|add:"_"|add:typ|add:"_dob" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_salary">{% with company.id|add:"_"|add:typ|add:"_salary" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_designation">{% with company.id|add:"_"|add:typ|add:"_designation" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_issed">{% with company.id|add:"_"|add:typ|add:"_issed" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" onblur="ontimetypingexpiry_function('{{company.id}}_{{typ}}_expiry')" class="expiry_col" id="{{company.id}}_{{typ}}_expiry">{% with company.id|add:"_"|add:typ|add:"_expiry" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_redue"></td>
+                                    <td style="text-align:center">{% with company.id|add:"_"|add:typ|add:"_renewal_remark_reason" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center" id="{{company.id}}_{{typ}}_canexpiry">{% with company.id|add:"_"|add:typ|add:"_canexpiry" as col %} {{ company|cpf_tracker_hr_exist:col }} {% endwith %}</td>
+                                    <td style="text-align:center">
+                                        <button class="btn btn-primary" onclick="removemarkAsDoneFunction('{{company.id}}_{{typ}}_markasdone')"><i class="fa fa-refresh"></i></button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table> <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+
+    $('.editable').on('blur', function() {
+            var row = $(this).closest('td');
+            var cell_id = row[0].getAttribute('id');
+            var cell_value = row.text();
+
+            $.ajax({
+                type: 'GET',
+                url: `/work-management/cpf-tracker-hr-tracking-update`,
+                data: {"cellid": cell_id, "cellvalue": cell_value},
+                success: function(res){
+                        console.log(res);
+                        if (res.status != 'success'){
+                                row[0].value = cell_value;
+                            }
+                        },
+                    error: function(error) {
+                        row[0].value = cell_value;
+                        console.log(error)
+                }
+            });
+        });
+
+        function isInvalidDate(date) {
+            return isNaN(date.getTime());
+            }
+
+        function re_due_date_function(crowid, dateString){
+            try{
+                const [day, month, year] = dateString.split('-');
+                const date = new Date(`${year}-${month}-${day}`);
+                const monthsToSubtract = 6;
+                date.setMonth(date.getMonth() - monthsToSubtract);
+                const options = { year: 'numeric', month: 'short', day: '2-digit' };
+                const newDateString = date.toLocaleDateString('en-GB', options).toUpperCase().replace(/ /g, '-');
+                if (newDateString !== 'INVALID-DATE'){
+                    document.getElementById(crowid).innerText = newDateString;
+                }
+            } catch(e){};
+
+        };
+
+        function ontimetypingexpiry_function(erid){
+            const cexpval = document.getElementById(erid).innerText.trim();
+            const crowid = erid.split('_').slice(0, 2).join('_') + '_redue';
+            re_due_date_function(crowid, cexpval);
+        }
+
+        var expiry_cols = document.getElementsByClassName('expiry_col');
+        for (e of expiry_cols){
+            const crowid = e.getAttribute('id').split('_').slice(0, 2).join('_') + '_redue';
+            const cexpval = e.innerText.trim();
+            re_due_date_function(crowid, cexpval);
+        }
+
+        function removemarkAsDoneFunction(id){
+            var cell_id = id;
+            var cell_value = '';
+            var tdid = `${cell_id.split('_').slice(0, 2).join('_')}`;
+            $.ajax({
+                type: 'GET',
+                url: `/work-management/cpf-tracker-hr-tracking-update`,
+                data: {"cellid": cell_id, "cellvalue": cell_value},
+                success: function(res){
+                        if (res.status != 'success'){
+                            }else{
+                                document.getElementById(tdid).removeAttribute('class');
+                                window.location.reload();
+                            }
+                        },
+                    error: function(error) {
+                    }
+            });
+        }
+
+</script>
+{% endblock %}

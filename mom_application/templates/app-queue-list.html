@@ -1,0 +1,377 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Application Queue List</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">Application Queue List</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<!-- Search Filter -->
+<div class="main-search">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search...">
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="search-result">
+    {% if keyword %}
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    {% endif %}
+    <h6>{{result_cnt}} Results found | <a href="/mom-application/app-queue-list" class="text-primary">Clear Filter</a></h6>
+</div>
+<!-- /Search Filter -->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">Date</th>
+                        <th style="text-align:center">Company</th>
+                        <th style="text-align:center">PassType</th>
+                        <th style="text-align:center">EmployeeRef</th>
+                        <th style="text-align:center">AssignedBy</th>
+                        <th style="text-align:center">Staff</th>
+                        <th style="text-align:center">Pending Since</th>
+                        <th style="text-align:center">Reason</th>
+                        <th style="text-align:center">UploadDocs</th>
+                        <th style="text-align:center">VoiceNote</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app_queue in app_queues %}
+                    <tr>
+                        <td style="text-align:center">{{forloop.counter|forcounter_serialno:app_queues}}</td>
+                        <td style="text-align:center">{{app_queue.app_date}}</td>
+                        <!--<td style="text-align:center">-->
+                        <!--    <a href="#" class="badge bg-inverse-success">{{app_queue.company.company_id}}</a>-->
+                        <!--</td>-->
+                        <td style="text-align:center">
+                            <p class="badge bg-inverse-success">{{app_queue.company.company_id}}</p>
+                            {{app_queue.company.company_name.title}}
+                        </td>
+                        <td style="text-align:center">{{app_queue.passtype}}</td>
+                        <td style="text-align:center">
+                            {% if app_queue.employee_ref %}
+                            <a href="/agent-candidate/agent-management-candidate-form/{{app_queue.employee_ref.id}}/{{return_url}}">
+                                {{app_queue.employee_ref.agent.agent_id|column_num_to_name}}{{app_queue.employee_ref.code_number}}
+                            </a>
+                            {% else %}Not Applicable{% endif %}
+                        </td>
+                        <td style="text-align:center">{{app_queue.assigned_by}}</td>
+                        <td style="text-align:center">{{app_queue.staff}}</td>
+                        <td style="text-align:center">
+                            <p class="badge bg-inverse-danger">{{app_queue.app_date|pending_days}}</p>
+                        </td>
+                        <td style="text-align:center">{{app_queue.status}}</td>
+                        <td style="text-align:center">
+                            <a href="#" class="text-warning" data-toggle="modal" data-target="#more_files{{app_queue.id}}">files <i class="fa fa-download"></i></a>
+                            <div id="more_files{{app_queue.id}}" class="modal custom-modal fade" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> CompanyName ({{app_queue.company.company_name.title}})</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="form-scroll">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h3 class="card-title">Uploaded Files </h3>
+                                                            <div>
+                                                                <ul class="files-list">
+                                                                    {% for attach in app_queue.upload_docs.all %}
+                                                                    <li>
+                                                                        <div class="files-cont">
+                                                                            <div class="file-type">
+                                                                                <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                            </div>
+                                                                            <div class="files-info">
+                                                                                <span class="file-name text-ellipsis"><a href="#">{{attach.attachments.name|get_filename}}</a></span>
+                                                                                <span class="file-author"><a href="{{attach.attachments.url}}" target="_blank">{{attach.attachments.name|get_filename}}</a></span>
+                                                                                <div class="file-size">Size: {{attach.attachments.size|bytes_to_mb}}</div>
+                                                                            </div>
+                                                                            <ul class="files-action">
+                                                                                <li class="dropdown dropdown-action">
+                                                                                    <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                                                        <a class="dropdown-item" target="_blank" href="{{attach.attachments.url}}">Download</a>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                    {% endfor %}
+                                                                    {% for attach in app_queue.employee_ref.upload_passport.all %}
+                                                                    <li>
+                                                                        <div class="files-cont">
+                                                                            <div class="file-type">
+                                                                                <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                            </div>
+                                                                            <div class="files-info">
+                                                                                <span class="file-name text-ellipsis"><a href="#">{{attach.upload_passport.name|get_filename}}</a></span>
+                                                                                <span class="file-author"><a href="{{attach.upload_passport.url}}" target="_blank">{{attach.upload_passport.name|get_filename}}</a></span>
+                                                                                <div class="file-size">Size: {{attach.upload_passport.size|bytes_to_mb}}</div>
+                                                                            </div>
+                                                                            <ul class="files-action">
+                                                                                <li class="dropdown dropdown-action">
+                                                                                    <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                                                        <a class="dropdown-item" target="_blank" href="{{attach.upload_passport.url}}">Download</a>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                    {% endfor %}
+                                                                    {% for attach in app_queue.employee_ref.upload_video.all %}
+                                                                    <li>
+                                                                        <div class="files-cont">
+                                                                            <div class="file-type">
+                                                                                <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                            </div>
+                                                                            <div class="files-info">
+                                                                                <span class="file-name text-ellipsis"><a href="#">{{attach.upload_video.name|get_filename}}</a></span>
+                                                                                <span class="file-author"><a href="{{attach.upload_video.url}}" target="_blank">{{attach.upload_video.name|get_filename}}</a></span>
+                                                                                <div class="file-size">Size: {{attach.upload_video.size|bytes_to_mb}}</div>
+                                                                            </div>
+                                                                            <ul class="files-action">
+                                                                                <li class="dropdown dropdown-action">
+                                                                                    <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                                                        <a class="dropdown-item" target="_blank" href="{{attach.upload_video.url}}">Download</a>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                    {% endfor %}
+                                                                    {% for attach in app_queue.employee_ref.upload_cert.all %}
+                                                                    <li>
+                                                                        <div class="files-cont">
+                                                                            <div class="file-type">
+                                                                                <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                            </div>
+                                                                            <div class="files-info">
+                                                                                <span class="file-name text-ellipsis"><a href="#">{{attach.upload_cert.name|get_filename}}</a></span>
+                                                                                <span class="file-author"><a href="{{attach.upload_cert.url}}" target="_blank">{{attach.upload_cert.name|get_filename}}</a></span>
+                                                                                <div class="file-size">Size: {{attach.upload_cert.size|bytes_to_mb}}</div>
+                                                                            </div>
+                                                                            <ul class="files-action">
+                                                                                <li class="dropdown dropdown-action">
+                                                                                    <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                                                        <a class="dropdown-item" target="_blank" href="{{attach.upload_cert.url}}">Download</a>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                    {% endfor %}
+                                                                    {% for attach in app_queue.employee_ref.upload_resume.all %}
+                                                                    <li>
+                                                                        <div class="files-cont">
+                                                                            <div class="file-type">
+                                                                                <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                            </div>
+                                                                            <div class="files-info">
+                                                                                <span class="file-name text-ellipsis"><a href="#">{{attach.upload_resume.name|get_filename}}</a></span>
+                                                                                <span class="file-author"><a href="{{attach.upload_resume.url}}" target="_blank">{{attach.upload_resume.name|get_filename}}</a></span>
+                                                                                <div class="file-size">Size: {{attach.upload_resume.size|bytes_to_mb}}</div>
+                                                                            </div>
+                                                                            <ul class="files-action">
+                                                                                <li class="dropdown dropdown-action">
+                                                                                    <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                                                        <a class="dropdown-item" target="_blank" href="{{attach.upload_resume.url}}">Download</a>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                    {% endfor %}
+                                                                    {% for attach in app_queue.employee_ref.upload_work_video.all %}
+                                                                    <li>
+                                                                        <div class="files-cont">
+                                                                            <div class="file-type">
+                                                                                <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                            </div>
+                                                                            <div class="files-info">
+                                                                                <span class="file-name text-ellipsis"><a href="#">{{attach.upload_work_video.name|get_filename}}</a></span>
+                                                                                <span class="file-author"><a href="{{attach.upload_work_video.url}}" target="_blank">{{attach.upload_work_video.name|get_filename}}</a></span>
+                                                                                <div class="file-size">Size: {{attach.upload_work_video.size|bytes_to_mb}}</div>
+                                                                            </div>
+                                                                            <ul class="files-action">
+                                                                                <li class="dropdown dropdown-action">
+                                                                                    <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                                                        <a class="dropdown-item" target="_blank" href="{{attach.upload_work_video.url}}">Download</a>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                    {% endfor %}
+                                                                    {% for attach in app_queue.employee_ref.upload_interview_audio.all %}
+                                                                    <li>
+                                                                        <div class="files-cont">
+                                                                            <div class="file-type">
+                                                                                <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                            </div>
+                                                                            <div class="files-info">
+                                                                                <span class="file-name text-ellipsis"><a href="#">{{attach.upload_interview_audio.name|get_filename}}</a></span>
+                                                                                <span class="file-author"><a href="{{attach.upload_interview_audio.url}}" target="_blank">{{attach.upload_interview_audio.name|get_filename}}</a></span>
+                                                                                <div class="file-size">Size: {{attach.upload_interview_audio.size|bytes_to_mb}}</div>
+                                                                            </div>
+                                                                            <ul class="files-action">
+                                                                                <li class="dropdown dropdown-action">
+                                                                                    <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                                                        <a class="dropdown-item" target="_blank" href="{{attach.upload_interview_audio.url}}">Download</a>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </td>
+                        <td style="text-align:center">
+                            {% if app_queue.voice_record %}
+                                <audio controls>
+                                    <source src="{{app_queue.voice_record.url}}" type="audio/mpeg">
+                                </audio>
+                            {% else %}
+                                No Audio
+                            {% endif %}
+                        </td>
+                        <td class="text-right">
+                            <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/mom-application/create-app-queue/{{app_queue.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{app_queue.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div class="modal custom-modal fade" id="delete_project{{app_queue.id}}" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="form-header">
+                                        <h3>Delete Application-ID : {{app_queue.id}}</h3>
+                                        <p>Are you sure want to delete?</p>
+                                    </div>
+                                    <div class="modal-btn delete-action">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a href="/mom-application/delete-app-queue/{{app_queue.id}}/{{return_url}}" class="btn btn-primary continue-btn">Delete</a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table> <br>
+            <div>
+                {% if app_queues.has_other_pages %}
+                    <ul class="pagination">
+                        {% if app_queues.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{app_queues.previous_page_number}}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                        {% endif %}
+
+
+                        {% for page in app_queues.paginator.page_range %}
+                            {% if app_queues.number == page %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% elif page > app_queues.number|add:'-5' and page < app_queues.number|add:'5' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if app_queues.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{app_queues.next_page_number}}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disable">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

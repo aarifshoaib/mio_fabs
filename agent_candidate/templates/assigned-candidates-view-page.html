@@ -1,0 +1,135 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block content %}
+
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Assigned Candidate List ({{comp.company_id}}-{{comp.company_name}})</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Assigned Candidate List</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+    {% for message in messages %}
+    {% if 'success' == message.tags %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Message : {{message}}</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+    {% else %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Message : {{message}}</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+        <div class="toast mt-3">
+            <div class="toast-header">
+                Toast Header
+            </div>
+            <div class="toast-body">
+                Some text inside the toast body
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    <button class="btn btn-secondary btn-sm"
+        onclick="copyClipboard('https://myindiaoverseas.pythonanywhere.com/agent-candidate/read-only-candidate-page/{{assigned_id.id}}/{{unique_id}}')">
+        <i class="fa fa-clipboard"></i>
+        Copy Candidates
+    </button>
+    <br><br>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped custom-table mb-0 datatable">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px;">#</th>
+                            <th>Agent</th>
+                            <th>Candidate</th>
+                            <th>DOB</th>
+                            <th>HighEdu</th>
+                            <th>AbroadExp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cand in candidates %}
+                        <tr>
+                            <td>{{forloop.counter|forcounter_serialno:candidates}}</td>
+                            <td>{{cand.agent.name}}</td>
+                            <td>{{cand.candidate_name}}</td>
+                            <td>{{cand.candidate_dob}}</td>
+                            <td>{{cand.candidate_high_edu}}</td>
+                            <td>{{cand.abroad_exp}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                <div>
+                    {% if candidates.has_other_pages %}
+                    <ul class="pagination">
+                        {% if candidates.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="{{current_url}}page={{candidates.previous_page_number}}">Previous</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        {% endif %}
+
+                        {% for page in candidates.paginator.page_range %}
+                        {% if candidates.number == page %}
+                        <li class="page-item active">
+                            <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                        </li>
+                        {% elif page > candidates.number|add:'-10' and page < candidates.number|add:'10' %} <li
+                            class="page-item">
+                            <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if candidates.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{candidates.next_page_number}}">Next</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disable">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                            {% endif %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block jslink %}
+<script>
+    function copyClipboard(copyurl) {
+        navigator.clipboard.writeText(copyurl);
+    }
+</script>
+{% endblock %}

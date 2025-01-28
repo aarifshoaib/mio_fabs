@@ -1,0 +1,93 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% block content %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row">
+            <div class="col">
+                <h3 class="page-title">Agent Management</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Agent Management</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Add Management Form</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Agent Name:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{agent.name}}" name="name" placeholder="Enter Agent Name" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Phone Number:</label>
+                                    <div class="col-lg-9">
+                                        <input type="number" value="{{agent.phone}}" name="phone" placeholder="Enter Phone Number" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">District:</label>
+                                    <div class="col-lg-9">
+                                        <select name="district" class="select" required>
+                                            <option value="">Select District</option>
+                                            {% for district in districts %}
+                                                {% if district  == agent.district %}
+                                                    <option value="{{district}}" selected>{{district}}</option>
+                                                {% else %}
+                                                    <option value="{{district}}">{{district}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Place:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{agent.place}}" name="place" placeholder="Enter Agent Place" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-primary btn-sm">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

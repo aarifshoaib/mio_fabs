@@ -1,0 +1,96 @@
+{% extends 'admin-base.html' %}
+{% block content %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row">
+            <div class="col">
+                <h3 class="page-title">Form</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Form</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Phone Number : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Form</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Candidate Name*:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{candidate.name}}" name="name" placeholder="Candidate Name" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Alternate Phone:</label>
+                                    <div class="col-lg-9">
+                                        <input type="number" value="{{candidate.phone2}}" name="phone2" placeholder="Altername Phone Number" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Phone No*:</label>
+                                    <div class="col-lg-9">
+                                        <input type="number" value="{{candidate.phone}}" name="phone" placeholder="Phone Number" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Asigned To*:</label>
+                                    <div class="col-lg-9">
+                                        <select name="asigned_to" class="select" required>
+                                            <option value="">Select Agent</option>
+                                            {% for agent in agents %}
+                                                {% if agent.user.username == candidate.asigned_to.user.username %}
+                                                    <option value="{{agent.user.username}}" selected>{{agent.user.username}}</option>
+                                                {% else %}
+                                                    <option value="{{agent.user.username}}">{{agent.user.username}} {{candidate.assigned_to.user.username}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="submit" class="btn btn-primary">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

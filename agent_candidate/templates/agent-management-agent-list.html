@@ -1,0 +1,163 @@
+{% extends 'admin-base.html' %}
+{% block content %}
+{% load base_tags %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Agent Details</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Agent Management</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search Filter -->
+    <div class="main-search">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" name="keyword" class="form-control" placeholder="Search...">
+                <div class="input-group-append">
+                    <input class="btn btn-primary" type="submit" value="Search">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="search-result">
+        {% if keyword %}
+            <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+        {% endif %}
+        <h6>{{result_cnt}} Results found | <a href="/agent-candidate/agent-management-agent-list" class="text-primary">Clear Filter</a></h6>
+    </div>
+    <!-- /Search Filter -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped custom-table mb-0 datatable">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px;">#</th>
+                            <th style="text-align:center">AgentID</th>
+                            <th style="text-align:center">AgentName </th>
+                            <th style="text-align:center">PhoneNumber </th>
+                            <th style="text-align:center">District </th>
+                            <th style="text-align:center">Place </th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in agents %}
+                            <tr>
+                                <td style="text-align:center">{{forloop.counter|forcounter_serialno:agents}}</td>
+                                <td style="text-align:center">{{agent.agent_id|column_num_to_name}}</td>
+                                <td style="text-align:center">{{agent.name}}</td>
+                                <td style="text-align:center">{{agent.phone}}</td>
+                                <td style="text-align:center">{{agent.district|null_handle}}</td>
+                                <td style="text-align:center">{{agent.place|null_handle}}</td>
+                                <td class="text-right">
+                                    <div class="dropdown dropdown-action">
+                                        <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="/agent-candidate/agent-management-new-agent/{{agent.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_policy{{agent.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <div class="modal custom-modal fade" id="delete_policy{{agent.id}}" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <div class="form-header">
+                                                <h3>Delete {{agent.name}}</h3>
+                                                <p>Are you sure want to delete?</p>
+                                            </div>
+                                            <div class="modal-btn delete-action">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <a href="/agent-candidate/agent-management-delete-agent/{{agent.id}}/{{return_url}}" class="btn btn-primary continue-btn">Delete</a>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                <div>
+                    {% if agents.has_other_pages %}
+                        <ul class="pagination">
+                            {% if agents.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{agents.previous_page_number}}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+
+
+                            {% for page in agents.paginator.page_range %}
+                                {% if agents.number == page %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% elif page > agents.number|add:'-10' and page < agents.number|add:'10' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if agents.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{agents.next_page_number}}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disable">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Page Content -->
+{% endblock %}

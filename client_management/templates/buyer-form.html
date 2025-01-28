@@ -1,0 +1,120 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+{% endblock %}
+{% block content %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row">
+            <div class="col">
+                <h3 class="page-title">Buyer Form</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Buyer Form</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Buyer Form</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="buying-selling-form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Select Employeer:</label>
+                                    <div class="col-lg-9">
+                                        <select name="employeer" id="select-state" required>
+                                            <option value="">Select Employer</option>
+                                            {% for employeer in employeers %}
+                                                {% if buyer.employeer.id == employeer.id %}
+                                                    <option value="{{employeer.id}}" selected>{{employeer.client_id}}-{{employeer.client_name}}</option>
+                                                {% else %}
+                                                    <option value="{{employeer.id}}">{{employeer.client_id}}-{{employeer.client_name}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Contact Number:</label>
+                                    <div class="col-lg-9">
+                                        <input type="number" value="{{buyer.contact_number}}" name="contact-number" placeholder="Contact Number" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Whatsapp Number:</label>
+                                    <div class="col-lg-9">
+                                        <input type="number" value="{{buyer.whatsapp_number}}" name="whatsapp-number" placeholder="Whatsapp Number" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Rrequirement:</label>
+                                    <div class="col-lg-9">
+                                        <textarea name="requirement" cols="30" rows="2" class="form-control" placeholder="Requirement">{{buyer.requirement}}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <input type="submit" id="submit-btn" class="btn btn-primary btn-sm">
+                            <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                              <span class="sr-only"></span>
+                            </div>
+                            <span id="error-message" class="text-danger"></span>
+                            <span id="file-load-message" class="text-success"></span>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+
+{% endblock %}

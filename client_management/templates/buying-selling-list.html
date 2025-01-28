@@ -1,0 +1,427 @@
+    {% extends 'admin-base.html' %}
+    {% load static %}
+    {% load base_tags %}
+    {% block csslink %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+    {% endblock %}
+    {% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Buying & Selling List</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Buying & Selling List</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search Filter -->
+    <div class="main-search">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" name="keyword" class="form-control" placeholder="Search...">
+                <div class="input-group-append">
+                    <input class="btn btn-primary" type="submit" value="Search">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="search-result">
+        {% if keyword %}
+            <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+        {% endif %}
+        <h6>{{result_cnt}} Results found | <a href="/client-management/buying-selling-list" class="text-primary">Clear Filter</a></h6>
+    </div>
+    <!-- /Search Filter -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped custom-table mb-0 datatable">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center">#</th>
+                            <th style="text-align:center">Date</th>
+                            <th style="text-align:center">Employeer</th>
+                            <th style="text-align:center">BusinessType</th>
+                            <th style="text-align:center">RentalDeposite</th>
+                            <th style="text-align:center">StaffNeed</th>
+                            <th style="text-align:center">TakeOverFee</th>
+                            <th style="text-align:center">Status</th>
+                            <th style="text-align:center">Image/Video</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for buy_sell in buying_selling %}
+                        <tr>
+                            <td style="text-align:center">BS{{forloop.counter|forcounter_serialno:buying_selling}}</td>
+                            <td style="text-align:center">{{buy_sell.submit_date}}</td>
+                            <td style="text-align:center">
+                                <a href="#" class="badge bg-inverse-success">{{buy_sell.employeer.client_name}}</a>
+                            </td>
+                            <td style="text-align:center">{{buy_sell.business_type}}</td>
+                            <td style="text-align:center">{{buy_sell.rental_deposite}}</td>
+                            <td style="text-align:center">{{buy_sell.staff_needed}}</td>
+                            <td style="text-align:center">{{buy_sell.take_over_fee}}</td>
+                            <td style="text-align:center">{{buy_sell.status}}</td>
+                            <td style="text-align:center">
+                                <a href="#" class="text-warning" data-toggle="modal" data-target="#more_files{{buy_sell.id}}">files <i class="fa fa-download"></i></a>
+                                <div id="more_files{{buy_sell.id}}" class="modal custom-modal fade" role="dialog">
+                                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> {{buy_sell.employeer.client_id}} - {{buy_sell.employeer.client_name}}</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form>
+                                                    <div class="form-scroll">
+                                                        <div class="card">
+                                                            <div class="card-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group form-focus focused">
+                                                                            <textarea  cols="30" rows="2" class="form-control floating" placeholder="Spouse Details" readonly>{{buy_sell.sales_datails}}</textarea>
+                                                                            <label class="focus-label">Sales Details</label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group form-focus focused">
+                                                                            <textarea  cols="30" rows="2" class="form-control floating" placeholder="Company Details" readonly>{{buy_sell.company_datails}}</textarea>
+                                                                            <label class="focus-label">Company Details</label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group form-focus focused">
+                                                                            <textarea  cols="30" rows="2" class="form-control floating" placeholder="Recommended Buyers" readonly>{{buy_sell.recommended_buyers}}</textarea>
+                                                                            <label class="focus-label">Recommended Buyers</label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group form-focus focused">
+                                                                            <textarea  cols="30" rows="2" class="form-control floating" placeholder="Remarks" readonly>{{buy_sell.remarks}}</textarea>
+                                                                            <label class="focus-label">Remarks</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card">
+                                                            <div class="card-body">
+                                                                <h3 class="card-title">Uploaded Files </h3>
+                                                                <div>
+                                                                    <ul class="files-list">
+                                                                        {% if buy_sell.video %}
+                                                                        <li>
+                                                                            <div class="files-cont">
+                                                                                <div class="file-type">
+                                                                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                                </div>
+                                                                                <div class="files-info">
+                                                                                    <span class="file-name text-ellipsis"><a href="#">{{buy_sell.video.name|get_filename}}</a></span>
+                                                                                    <span class="file-author"><a href="{{buy_sell.video.url}}" target="_blank">{{buy_sell.video.name|get_filename}}</a></span>
+                                                                                    <div class="file-size">Size: {{buy_sell.video.size|bytes_to_mb}}</div>
+                                                                                </div>
+                                                                                <ul class="files-action">
+                                                                                    <li class="dropdown dropdown-action">
+                                                                                        <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                                                            <a class="dropdown-item" target="_blank" href="{{buy_sell.video.url}}">Download</a>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </li>
+                                                                        {% endif %}
+                                                                        {% for attach in buy_sell.attachments.all %}
+                                                                        <li>
+                                                                            <div class="files-cont">
+                                                                                <div class="file-type">
+                                                                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                                </div>
+                                                                                <div class="files-info">
+                                                                                    <span class="file-name text-ellipsis"><a href="#">{{attach.attachments.name|get_filename}}</a></span>
+                                                                                    <span class="file-author"><a href="{{attach.attachments.url}}" target="_blank">{{attach.attachments.name|get_filename}}</a></span>
+                                                                                    <div class="file-size">Size: {{attach.attachments.size|bytes_to_mb}}</div>
+                                                                                </div>
+                                                                                <ul class="files-action">
+                                                                                    <li class="dropdown dropdown-action">
+                                                                                        <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                                                            <a class="dropdown-item" target="_blank" href="{{attach.attachments.url}}">Download</a>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                        
+                                
+                            </td>
+                            
+                            <td class="text-right">
+                                <div class="dropdown dropdown-action">
+                                    <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" onclick="selected_buyer_func('{{buy_sell.id}}')" data-target="#share-whatsapp"><i class="fa fa-user m-r-5"></i> Share</a>
+                                        <a class="dropdown-item" href="/client-management/buying-selling-form/{{buy_sell.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{buy_sell.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <div class="modal custom-modal fade" id="delete_project{{buy_sell.id}}" role="dialog">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <div class="form-header">
+                                            <h3>Delete BuySell-ID : {{buy_sell.id}}</h3>
+                                            <p>Are you sure want to delete?</p>
+                                        </div>
+                                        <div class="modal-btn delete-action">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <a href="/client-management/delete-buying-selling/{{buy_sell.id}}/{{return_url}}" class="btn btn-primary continue-btn">Delete</a>
+                                                </div>
+                                                <div class="col-6">
+                                                    <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table> <br>
+
+                <div id="share-whatsapp" class="modal custom-modal fade" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="seller-name"></h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="share-seller-to-buyer">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Share to <span class="text-danger">*</span></label>
+                                                <select name="buyer" class="form-control" required>
+                                                    <option value="">Select Buyer</option>
+                                                    {% for buyc in buyers_contact %}
+                                                        <option value="{{buyc.id}}">{{buyc.employeer.client_name}} ({{buyc.whatsapp_number}})</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Remarks<span class="text-danger">*</span></label>
+                                                <input type="text" name="remarks" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="hidden" class="form-control" id="hidden-seller" name="hidden-seller">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="submit-section">
+                                        <input type="submit" id="submit-btn" class="btn btn-primary" value="Send">
+                                        <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                            <span class="sr-only"></span>
+                                        </div>
+                                        <span id="error-message" class="text-danger"></span>
+                                        <span id="file-load-message" class="text-success"></span>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    {% if buying_selling.has_other_pages %}
+                        <ul class="pagination">
+                            {% if buying_selling.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{buying_selling.previous_page_number}}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+
+
+                            {% for page in buying_selling.paginator.page_range %}
+                                {% if buying_selling.number == page %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% elif page > buying_selling.number|add:'-5' and page < buying_selling.number|add:'5' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if buying_selling.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{buying_selling.next_page_number}}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disable">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block jslink %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+        $('select').selectize({
+        });
+    });
+    </script>
+    <script>
+        function selected_buyer_func(sellerid){
+            let seller_name = document.getElementById('seller-name');
+            let hidden_input = document.getElementById('hidden-seller');
+            $.ajax({
+                    type: 'GET',
+                    url: `/client-management/seller-info-whatsapp/${sellerid}`,
+                    success: function(res){
+                                seller_name.innerHTML = res.seller;
+                                hidden_input.setAttribute('value', sellerid);
+                            },
+                        error: function(error) {
+                            seller_name.innerHTML = '<p class="text-danger">Fetching Error (Contact IT team)</p>'
+                    }
+                });
+        }
+    </script>
+
+    <script>
+        function send_whatsapp_message(msgdata, phone_num, video=0){
+            let whatsapp_link = `https://api.whatsapp.com/send?phone=${phone_num}&text=`
+            let whatsapp_message = msgdata;
+            console.log(whatsapp_message);
+            if (video!=0){
+                whatsapp_message = whatsapp_message + "*Audio:* " + encodeURIComponent(video) + "&app_absent=0";
+            }else{
+                whatsapp_message = whatsapp_message + "&app_absent=0";
+            }
+            window.open(whatsapp_link+whatsapp_message, '_blank');
+        };
+
+        function getCookie(name) {  
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+            }
+        var csrftoken = getCookie('csrftoken');
+        $("#share-seller-to-buyer").submit(function(e) {
+            e.preventDefault();
+            let get_spinner = document.getElementById('submit-spinner');
+            let submit_btn = document.getElementById('submit-btn');
+            let error_message= document.getElementById('error-message');
+            let file_load_message= document.getElementById('file-load-message');
+            submit_btn.setAttribute('disabled', '')
+            get_spinner.style.display = '';
+            var formData = new FormData(this);
+            formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val());
+            let hidden_input = document.getElementById('hidden-seller').value;
+            $.ajax({
+                    type: 'POST',
+                    url: `/client-management/buyer-info-whatsapp/${hidden_input}`,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                        },
+                    mimeType: 'multipart/form-data',
+                    success: function(res){
+                                get_spinner.style.display = 'none';
+                                submit_btn.removeAttribute('disabled', '');
+                                res = JSON.parse(res)
+                                console.log(res)
+                                if (res.status != 'success'){
+                                    error_message.innerText = res.msg;
+                                    file_load_message.innerText = '';
+                                    // window.location.reload();
+                                }else{
+                                    // window.location.reload();
+                                    console.log(res)
+                                    send_whatsapp_message(res.seller_data, res.phone);
+                                }
+                            },
+                        error: function(error) {
+                            get_spinner.style.display = 'none';
+                            submit_btn.removeAttribute('disabled', '');
+                            // window.location.reload();
+                            console.log(error);
+                    }
+                });
+        })
+    </script>
+
+    {% endblock %}

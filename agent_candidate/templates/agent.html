@@ -1,0 +1,331 @@
+{% extends 'admin-base.html' %}
+{% block content %}
+<div class="page-header">
+    <div class="row">
+        <div class="col">
+            <h3 class="page-title">Agent Form</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Agent</a></li>
+                <li class="breadcrumb-item active">Agent Form</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Agent Form</h4>
+            </div>
+            <div class="card-body">
+                <h4 class="card-title">Candidate Information</h4>
+                <form method="post">
+                    <div class="row">
+                        {% csrf_token %}
+                        <div class="col-xl-6">
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Name:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.name}}" name="candidate_name" placeholder="Name" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">DOB:</label>
+                                <div class="col-lg-9">
+                                    <div class="cal-icon">
+                                        <input type="text" value="{{candidate_dob}}" name="candidate_dob" class="form-control datetimepicker">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Highest Education Details:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{agent.candidate_high_edu}}" name="candidate_high_edu" placeholder="Highest Education Details" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Country Of Experience:</label>
+                                <div class="col-lg-9">
+                                    <select id="countries" name="country_experience" multiple="multiple">
+                                        <option value="">Select Country</option>
+                                        {% for country in countries %}
+                                            {% if country.country_name in countries_list %}
+                                                <option value="{{country.country_name}}" selected>{{country.country_name}}</option>
+                                            {% else %}
+                                                <option value="{{country.country_name}}">{{country.country_name}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Total Year Of Experience:</label>
+                                <div class="col-lg-9">
+                                    <input type="number" value="{{agent.specify_country_exp}}" name="specify_country_exp" placeholder="Total Year Of Experience" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Employee Preferred Country:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{agent.preferred_country}}" name="preferred_country" placeholder="Employee Preferred Country" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Employee Current Location:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{agent.current_location}}" name="current_location" placeholder="Employee Current Location" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-6">
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Phone Number:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.phone}}" name="phone" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Alt Phone No:</label>
+                                <div class="col-lg-9">
+                                    <input type="number" value="{{candidate.phone2}}" name="phone2" placeholder="Alternate Phone Number" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Job Title:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{agent.job_title}}" name="job_title" placeholder="Job Title/Designation" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Any Physical Challenge:</label>
+                                <div class="col-lg-9">
+
+                                    <div class="form-check form-check-inline">
+                                        {% if agent.any_physical_challenge %}
+                                            <input onclick="physicalCheck(1)" class="form-check-input" checked type="radio" name="any_physical_challenge" id="Physical-Yes" value="y">
+                                            <label class="form-check-label" for="Physical-Yes">
+                                            Yes
+                                            </label>
+                                        {% else %}
+                                            <input onclick="physicalCheck(1)" class="form-check-input" type="radio" name="any_physical_challenge" id="Physical-Yes" value="y">
+                                            <label class="form-check-label" for="Physical-Yes">
+                                            Yes
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {% if agent.any_physical_challenge == False %}
+                                            <input onclick="physicalCheck(0)" class="form-check-input" checked type="radio" name="any_physical_challenge" id="Physical-No" value="n">
+                                            <label class="form-check-label" for="Physical-No">
+                                            No
+                                            </label>
+                                        {% else %}
+                                            <input onclick="physicalCheck(0)" class="form-check-input" type="radio" name="any_physical_challenge" id="Physical-No" value="n">
+                                            <label class="form-check-label" for="Physical-No">
+                                            No
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    {% if agent.any_physical_challenge %}
+                                    <div class="form-group row" id="physical-inputs">
+                                        <label class="col-lg-3 col-form-label">Specify:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{agent.specify_physical_challenge}}" id="physical-specify" name="specify_physical_challenge" placeholder="Specify" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="form-group row" id="physical-inputs" style="display: none;">
+                                        <label class="col-lg-3 col-form-label">Specify:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{agent.specify_physical_challenge}}" id="physical-specify" name="specify_physical_challenge" placeholder="Specify" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Any Relative or Close Friends Staying in Singapore :</label>
+                                <div class="col-lg-9">
+                                    <div class="form-check form-check-inline">
+                                        {% if agent.any_relatives %}
+                                            <input onclick="relativesCheck(1)" class="form-check-input" checked type="radio" name="any_relatives" id="relatives-Yes" value="y">
+                                            <label class="form-check-label" for="Marital-Yes">
+                                            Yes
+                                            </label>
+                                        {% else %}
+                                            <input onclick="relativesCheck(1)" class="form-check-input" type="radio" name="any_relatives" id="relatives-Yes" value="y">
+                                            <label class="form-check-label" for="Marital-Yes">
+                                            Yes
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {% if agent.any_relatives == False %}
+                                            <input onclick="relativesCheck(0)" class="form-check-input" checked type="radio" name="any_relatives" id="relatives-No" value="n">
+                                            <label class="form-check-label" for="Marital-No">
+                                            No
+                                            </label>
+                                        {% else %}
+                                            <input onclick="relativesCheck(0)" class="form-check-input" type="radio" name="any_relatives" id="relatives-No" value="n">
+                                            <label class="form-check-label" for="Marital-No">
+                                            No
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    {% if agent.any_relatives %}
+                                    <div class="form-group row" id="relatives-inputs">
+                                        <label class="col-lg-3 col-form-label">Specify:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{agent.specify_any_relatives}}" id="relative-specify" name="specify_any_relatives" placeholder="Specify About Him" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="form-group row" id="relatives-inputs" style="display: none;">
+                                        <label class="col-lg-3 col-form-label">Specify:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{agent.specify_any_relatives}}" id="relative-specify" name="specify_any_relatives" placeholder="Specify About Him" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Marital Status:</label>
+                                <div class="col-lg-9">
+                                    <div class="form-check form-check-inline">
+                                        {% if agent.marital_status %}
+                                            <input onclick="martialCheck(1)" class="form-check-input" checked type="radio" name="marital_status" id="Marital-Yes" value="y">
+                                            <label class="form-check-label" for="Marital-Yes">
+                                            Yes
+                                            </label>
+                                        {% else %}
+                                            <input onclick="martialCheck(1)" class="form-check-input" type="radio" name="marital_status" id="Marital-Yes" value="y">
+                                            <label class="form-check-label" for="Marital-Yes">
+                                            Yes
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {% if agent.marital_status == False %}
+                                            <input onclick="martialCheck(0)" class="form-check-input" checked type="radio" name="marital_status" id="Marital-No" value="n">
+                                            <label class="form-check-label" for="Marital-No">
+                                            No
+                                            </label>
+                                        {% else %}
+                                            <input onclick="martialCheck(0)" class="form-check-input" type="radio" name="marital_status" id="Marital-No" value="n">
+                                            <label class="form-check-label" for="Marital-No">
+                                            No
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    {% if agent.marital_status %}
+                                    <div class="form-group row" id="marital-inputs">
+                                        <label class="col-lg-3 col-form-label">Highest Education:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{agent.spouse_highest_edu}}" id="spouse-input" name="spouse_highest_edu" placeholder="Spouse Highest Education" class="form-control">
+                                        </div>
+                                        <label class="col-lg-3 col-form-label">DOB:</label>
+                                        <div class="col-lg-9">
+                                            <div class="cal-icon">
+                                                <input type="text" value="{{spouse_dob}}" id="education-input" name="spouse_dob" class="form-control datetimepicker">
+                                            </div>
+                                            <!-- <input type="date" value="{{spouse_dob}}" id="education-input" name="spouse_dob" placeholder="Date of Birth" class="form-control"> -->
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="form-group row" id="marital-inputs" style="display: none;">
+                                        <label class="col-lg-3 col-form-label">Highest Education:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{agent.spouse_highest_edu}}" id="spouse-input" name="spouse_highest_edu" placeholder="Spouse Highest Education" class="form-control">
+                                        </div>
+                                        <label class="col-lg-3 col-form-label">DOB:</label>
+                                        <div class="col-lg-9">
+                                            <input type="date" value="{{spouse_dob}}" id="education-input" name="spouse_dob" placeholder="Date of Birth" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Agent Selection Status:</label>
+                                <div class="col-lg-9">
+                                    <div class="form-check form-check-inline">
+                                        {% if agent.select_status %}
+                                            <input onclick="selectionStatus(0)" class="form-check-input" checked type="radio" name="select_status" id="selection-Yes" value="y">
+                                            <label class="form-check-label" for="selection-Yes">
+                                            Yes
+                                            </label>
+                                        {% else %}
+                                            <input onclick="selectionStatus(0)" class="form-check-input" type="radio" name="select_status" id="selection-Yes" value="y">
+                                            <label class="form-check-label" for="selection-Yes">
+                                            Yes
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {% if agent.select_status == False %}
+                                            <input onclick="selectionStatus(1)" class="form-check-input" checked type="radio" name="select_status" id="selection-No" value="n">
+                                            <label class="form-check-label" for="selection-No">
+                                            No
+                                            </label>
+                                        {% else %}
+                                            <input onclick="selectionStatus(1)" class="form-check-input" type="radio" name="select_status" id="selection-No" value="n">
+                                            <label class="form-check-label" for="selection-No">
+                                            No
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    {% if agent.select_status == False %}
+                                    <div class="form-group row" id="selection-inputs">
+                                        <label class="col-lg-3 col-form-label">Reason:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{agent.specify_select_status}}" id="selection-reason" name="specify_select_status" placeholder="Reason?" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="form-group row" id="selection-inputs" style="display: none;">
+                                        <label class="col-lg-3 col-form-label">Reason:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{agent.specify_select_status}}" id="selection-reason" name="specify_select_status" placeholder="Reason?" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="text-left">
+                        <a href="{{back}}" class="btn btn-primary">Back</a>
+                        <input type="submit" class="btn btn-primary" value="Submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

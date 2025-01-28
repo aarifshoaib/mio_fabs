@@ -1,0 +1,389 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+
+<style>
+    #files-area {
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .file-block {
+      border-radius: 10px;
+      background-color: rgba(144, 163, 203, 0.2);
+      margin: 5px;
+      color: initial;
+      display: flex;
+    }
+    .file-block > span.name {
+      padding-right: 10px;
+      width: max-content;
+      display: inline-flex;
+    }
+
+    .file-delete {
+      display: flex;
+      width: 24px;
+      color: initial;
+      background-color: #6eb4ff00;
+      font-size: large;
+      justify-content: center;
+      margin-right: 3px;
+      cursor: pointer;
+    }
+    .file-delete:hover {
+      background-color: rgba(144, 163, 203, 0.2);
+      border-radius: 10px;
+    }
+    .file-delete > span {
+      transform: rotate(45deg);
+    }
+</style>
+
+{% endblock %}
+{% block content %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row">
+            <div class="col">
+                <h3 class="page-title">Buying & Selling</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Buying & Selling Form</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Buying & Selling Form</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="buying-selling-form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Date:</label>
+                                    <div class="col-lg-9">
+                                        <div class="cal-icon">
+                                            <input type="text" value="{{edit_buy_sell_date}}" max="2999-12-31" name="date" placeholder="Enter Date" class="form-control datetimepicker" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">BusinessType:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{edit_buy_sell.business_type}}" name="business-type" placeholder="BusinessType" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Rental & Deposite:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{edit_buy_sell.rental_deposite}}" name="rental-deposite" placeholder="Rental and Deposite" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Staff Needed:</label>
+                                    <div class="col-lg-9">
+                                        <input type="number" value="{{edit_buy_sell.staff_needed}}" name="staff-needed" placeholder="Staff Needed" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Take Over Fee:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{edit_buy_sell.take_over_fee}}" name="take-over-fee" placeholder="Take Over Fee" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Remarks:</label>
+                                    <div class="col-lg-9">
+                                        <textarea name="remarks" cols="30" rows="2" class="form-control" placeholder="Remarks">{{edit_buy_sell.remarks}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Status:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{edit_buy_sell.status}}" name="status" placeholder="Status" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Select Employeer:</label>
+                                    <div class="col-lg-9">
+                                        <select name="employeer" id="select-state" required>
+                                            <option value="">Select Employer</option>
+                                            {% for employeer in employeers %}
+                                                {% if edit_buy_sell.employeer.id == employeer.id %}
+                                                    <option value="{{employeer.id}}" selected>{{employeer.client_id}}-{{employeer.client_name}}</option>
+                                                {% else %}
+                                                    <option value="{{employeer.id}}">{{employeer.client_id}}-{{employeer.client_name}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Address:</label>
+                                    <div class="col-lg-9">
+                                        <textarea name="address" cols="30" rows="2" class="form-control" placeholder="Enter Address">{{edit_buy_sell.address}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Sales Details:</label>
+                                    <div class="col-lg-9">
+                                        <textarea name="sales-details" cols="30" rows="2" class="form-control" placeholder="Sales Details">{{edit_buy_sell.sales_details}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Company Details:</label>
+                                    <div class="col-lg-9">
+                                        <textarea name="company-details" cols="30" rows="2" class="form-control" placeholder="Company Details">{{edit_buy_sell.company_details}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Recommended Buyers:</label>
+                                    <div class="col-lg-9">
+                                        <textarea name="recommended-buyers" cols="30" rows="2" class="form-control" placeholder="Recommended Buyers">{{edit_buy_sell.recommended_buyers}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Upload Video
+                                    {% if edit_buy_sell.video %}
+                                    <small class="text-muted">(Uploaded File: <a href="{{edit_buy_sell.video.url}}" title="{{edit_buy_sell.video}}">Download)</a>
+                                    </small>
+                                    {% endif %}
+                                    :</label>
+                                    <div class="col-lg-9">
+                                        <input type="file" name="video" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Upload Image:
+                                    </label>
+                                    <p class="mt-5 text-center">
+                                      <label for="attachment">
+                                          <a class="btn btn-primary text-light" role="button" aria-disabled="false">+ Upload Attachements</a>
+
+                                      </label>
+                                      <input type="file" name="file[]" id="attachment" style="visibility: hidden; position: absolute;" multiple/>
+                                    </p>
+                                    <p id="files-area">
+                                        <span id="filesList">
+                                            <span id="files-names"></span>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12">
+                                {% if edit_buy_sell.attachments.all %}
+                                  <h4> <u>Uploaded Files</u></h4>
+                                  {% for up_file in edit_buy_sell.attachments.all %}
+                                    <h6>
+                                      <a href="{{up_file.attachments.url}}" target="_blank">{{forloop.counter}}. {{up_file.attachments.name|get_filename}}</a>
+                                    </h6>
+                                  {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <input type="submit" id="submit-btn" class="btn btn-primary btn-sm">
+                            <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                              <span class="sr-only"></span>
+                            </div>
+                            <span id="error-message" class="text-danger"></span>
+                            <span id="file-load-message" class="text-success"></span>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+	const dt = new DataTransfer(); // Permet de manipuler les fichiers de l'input file
+
+$("#attachment").on('change', function(e){
+
+	// Ajout des fichiers dans l'objet DataTransfer
+	for (let file of this.files) {
+        const fileSize = file.size / 1024 / 1024;
+        var chkfile = false;
+        console.log(fileSize);
+        if (fileSize > 25){
+            alert(file.name + '\nFile size exceeds 25 MiB');
+            dt.item.remove(file);
+            chkfile = true;
+        }
+        if (chkfile == false){
+            dt.items.add(file);
+        }
+	};
+    for(var i = 0; i < this.files.length; i++){
+		let fileBloc = $('<span/>', {class: 'file-block'}),
+			 fileName = $('<span/>', {class: 'name', text: this.files.item(i).name});
+		fileBloc.append('<span class="file-delete"><span>+</span></span>')
+			.append(fileName);
+		$("#filesList > #files-names").append(fileBloc);
+	}
+	// Mise à jour des fichiers de l'input file après ajout
+	this.files = dt.files;
+
+	// EventListener pour le bouton de suppression créé
+	$('span.file-delete').click(function(){
+		let name = $(this).next('span.name').text();
+		// Supprimer l'affichage du nom de fichier
+		$(this).parent().remove();
+
+		for(let i = 0; i < dt.items.length; i++){
+			// Correspondance du fichier et du nom
+
+
+            if(name === dt.items[i].getAsFile().name){
+				// Suppression du fichier dans l'objet DataTransfer
+				dt.items.remove(i);
+				continue;
+			}
+		}
+		// Mise à jour des fichiers de l'input file après suppression
+		document.getElementById('attachment').files = dt.files;
+	});
+});
+</script>
+
+
+<!-- ..................... -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+<!-- --------------------------------------------------------- -->
+
+<script>
+  function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie != '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+      }
+  var csrftoken = getCookie('csrftoken');
+  $("#buying-selling-form").submit(function(e) {
+      e.preventDefault();
+      let get_spinner = document.getElementById('submit-spinner');
+      let submit_btn = document.getElementById('submit-btn');
+      let error_message= document.getElementById('error-message');
+      let file_load_message= document.getElementById('file-load-message');
+      submit_btn.setAttribute('disabled', '')
+      get_spinner.style.display = '';
+      var formData = new FormData(this);
+      formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
+      if (window.location.pathname == '/client-management/buying-selling-form'){
+          // Inserting
+          $.ajax({
+                  type: 'POST',
+                  url: '/client-management/buying-selling-form-api',
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  beforeSend: function(xhr, settings) {
+                          xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                      },
+                  mimeType: 'multipart/form-data',
+                  success: function(res){
+                            get_spinner.style.display = 'none';
+                            submit_btn.removeAttribute('disabled', '');
+                            res = JSON.parse(res)
+                            if (res.status != 'success'){
+                                error_message.innerText = res.msg;
+                                file_load_message.innerText = '';
+                            }else{
+                                window.location.reload();
+                            }
+                          },
+                      error: function(error) {
+                        get_spinner.style.display = 'none';
+                        submit_btn.removeAttribute('disabled', '');
+                        window.location.reload();
+                  }
+              });
+        } else{
+          // Updating
+          $.ajax({
+                    type: 'POST',
+                    url: '/client-management/buying-selling-form-api/{{edit_buy_sell.id}}/{{return_url}}',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                        },
+                    mimeType: 'multipart/form-data',
+                    success: function(res){
+                                get_spinner.style.display = 'none';
+                                submit_btn.removeAttribute('disabled', '');
+                                res = JSON.parse(res)
+                                if (res.status != 'success'){
+                                    error_message.innerText = res.msg;
+                                    file_load_message.innerText = '';
+                                }else{
+                                    window.location = res.return_url;
+                                }
+                            },
+                        error: function(error) {
+                            get_spinner.style.display = 'none';
+                            submit_btn.removeAttribute('disabled', '');
+                            error_message.innerText = error;
+                    }
+                });
+        }
+    })
+</script>
+
+{% endblock %}

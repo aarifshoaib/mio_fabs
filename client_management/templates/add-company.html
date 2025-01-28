@@ -1,0 +1,185 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+{% endblock %}
+{% block content %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row">
+            <div class="col">
+                <h3 class="page-title">Add New Company</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Client Management</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Add New Company</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Select Client:</label>
+                                    <div class="col-lg-9">
+                                        <select name="client" id="select-state" required>
+                                            <option value="">Select Client</option>
+                                            {% for client in clients %}
+                                                {% if client.client_name == edit_client.client.client_name %}
+                                                    <option value="{{client.id}}" selected>{{client.client_id}}-{{client.client_name}}</option>
+                                                {% else %}
+                                                    <option value="{{client.id}}">{{client.client_id}}-{{client.client_name}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">ROC:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{edit_client.roc|none_handle}}" name="roc" placeholder="ROC Number" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Contact Person:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{edit_client.contact_person|none_handle}}" name="contact-person" placeholder="Contact Person" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Select Singpass/QR:</label>
+                                    <div class="col-lg-9">
+                                        <select name="singpass" onchange="singpassfunc(value);">
+                                            <option value="">Select Singpass/QR</option>
+                                            {% if client.qr_code %}
+                                                <option value="singpass">Singpass</option>
+                                                <option value="qr-code" selected>QR Code</option>
+                                            {% else %}
+                                                <option value="singpass">Singpass</option>
+                                                <option value="qr-code">QR Code</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">DirectorName:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{edit_client.director_name|none_handle}}" name="director-name" placeholder="Director Name" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Date of Incorp:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{date_of_incorp}}" name="date-of-incorp" placeholder="Date of Incorporation" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Year End:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{finance_year_end}}" name="fin-year-end" placeholder="Year End" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Company Name:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{edit_client.company_name}}" name="comp-name" placeholder="Company Name" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Email ID:</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" value="{{edit_client.email|none_handle}}" name="email" placeholder="Company Email ID" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Contact Number:</label>
+                                    <div class="col-lg-9">
+                                        <input type="number" value="{{edit_client.contact_number}}" name="contact-number" placeholder="Contact Number" class="form-control">
+                                    </div>
+                                </div>
+
+                                {% if client.qr_code %}
+                                    <div class="form-group row" id="singpass-id" style="display: none;">
+                                        <label class="col-lg-3 col-form-label">Singpass ID:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{edit_client.singpass_id|none_handle}}" name="singpass-id" placeholder="Singpass ID" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row" id="singpass-password" style="display: none;">
+                                        <label class="col-lg-3 col-form-label">Password:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{edit_client.singpass_password|none_handle}}" name="singpass-password" placeholder="Enter Password" class="form-control">
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="form-group row" id="singpass-id">
+                                        <label class="col-lg-3 col-form-label">Singpass ID:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{edit_client.singpass_id|none_handle}}" name="singpass-id" placeholder="Singpass ID" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row" id="singpass-password">
+                                        <label class="col-lg-3 col-form-label">Password:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{edit_client.singpass_password|none_handle}}" name="singpass-password" placeholder="Enter Password" class="form-control">
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                            <div class="submit-section">
+                                <input type="submit" value="Submit" class="btn btn-primary submit-btn">
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+{% endblock %}

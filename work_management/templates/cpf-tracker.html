@@ -1,0 +1,276 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+{% block csslink %}
+<style>
+.table-wrapper {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    height: fit-content;
+    max-height: 70vh;
+}
+
+table {
+    min-width: max-content;
+    border-collapse: separate;
+    border-spacing: 0px;
+}
+
+table thead {
+    position: sticky;
+    top: 0px;
+    background-color: #2a2b2b;
+    color: rgb(255, 255, 255);
+    z-index: 5;
+}
+
+table th {
+    position: sticky;
+    top: 0px;
+    background-color: #2a2b2b;
+    color: rgb(255, 255, 255);
+}
+
+.fixed-td {
+    position: sticky;
+    min-width: 20px;
+    z-index: 2;
+    left: 0;
+    background-color: #fff;
+}
+.fixed-hd {
+    position: sticky;
+    min-width: 20px;
+    top: 0;
+    z-index: 3;
+}
+.left-top-td {
+    position: sticky;
+    min-width: 20px;
+    z-index: 2;
+    left: 0;
+}
+
+</style>
+{% endblock %}
+{% block content %}
+<div class="content container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">CPF Tracker</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">CPF Tracker</li>
+                </ul>
+            </div>
+            <div class="col-auto float-right ml-auto">
+                <div class="btn-group btn-group-sm">
+                    <a href="/work-management/renewal-tracker" class="btn add-btn">
+                        <i class="fa fa-edit"></i>RenewalTracker
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>{{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search Filter -->
+    <div class="main-search">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" name="keyword" class="form-control" placeholder="Search... (employeer search: emp=1)">
+                <div class="input-group-append">
+                    <input class="btn btn-primary" type="submit" value="Search">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="search-result">
+        {% if keyword %}
+            <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+        {% endif %}
+        <h6>{{result_cnt}} Results found | <a href="/work-management/cpf-tracker-tracking-list" class="text-primary">Clear Filter</a></h6>
+    </div>
+    <!-- /Search Filter -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive table-wrapper" id="table-fixed-header">
+                <table class="table table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center" colspan="1">Client</th>
+                            <th style="text-align:center" colspan="1" class="fixed-hd left-top-td">Company</th>
+                            <th style="text-align:center" colspan="1">ROC</th>
+                            <th style="text-align:center" colspan="1"><a href="/work-management/cpf-tracker-tracking-list?keyword=hr_service">HR</a></th>
+                            <th style="text-align:center" colspan="1">EP</th>
+                            <th style="text-align:center" colspan="1">TEP</th>
+                            <th style="text-align:center" colspan="1">SP</th>
+                            <th style="text-align:center" colspan="1">WP</th>
+                            <th style="text-align:center" colspan="1">NTS</th>
+                            <th style="text-align:center" colspan="1">PRC</th>
+                            <th style="text-align:center" colspan="1">TWP</th>
+                            {% for pm in previous_months %}
+                                <th style="text-align:center" colspan="3">{{pm}}</th>
+                            {% endfor %}
+                            <th style="text-align:center" colspan="3">Local Count</th>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+                            <td style="text-align:center"></td>
+
+                            {% for pm in previous_months %}
+                            <td style="text-align:center" colname="{{pm}}-levy">LEVY</td>
+                            <td style="text-align:center" colname="{{pm}}-full">FULL</td>
+                            <td style="text-align:center" colname="{{pm}}-part">PART</td>
+                            {% endfor%}
+
+                            <td style="text-align:center">NEED</td>
+                            <td style="text-align:center">AVAIL</td>
+                            <td style="text-align:center">STATUS</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comp in companies %}
+                        <tr>
+                            <td style="text-align:center">{{comp.client.client_id}} - {{comp.client.client_name}}</td>
+                            <td style="text-align:center" class="fixed-td"><a href="/work-management/cpf-tracker-hr-tracking-list/{{comp.id}}">{{comp.company_id}} - {{comp.company_name}}</a></td>
+                            <td style="text-align:center">{{comp.roc}}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_hr_service">{{ comp|cpf_tracker_data_exist:"hr_service" }}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_ep">{{ comp|cpf_tracker_data_exist:"ep" }}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_tep">{{ comp|cpf_tracker_data_exist:"tep" }}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_sp">{{ comp|cpf_tracker_data_exist:"sp" }}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_wp">{{ comp|cpf_tracker_data_exist:"wp" }}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_nts">{{ comp|cpf_tracker_data_exist:"nts" }}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_prc">{{ comp|cpf_tracker_data_exist:"prc" }}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_twp">{{ comp|cpf_tracker_data_exist:"twp" }}</td>
+                            {% for pm in previous_months %}
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_{{pm}}_levy">{% with comp.id|add:"_"|add:pm|add:"_levy" as col %} {{ comp|cpf_tracker_data_exist:col }} {% endwith %}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_{{pm}}_full">{% with comp.id|add:"_"|add:pm|add:"_full" as col %} {{ comp|cpf_tracker_data_exist:col }} {% endwith %}</td>
+                            <td style="text-align:center" class="editable" contenteditable="true" id="{{comp.id}}_{{pm}}_part">{% with comp.id|add:"_"|add:pm|add:"_part" as col %} {{ comp|cpf_tracker_data_exist:col }} {% endwith %}</td>
+                            {% endfor %}
+                            <td style="text-align:center" id="{{comp.id}}_localcount_need">{{ comp|local_count_calculator:"need" }}</td>
+                            <td style="text-align:center" id="{{comp.id}}_localcount_avail">{{ comp|local_count_calculator:"avail" }}</td>
+                            {% with comp|local_count_calculator:"status" as col %}
+                                {% if col == 'Clear' %}
+                                    <td style="text-align:center" id="{{comp.id}}_localcount_status" class="text-success">{{col}}</td>
+                                {% elif col == 'Check' %}
+                                    <td style="text-align:center" id="{{comp.id}}_localcount_status" class="text-danger">{{col}}</td>
+                                {% else %}
+                                    <td style="text-align:center" id="{{comp.id}}_localcount_status"></td>
+                                {% endif %}
+                            {% endwith %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table> <br>
+
+                <div>
+                    {% if companies.has_other_pages %}
+                        <ul class="pagination">
+                            {% if companies.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{companies.previous_page_number}}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+
+
+                            {% for page in companies.paginator.page_range %}
+                                {% if companies.number == page %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% elif page > companies.number|add:'-5' and page < companies.number|add:'5' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if companies.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{companies.next_page_number}}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disable">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Enter'){
+            e.preventDefault();
+        }
+    });
+
+    $('.editable').on('blur', function() {
+            var row = $(this).closest('td');
+            var cell_id = row[0].getAttribute('id');
+            var cell_value = row.text();
+
+            $.ajax({
+                type: 'GET',
+                url: `/work-management/cpf-tracker-tracking-update`,
+                data: {"cellid": cell_id, "cellvalue": cell_value},
+                success: function(res){
+                            if (res.status != 'success'){
+                                row[0].value = cell_value;
+                            }else{
+                                var compid = res.compid;
+                                document.getElementById(`${compid}_localcount_need`).innerText = res.local_count[0];
+                                document.getElementById(`${compid}_localcount_avail`).innerText = res.local_count[1];
+                                if (res.local_count[2] == 'Check'){
+                                    var st = document.getElementById(`${compid}_localcount_status`)
+                                    st.innerText = res.local_count[2];
+                                    st.setAttribute('class', 'text-danger');
+                                }else{
+                                    var st = document.getElementById(`${compid}_localcount_status`)
+                                    st.innerText = res.local_count[2];
+                                    st.setAttribute('class', 'text-success');
+                                }
+                            }
+                        },
+                    error: function(error) {
+                        row[0].value = cell_value;
+                }
+            });
+
+        });
+</script>
+{% endblock %}

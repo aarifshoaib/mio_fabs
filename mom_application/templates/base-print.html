@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+        <title>My India Overseas</title>
+
+		<!-- Favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/mio.png' %}">
+
+		<!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+
+		<!-- Fontawesome CSS -->
+        <link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}">
+
+        <link rel="stylesheet" href="{% static 'assets/css/line-awesome.min.css' %}">
+		<!-- Main CSS -->
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    </head>
+
+    <body>
+		<!-- Main Wrapper -->
+        <div class="main-wrapper page">
+            {% block print_page %}
+            {% endblock %}
+        </div>
+		<!-- /Main Wrapper -->
+
+		<!-- jQuery -->
+        <script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
+
+		<!-- Bootstrap Core JS -->
+        <script src="{% static 'assets/js/popper.min.js' %}"></script>
+        <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'assets/js/moment.min.js' %}"></script>
+
+		<!-- Slimscroll JS -->
+		<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
+
+		<!-- Chart JS -->
+		<script src="{% static 'assets/plugins/morris/morris.min.js' %}"></script>
+		<script src="{% static 'assets/plugins/raphael/raphael.min.js' %}"></script>
+
+    </body>
+</html>

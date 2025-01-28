@@ -1,0 +1,316 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Payslip List - <span class="text-muted">{{after_tep.workpass.name}}</span></h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Payslip List</li>
+                </ul>
+            </div>
+            <div class="col-auto float-right ml-auto">
+                <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_salary"><i class="fa fa-plus"></i> Create Payslip</a>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <!-- Search Filter -->
+    <!-- /Search Filter -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped custom-table mb-0 datatable">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center">PayslipDate(From)</th>
+                            <th style="text-align:center">PayslipDate(To)</th>
+                            <th style="text-align:center">DateofPayment</th>
+                            <th style="text-align:center">Payslip</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payslip in payslips %}
+                        <tr>
+                            <td style="text-align:center">{{payslip.payslip_date_from}}</td>
+                            <td style="text-align:center">{{payslip.payslip_date_to}}</td>
+                            <td style="text-align:center">{{payslip.payment_date}}</td>
+                            <td style="text-align:center">
+                                <a class="btn btn-sm btn-primary" href="/client-management/payslip-generate/{{payslip.id}}">Generate Slip</a>
+                            </td>
+                            <td class="text-right">
+                                <div class="dropdown dropdown-action">
+                                    <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="/client-management/update-payslip/{{after_tep.id}}/{{payslip.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{payslip.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <div class="modal custom-modal fade" id="delete_project{{payslip.id}}" role="dialog">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <div class="form-header">
+                                            <h3>Delete Payslip : {{payslip.employee_name}}</h3>
+                                            <p>Are you sure want to delete?</p>
+                                        </div>
+                                        <div class="modal-btn delete-action">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <a href="#" class="btn btn-primary continue-btn">Delete</a>
+                                                </div>
+                                                <div class="col-6">
+                                                    <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div>
+                    {% if clients_page.has_other_pages %}
+                        <ul class="pagination">
+                            {% if tenders.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{clients_page.previous_page_number}}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+
+
+                            {% for page in clients_page.paginator.page_range %}
+                                {% if clients_page.number == page %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% elif page > clients_page.number|add:'-5' and page < clients_page.number|add:'5' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if clients_page.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{clients_page.next_page_number}}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disable">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Salary Modal -->
+    <div id="add_salary" class="modal custom-modal fade" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Staff Salary</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="payslip-generate-from">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Employeer</label>
+                                    <input class="form-control" value="{{after_tep.workpass.company_name.company_name}}" type="text" placeholder="Employee" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Designation</label>
+                                    <input class="form-control" value="{{after_tep.workpass.job.designation}}" type="text" placeholder="Designation" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Payslip Date (From)</label>
+                                    <input class="form-control" name="payslip-from" type="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Basic Pay</label>
+                                    <input class="form-control" name="basic-pay" type="number" placeholder="Basic Pay" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Advance</label>
+                                    <input class="form-control" name="advance" type="number" placeholder="Adavance">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Date of Payment</label>
+                                    <input class="form-control" name="date-of-payment" type="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Overtime Payment Periods</label>
+                                    <input class="form-control" name="overtime-payment" type="number" placeholder="Overtime Payment Periods">
+                                </div>
+                                <div class="form-group">
+                                    <label>Others</label>
+                                    <input class="form-control" name="other-additional" type="number" placeholder="Other Additional">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Employee</label>
+                                    <input class="form-control" value="{{after_tep.workpass.name}}" type="text" placeholder="Employee" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>NRIC/FIN NO</label>
+                                    <input class="form-control" value="{{after_tep.workpass.fin_number}}" type="text" placeholder="NRIC/FIN NO" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Payslip Date (To)</label>
+                                    <input class="form-control" name="payslip-to" type="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Total Allowance</label>
+                                    <input class="form-control" name="total-allowance" type="number" placeholder="Total Allowance" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Employee CPF Deduction</label>
+                                    <input class="form-control" name="emp-cpf-deduction" type="number" placeholder="Employee CPF Deduction">
+                                </div>
+                                <div class="form-group">
+                                    <label>Mode of Payment</label>
+                                    <select name="mode-of-payment" class="form-control" required>
+                                        <option value="">Select</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="Bank Deposit">Bank Deposit</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Overtime Hours Worked</label>
+                                    <input class="form-control" name="overtime-hours" type="number" placeholder="Overtime Hours Worked">
+                                </div>
+                                <div class="form-group">
+                                    <label>Employee's CPF Contributions</label>
+                                    <input class="form-control" name="emp-cpf-contribution" type="number" placeholder="Employee's CPF Contributions">
+                                </div>
+                            </div>
+                        </div>
+                        <input type="submit" id="submit-btn" class="btn btn-primary btn-sm">
+                        <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                            <span class="sr-only"></span>
+                        </div>
+                        <span id="error-message" class="text-danger"></span>
+                        <span id="file-load-message" class="text-success"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Add Salary Modal -->
+
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+        }
+    var csrftoken = getCookie('csrftoken');
+    $("#payslip-generate-from").submit(function(e) {
+        e.preventDefault();
+        let get_spinner = document.getElementById('submit-spinner');
+        let submit_btn = document.getElementById('submit-btn');
+        let error_message= document.getElementById('error-message');
+        let file_load_message= document.getElementById('file-load-message');
+        submit_btn.setAttribute('disabled', '')
+        get_spinner.style.display = '';
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
+        $.ajax({
+                type: 'POST',
+                url: '/client-management/payslip-generate-api-form/{{after_tep.id}}',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                    },
+                mimeType: 'multipart/form-data',
+                success: function(res){
+                            get_spinner.style.display = 'none';
+                            submit_btn.removeAttribute('disabled', '');
+                            res = JSON.parse(res)
+                            if (res.status != 'success'){
+                                error_message.innerText = res.msg;
+                                file_load_message.innerText = '';
+                            }else{
+                                window.location.reload();
+                            }
+                        },
+                    error: function(error) {
+                        get_spinner.style.display = 'none';
+                        submit_btn.removeAttribute('disabled', '');
+                        error_message.innerText = error;
+                }
+            });
+        })
+  </script>
+
+{% endblock %}

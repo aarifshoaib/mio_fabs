@@ -1,0 +1,664 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+
+{% block csslink %}
+<!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" /> -->
+<link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+<style>
+#files-area {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.file-block {
+  border-radius: 10px;
+  background-color: rgba(144, 163, 203, 0.2);
+  margin: 5px;
+  color: initial;
+  display: flex;
+}
+.file-block > span.name {
+  padding-right: 10px;
+  width: max-content;
+  display: inline-flex;
+}
+
+.file-delete {
+  display: flex;
+  width: 24px;
+  color: initial;
+  background-color: #6eb4ff00;
+  font-size: large;
+  justify-content: center;
+  margin-right: 3px;
+  cursor: pointer;
+}
+.file-delete:hover {
+  background-color: rgba(144, 163, 203, 0.2);
+  border-radius: 10px;
+}
+.file-delete > span {
+  transform: rotate(45deg);
+}
+
+
+
+/* ......................... */
+
+.mic-container {
+  /* height: 100vh;*/
+  /*width: 100vw;*/
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.mic-container .display {
+  width: 100%;
+  padding: 5px 0;
+  margin: 10px 0;
+}
+.mic-container .controllers {
+  display: flex;
+  margin: auto;
+}
+.mic-container .circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #ffffff;
+  margin: 0 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  transition: 0.5s;
+  box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12), 0 3px 5px -1px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+.mic-container .circle i {
+  color: #b2b1b1;
+  font-size: 23px;
+  transition: 0.9s;
+}
+.mic-container .circle:before {
+  content: "";
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  opacity: 0.2;
+  z-index: -1;
+  position: absolute;
+}
+.mic-container .circle.active {
+  background: #ff0000;
+}
+.mic-container .circle.active:before {
+  background: gray;
+  -webkit-animation: bounce 0.8s ease-in-out infinite 0.5s;
+          animation: bounce 0.8s ease-in-out infinite 0.5s;
+}
+.mic-container .circle.active i {
+  color: #ffffff;
+}
+
+@-webkit-keyframes bounce {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.4);
+  }
+  75% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.3);
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.4);
+  }
+  75% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.3);
+  }
+}
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+#wave {
+  width: 50px;
+  height: 50px;
+  fill: #000;
+}
+
+#Line_1 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 0.15s;
+          animation-delay: 0.15s;
+}
+
+#Line_2 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 0.3s;
+          animation-delay: 0.3s;
+}
+
+#Line_3 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 0.45s;
+          animation-delay: 0.45s;
+}
+
+#Line_4 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 0.6s;
+          animation-delay: 0.6s;
+}
+
+#Line_5 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 0.75s;
+          animation-delay: 0.75s;
+}
+
+#Line_6 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 0.9s;
+          animation-delay: 0.9s;
+}
+
+#Line_7 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 1.05s;
+          animation-delay: 1.05s;
+}
+
+#Line_8 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 1.2s;
+          animation-delay: 1.2s;
+}
+
+#Line_9 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 1.35s;
+          animation-delay: 1.35s;
+}
+
+#Line_10 {
+  -webkit-animation: pulse 1s infinite;
+          animation: pulse 1s infinite;
+  -webkit-animation-delay: 1.5s;
+          animation-delay: 1.5s;
+}
+
+@-webkit-keyframes pulse {
+  0% {
+    transform: scaleY(1);
+    transform-origin: 50% 50%;
+  }
+  50% {
+    transform: scaleY(0.7);
+    transform-origin: 50% 50%;
+  }
+  100% {
+    transform: scaleY(1);
+    transform-origin: 50% 50%;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scaleY(1);
+    transform-origin: 50% 50%;
+  }
+  50% {
+    transform: scaleY(0.7);
+    transform-origin: 50% 50%;
+  }
+  100% {
+    transform: scaleY(1);
+    transform-origin: 50% 50%;
+  }
+}/*# sourceMappingURL=style.css.map */
+</style>
+
+
+
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+  <div class="row align-items-center">
+      <div class="col">
+          <h3 class="page-title">Create Task</h3>
+          <ul class="breadcrumb">
+              <li class="breadcrumb-item"><a href="#">Work Management</a></li>
+              <li class="breadcrumb-item active">Create Task</li>
+          </ul>
+      </div>
+      <div class="col-auto float-right ml-auto">
+          <a href="/work-management/add-subject" class="btn add-btn-sm"><i class="fa fa-plus"></i> Add Subject</a>
+      </div>
+  </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>{{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>{{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- <div class="form-group">
+                        <input type="text" value="{{task.subject}}" placeholder="Subject" name="subject" class="form-control" required>
+                    </div> -->
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <select class="form-control" required="" name="subject">
+                            <option value="">select subject</option>
+                            {% for sub in subjects %}
+                              {% if task.subject.id == sub.id %}
+                                <option value="{{sub.id}}" selected>{{sub.subject}}</option>
+                              {% else %}
+                                <option value="{{sub.id}}">{{sub.subject}}</option>
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="asigned_to" multiple="multiple" required>
+                                    <option value="">Assign To</option>
+                                    <option value="All">All</option>
+                                    {% for user in users %}
+                                        {% if user in task.asigned_to.all %}
+                                            <option value="{{user.user.username}}" selected>{{user.user.username}} ({{user.user.groups.first.name}})</option>
+                                        {% else %}
+                                          <option value="{{user.user.username}}">{{user.user.username}} ({{user.user.groups.first.name}})</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="priority" required>
+                                    <option value="">Priority</option>
+                                    {% for prior in priority %}
+                                      {% if prior == task.priority %}
+                                        <option value="{{prior}}" selected>{{prior}}</option>
+                                      {% else %}
+                                        <option value="{{prior}}">{{prior}}</option>
+                                      {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                              <select name="emp-name" required>
+                                  <option value="">Select Employeer Name</option>
+                                  {% for emp in employeers %}
+                                      {% if task.employer_name.id == emp.id %}
+                                        <option value="{{emp.id}}" selected>{{emp.client_id}}-{{emp.client_name}}</option>
+                                      {% else %}
+                                        <option value="{{emp.id}}">{{emp.client_id}}-{{emp.client_name}}</option>
+                                      {% endif %}
+                                  {% endfor %}
+                                  <option value="Not Applicable">Not Applicable</option>
+                              </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                              <select name="comp-name" required>
+                                  <option value="">Select Company Name</option>
+                                  {% for comp_list in companies_list %}
+                                    {% if task.company_name.id == comp_list.id %}
+                                        <option value="{{comp_list.id}}" selected>{{comp_list.company_id}}-{{comp_list.company_name}}</option>
+                                    {% else %}
+                                        <option value="{{comp_list.id}}">{{comp_list.company_id}}-{{comp_list.company_name}}</option>
+                                    {% endif %}
+                                  {% endfor %}
+                                  <option value="Not Applicable">Not Applicable</option>
+                              </select>
+                          </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {% if task.description %}
+                        <textarea rows="4" name="description" class="summernote" placeholder="Enter your message here">{{task.description}}</textarea>
+                        {% else %}
+                        <textarea rows="4" name="description" class="summernote" placeholder="Enter your message here">Dear Sir/Madam,</textarea>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <p class="mt-5 text-center">
+                              <label for="attachment">
+                                  <a class="btn btn-primary text-light" role="button" aria-disabled="false">+ Upload Attachements</a>
+
+                              </label>
+                              <input type="file" name="file[]" id="attachment" style="visibility: hidden; position: absolute;" multiple/>
+
+                          </p>
+                          <p id="files-area">
+                              <span id="filesList">
+                                  <span id="files-names"></span>
+                              </span>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <div class="mic-container">
+                              <div class="display">
+
+                              </div>
+                              <div class="controllers">
+                              </div>
+                              <input type="file" name="audio" id="audio-file" hidden>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <div class="">
+                            <input type="submit" id="submit-btn" class="btn btn-primary" value="Submit">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+	const dt = new DataTransfer(); // Permet de manipuler les fichiers de l'input file
+
+$("#attachment").on('change', function(e){
+
+	// Ajout des fichiers dans l'objet DataTransfer
+	for (let file of this.files) {
+        const fileSize = file.size / 1024 / 1024;
+        var chkfile = false;
+        console.log(fileSize);
+        if (fileSize > 25){
+            alert(file.name + '\nFile size exceeds 25 MiB');
+            dt.item.remove(file);
+            chkfile = true;
+        }
+        if (chkfile == false){
+            dt.items.add(file);
+        }
+	};
+    for(var i = 0; i < this.files.length; i++){
+		let fileBloc = $('<span/>', {class: 'file-block'}),
+			 fileName = $('<span/>', {class: 'name', text: this.files.item(i).name});
+		fileBloc.append('<span class="file-delete"><span>+</span></span>')
+			.append(fileName);
+		$("#filesList > #files-names").append(fileBloc);
+	}
+	// Mise à jour des fichiers de l'input file après ajout
+	this.files = dt.files;
+
+	// EventListener pour le bouton de suppression créé
+	$('span.file-delete').click(function(){
+		let name = $(this).next('span.name').text();
+		// Supprimer l'affichage du nom de fichier
+		$(this).parent().remove();
+
+		for(let i = 0; i < dt.items.length; i++){
+			// Correspondance du fichier et du nom
+
+
+            if(name === dt.items[i].getAsFile().name){
+				// Suppression du fichier dans l'objet DataTransfer
+				dt.items.remove(i);
+				continue;
+			}
+		}
+		// Mise à jour des fichiers de l'input file après suppression
+		document.getElementById('attachment').files = dt.files;
+	});
+});
+</script>
+
+
+<!-- ..................... -->
+<script>
+    // collect DOMs
+const display = document.querySelector('.display');
+const controllerWrapper = document.querySelector('.controllers');
+const State = ['Initial', 'Record', 'Download'];
+const loader = `<div class="loader">
+<svg id="wave" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 48">
+  <title>Audio Wave</title>
+  <path id="Line_1" data-name="Line 1" d="M0.91,15L0.78,15A1,1,0,0,0,0,16v6a1,1,0,1,0,2,0s0,0,0,0V16a1,1,0,0,0-1-1H0.91Z"/>
+  <path id="Line_2" data-name="Line 2" d="M6.91,9L6.78,9A1,1,0,0,0,6,10V28a1,1,0,1,0,2,0s0,0,0,0V10A1,1,0,0,0,7,9H6.91Z"/>
+  <path id="Line_3" data-name="Line 3" d="M12.91,0L12.78,0A1,1,0,0,0,12,1V37a1,1,0,1,0,2,0s0,0,0,0V1a1,1,0,0,0-1-1H12.91Z"/>
+  <path id="Line_4" data-name="Line 4" d="M18.91,10l-0.12,0A1,1,0,0,0,18,11V27a1,1,0,1,0,2,0s0,0,0,0V11a1,1,0,0,0-1-1H18.91Z"/>
+  <path id="Line_5" data-name="Line 5" d="M24.91,15l-0.12,0A1,1,0,0,0,24,16v6a1,1,0,0,0,2,0s0,0,0,0V16a1,1,0,0,0-1-1H24.91Z"/>
+  <path id="Line_6" data-name="Line 6" d="M30.91,10l-0.12,0A1,1,0,0,0,30,11V27a1,1,0,1,0,2,0s0,0,0,0V11a1,1,0,0,0-1-1H30.91Z"/>
+</svg>
+</div>`;
+
+let stateIndex = 0
+let mediaRecorder, chunks = [], audioURL = '';
+
+// mediaRecorder setup for audio
+if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    console.log('mediaDevices supported..')
+
+    navigator.mediaDevices.getUserMedia({
+        audio: true
+    }).then(stream => {
+        mediaRecorder = new MediaRecorder(stream)
+
+        mediaRecorder.ondataavailable = (e) => {
+            chunks.push(e.data)
+        }
+
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, {'type': 'audio/ogg; codecs=opus'})
+            chunks = []
+            audioURL = window.URL.createObjectURL(blob)
+            document.querySelector('audio').src = audioURL
+
+            var audFile = document.getElementById('audio-file');
+            // audFile.value = audioURL.split('/').pop();
+            let create_file = new File([blob], 'audio.mp3');
+            let audio_contain = new DataTransfer();
+            audio_contain.items.add(create_file);
+            audFile.files = audio_contain.files;
+        }
+    }).catch(error => {
+        console.log('Following error has occured : ',error)
+    })
+}else{
+    stateIndex = ''
+    application(stateIndex)
+}
+
+const clearDisplay = () => {
+    display.textContent = ''
+}
+
+const clearControls = () => {
+    controllerWrapper.textContent = ''
+}
+
+const record = () => {
+    stateIndex = 1
+    mediaRecorder.start()
+    application(stateIndex)
+}
+
+const stopRecording = () => {
+    stateIndex = 2
+    mediaRecorder.stop()
+    application(stateIndex)
+}
+
+const downloadAudio = () => {
+    const downloadLink = document.createElement('a')
+    downloadLink.href = audioURL
+    downloadLink.setAttribute('download', 'audio')
+    downloadLink.click()
+}
+
+const addButton = (id, funString) => {
+    const btn = document.createElement('a')
+    btn.id = id
+    btn.classList.add("circle");
+    btn.setAttribute('onclick', funString)
+
+    let submit_btn = document.getElementById('submit-btn').addEventListener('click',
+    function(e){
+      if (stateIndex == 1){
+        e.preventDefault();
+        if (confirm('Stop Voice Recorder?')){
+          stopRecording();
+        } else{
+          e.stopImmediatePropagation();
+        };
+      }
+    });
+
+    if (id == 'record') {
+        btn.innerHTML = `<i class="fas fa-microphone"></i>`;
+    }else if (id == 'stop') {
+        btn.classList.toggle("active");
+        btn.innerHTML = `<i class="fas fa-microphone"></i>`;
+    }else if (id == 'download') {
+        btn.innerHTML = `<i class="fas fa-download"></i>`;
+    }
+    controllerWrapper.append(btn)
+}
+
+const addMessage = (text,hasLoader) => {
+    const msg = document.createElement('h3')
+    msg.textContent = text
+
+    if (hasLoader == true){
+        msg.textContent = ''
+        display.innerHTML = loader;
+    }
+    display.append(msg)
+}
+
+const addAudio = () => {
+    const audio = document.createElement('audio')
+    audio.controls = true
+    audio.src = audioURL
+    audio.name = 'audio'
+    display.append(audio)
+}
+
+const application = (index) => {
+    switch (State[index]) {
+        case 'Initial':
+            clearDisplay()
+            clearControls()
+
+            // addMessage('Press the start button to start recording')
+            addButton('record', 'record()')
+            break;
+
+        case 'Record':
+            clearDisplay()
+            clearControls()
+
+            addMessage('Recording...',true)
+            addButton('stop', 'stopRecording()')
+            break
+
+        case 'Download':
+            clearDisplay()
+            clearControls()
+
+            addAudio()
+            addButton('record', 'record()', 'Record Again')
+            // addButton('download', 'downloadAudio()')
+            break
+
+        default:
+            clearDisplay()
+            clearControls()
+
+            addMessage('Your browser does not support mediaDevices')
+            break;
+    }
+}
+
+application(stateIndex)
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+{% endblock %}

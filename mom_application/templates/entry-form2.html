@@ -1,0 +1,325 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+{% endblock %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Customer EntryForm2 List</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Customer EntryForm2 List</li>
+                </ul>
+            </div>
+            <div class="col-auto float-right ml-auto">
+                <a href="#" class="btn add-btn" data-toggle="modal" data-target="#customer-entry-form2-add"><i class="fa fa-plus"></i>  New Entry</a>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+    
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search Filter -->
+    <div class="main-search">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" name="keyword" class="form-control" placeholder="Search...">
+                <div class="input-group-append">
+                    <input class="btn btn-primary" type="submit" value="Search">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="search-result">
+        {% if keyword %}
+            <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+        {% endif %}
+        <h6>{{result_cnt}} Results found | <a href="/mom-application/cpf-entry-form2" class="text-primary">Clear Filter</a></h6>
+    </div>
+    <!-- /Search Filter -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped custom-table mb-0 datatable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>CompanyName</th>
+                            <th>MonthYear</th>
+                            <th>No.FullTime</th>
+                            <th>No.PartTime</th>
+                            <th>Declaration</th>
+                            <th>DraftUpload</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry_data in entry_form2_datas %}
+                        <tr>
+                            <td>{{forloop.counter|forcounter_serialno:entry_form2_datas}}</td>
+                            <td>
+                                <strong>{{entry_data.company_name.company_name}}</strong>
+                            </td>
+                            <td>{{entry_data.month_year}}</td>
+                            <td>{{entry_data.no_of_fulltime}}</td>
+                            <td>{{entry_data.no_of_parttime}}</td>
+                            <td>{{entry_data.declaration}}</td>
+                            <td>
+                                {% if entry_data.draft_upload %}
+                                <a href="{{entry_data.draft_upload.url}}" class="badge bg-inverse-primary" 
+                                    title="{{entry_data.draft_upload}}" target="_blank">Download</a>
+                                {% else %} - {% endif %}
+                            </td>
+                            <td class="text-right">
+                                <div class="dropdown dropdown-action">
+                                    <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="/mom-application/cpf-entry-form2-update/{{entry_data.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_entry_data{{entry_data.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Delete Modal -->
+                        <div class="modal custom-modal fade" id="delete_entry_data{{entry_data.id}}" role="dialog">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <div class="form-header">
+                                            <h3>Delete CustomerID : {{entry_data.id}}</h3>
+                                            <p>Are you sure want to delete?</p>
+                                        </div>
+                                        <div class="modal-btn delete-action">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <a href="/mom-application/delete-entry-form2/{{entry_data.id}}/{{return_url}}" class="btn btn-primary continue-btn">Delete</a>
+                                                </div>
+                                                <div class="col-6">
+                                                    <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Delete Modal -->
+                        {% endfor %}
+                    </tbody>
+                </table><br>
+                <div>
+                    {% if entry_form2_datas.has_other_pages %}
+                        <ul class="pagination">
+                            {% if entry_form2_datas.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{entry_form2_datas.previous_page_number}}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+    
+    
+                            {% for page in entry_form2_datas.paginator.page_range %}
+                                {% if entry_form2_datas.number == page %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% elif page > entry_form2_datas.number|add:'-5' and page < entry_form2_datas.number|add:'5' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+    
+                            {% if entry_form2_datas.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{entry_form2_datas.next_page_number}}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disable">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Page Content -->
+
+<!-- Add Entry Form Modal -->
+<div id="customer-entry-form2-add" class="modal custom-modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Customer Entry Form-2</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="customer-entry-form2-insert" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>CompanyName</label>
+                                <select name="company" required>
+                                    <option value="">Select Company</option>
+                                    {% for comp in companies %}
+                                        <option value="{{comp.id}}">{{comp.company_id}}-{{comp.company_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>MonthYear</label>
+                                <input type="month" class="form-control" name="month_year" required>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>No. of FullTime</label>
+                                <input class="form-control" type="number" name="fulltime" placeholder="No. of FullTime">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>No. of PartTime</label>
+                                <input class="form-control" type="number" name="parttime" placeholder="No. of PartTime">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Declaration</label>
+                                <input class="form-control" type="text" name="declaration" placeholder="Declaration">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Draft Upload</label>
+                                <input class="form-control" type="file" name="draft_upload">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <input type="submit" id="submit-btn" class="btn btn-primary btn-sm">
+                        <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                            <span class="sr-only"></span>
+                        </div>
+                        <span id="error-message" class="text-danger"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Add Entry Form Modal -->
+
+{% endblock %}
+
+{% block jslink %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+
+<!-- --------------------------------------------------------- -->
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+        }
+    var csrftoken = getCookie('csrftoken');
+    $("#customer-entry-form2-insert").submit(function(e) {
+        e.preventDefault();
+        let get_spinner = document.getElementById('submit-spinner');
+        let submit_btn = document.getElementById('submit-btn');
+        let error_message= document.getElementById('error-message');
+        submit_btn.setAttribute('disabled', '')
+        get_spinner.style.display = '';
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
+            // Inserting
+            $.ajax({
+                    type: 'POST',
+                    url: '/mom-application/cpf-entry-form2-api',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                        },
+                    mimeType: 'multipart/form-data',
+                    success: function(res){
+                              get_spinner.style.display = 'none';
+                              submit_btn.removeAttribute('disabled', '');
+                              res = JSON.parse(res)
+                              if (res.status != 'success'){
+                                  error_message.innerText = res.msg;
+                              }else{
+                                  window.location.reload();
+                              }
+                            },
+                        error: function(error) {
+                          get_spinner.style.display = 'none';
+                          submit_btn.removeAttribute('disabled', ''); 
+                          error_message.innerText = error;
+                    }
+                });
+      })
+</script>
+
+{% endblock %}

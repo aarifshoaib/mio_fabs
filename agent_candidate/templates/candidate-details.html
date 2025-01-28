@@ -1,0 +1,270 @@
+{% extends 'admin-base.html' %}
+{% block content %}
+{% load base_tags %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Candidate Details</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Candidate Details</li>
+                </ul>
+            </div>
+
+            <div class="col-auto float-right ml-auto">
+                <!-- <a href="/agent-candidate/candidate-form" class="btn add-btn" ><i class="fa fa-plus"></i> Candidate Form</a> -->
+                <hr>
+                <p>
+                    Total Candidate: <a href="#">{{candidate_count}}</a> |
+                    Completed: <a href="#">{{completed}}</a> |
+                    Pending: <a href="#">{{pending}}</a>
+                </p>
+                <hr>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+    {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>{{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+
+                <hr>
+                <!--h3>Filter <h6><a href="/agent-candidate/candidate-details">Clear Filter</a></h6></h3-->
+                <form method="get">
+                    <table class="table table-bordered review-table mb-0">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center">Job Title / Name</th>
+                                <th style="text-align:center" colspan="2">Date Of Birth (Year)</th>
+                                <th colspan="2">Experience</th>
+                                <th style="text-align:center">Employee Location</th>
+                                <th style="text-align:center">Status</th>
+                                <th style="text-align:center"><a class="btn btn-primary btn-sm" href="/agent-candidate/candidate-details">Clear</a></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <input type="hidden" name="params" value="1">
+                                <td>
+                                    <input type="text" value="{{params.0}}" class="form-control" name="job-title" placeholder="Job Title / Name">
+                                </td>
+                                <td>
+                                    <select class="form-control select" name="age_syb">
+                                        {% for sym in symbols %}
+                                            {% if sym == params.1 %}
+                                                <option value="{{sym}}" selected>{{sym}}</option>
+                                            {% else %}
+                                                <option value="{{sym}}">{{sym}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><input type="number" value="{{params.2}}" class="form-control" name="age" placeholder="Ex: 1998"></td>
+
+                                <td>
+                                    <select class="form-control select" name="exp_syb">
+                                        {% for sym in symbols %}
+                                            {% if sym == params.3 %}
+                                                <option value="{{sym}}" selected>{{sym}}</option>
+                                            {% else %}
+                                                <option value="{{sym}}">{{sym}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><input type="number" value="{{params.4}}" class="form-control" name="exp" placeholder="Ex: 5"></td>
+
+                                <td><input type="text" value="{{params.5}}" class="form-control" name="location" placeholder="Employee Location"></td>
+                                <td>
+                                    <select class="form-control select" name="status">
+                                        <option value="">Select</option>
+                                        <option value="0">Pending</option>
+                                        <option value="1">Completed</option>
+                                    </select>
+                                </td>
+                                <td style="text-align:center"><input type="submit" class="btn btn-success btn-sm" value="Search"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <hr>
+                <table class="table table-striped custom-table mb-0 datatable">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px;">#</th>
+                            <th style="text-align:center">CandidateName </th>
+                            <th style="text-align:center">CandidatePhone </th>
+                            <th style="text-align:center">DOB</th>
+                            <th style="text-align:center">JobTitle</th>
+                            <th style="text-align:center">Education</th>
+                            <th style="text-align:center">AgentForm</th>
+                            <th style="text-align:center">Status</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for candidate in candidate_page %}
+                            <tr>
+                                <td style="text-align:center">{{candidate.id|norm_id}}</td>
+                                <td style="text-align:center">{{candidate.name}}</td>
+                                <td style="text-align:center">{{candidate.phone}}</td>
+                                {% for data in candidate|get_candidate_details %}
+                                    <td style="text-align:center">{{data}}</td>
+                                {% endfor %}
+                                <td style="text-align:center">
+                                    {% if candidate.status %}
+                                        <a class="badge bg-inverse-danger" href="/agent-candidate/agent-form/{{candidate.id}}/{{back}}">Edit Form</a>
+                                    {% else %}
+                                        <a class="badge bg-inverse-success" href="/agent-candidate/agent-form/{{candidate.id}}/{{back}}">Fill Form</a>
+                                    {% endif %}
+                                </td>
+                                {% if candidate.status %}
+                                <td style="text-align:center">
+                                    <i class="fa fa-dot-circle-o text-success"></i>
+                                    Completed ({{candidate.user.username}})
+                                </td>
+                                {% else %}
+                                <td style="text-align:center">
+                                    <i class="fa fa-dot-circle-o text-danger"></i>
+                                    Pending
+                                </td>
+                                {% endif %}
+                                <td class="text-right">
+                                    <div class="dropdown dropdown-action">
+                                        <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="/agent-candidate/candidate-form/{{candidate.id}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_policy{{candidate.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#move_folder{{candidate.id}}"><i class="fa fa-cut m-r-5"></i> Move To</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <div class="modal custom-modal fade" id="delete_policy{{candidate.id}}" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <div class="form-header">
+                                                <h3>Delete {{candidate.name}}</h3>
+                                                <p>Are you sure want to delete?</p>
+                                            </div>
+                                            <div class="modal-btn delete-action">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        {% if folder_id is None %}
+                                                            <a href="/agent-candidate/candidate-delete/0/{{candidate.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                                        {% else %}
+                                                            <a href="/agent-candidate/candidate-delete/{{folder_id}}/{{candidate.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="move_folder{{candidate.id}}" class="modal custom-modal fade" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Move Folder</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="/agent-candidate/folder-link/{{candidate.id}}/{{candidate_page.number}}">
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <label class="col-form-label">Folders List <span class="text-danger">*</span></label>
+                                                            <select name="folder-name" class="form-control select" required>
+                                                                <option value="">Select Folder</option>
+                                                                {% for folder in folders %}
+                                                                    <option value="{{folder.folder_name}}">{{folder.title.title}}/{{folder.folder_name}}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="submit-section">
+                                                    <button class="btn btn-primary submit-btn">Move</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+                <br>
+                <div>
+                    {% if candidate_page.has_other_pages %}
+                        <ul class="pagination">
+                            {% if tenders.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{candidate_page.previous_page_number}}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+
+
+                            {% for page in candidate_page.paginator.page_range %}
+                                {% if candidate_page.number == page %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% elif page > candidate_page.number|add:'-10' and page < candidate_page.number|add:'10' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if candidate_page.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{candidate_page.next_page_number}}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disable">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Page Content -->
+
+
+{% endblock %}

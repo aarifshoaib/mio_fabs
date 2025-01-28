@@ -1,0 +1,188 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="chat-main-row">
+    <div class="chat-main-wrapper">
+        <div class="col-lg-7 message-view task-view task-left-sidebar">
+            <div class="chat-window">
+                <div class="fixed-header">
+                    <div class="navbar">
+                        <div class="float-left mr-auto">
+                            <div class="add-task-btn-wrapper">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="chat-contents">
+                    <div class="chat-content-wrap">
+                        <div class="chat-wrap-inner">
+                            <div class="chat-box">
+                                <div class="task-wrapper">
+                                    <div class="task-list-container">
+                                        <div class="task-list-body">
+                                            {% if messages %}
+                                                {% for message in messages %}
+                                                    {% if 'success' == message.tags %}
+                                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                            <strong>Message : {{message}}</strong>
+                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                <span aria-hidden="true">×</span>
+                                                            </button>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                            <strong>Message : {{message}}</strong>
+                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                <span aria-hidden="true">×</span>
+                                                            </button>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            <ul id="task-list">
+                                                {% for task in tasks %}
+                                                <li id="task-id-{{task.id}}" class="task{% if task.is_completed %} completed{% endif %}" 
+                                                    {% if not task.is_completed and task.deadline < today %}style="color: rgb(227, 104, 104);"
+                                                    {% elif not task.is_completed %}style="color: rgb(143, 113, 243);"{% endif %}>
+                                                    <div class="task-container">
+                                                        <span class="task-action-btn task-check" onclick="completed_task_func('{{task.id}}');">
+                                                            <span class="action-circle large complete-btn" title="Mark Complete">
+                                                                <i class="material-icons">check</i>
+                                                            </span>
+                                                        </span>
+                                                        <span class="task-label" contenteditable="true">{{task.task}}</span>
+                                                        <span class="float-right">{{task.deadline|date:"d/m/y h:i a"}}</span>
+                                                        <span class="task-action-btn task-btn-right" onclick="delete_task_func('{{task.id}}');">
+                                                            <span class="action-circle large delete-btn" title="Delete Task">
+                                                                <i class="material-icons">delete</i>
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div> <br>
+                                        <div class="task-list-footer">
+                                            <div class="new-task-wrapper visible">
+                                                <form method="post" id="task-form-id">
+                                                    {% csrf_token %}
+                                                    <input type="datetime-local" name="deadline" class="form-control" required>
+                                                    <textarea placeholder="Enter new task here. . ." name="description" required></textarea>
+                                                    <span class="error-message hidden">You need to enter a task first</span>
+                                                    <!-- <span class="add-new-task-btn btn" id="add-task">Add Task</span> -->
+                                                    <input type="submit" class="add-new-task-btn btn" value="Add Task">
+                                                    <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                                        <span class="sr-only"></span>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="notification-popup hide">
+                                    <p>
+                                        <span class="task"></span>
+                                        <span class="notification-text"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script src="{% static 'assets/js/task.js' %}"></script>
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+        }
+    var csrftoken = getCookie('csrftoken');
+    $("#task-form-id").submit(function(e) {
+        e.preventDefault();
+        let get_spinner = document.getElementById('submit-spinner');
+        get_spinner.style.display = '';
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
+            $.ajax({
+                    type: 'POST',
+                    url: '/job-advertisement/my-todo-api',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                        },
+                    mimeType: 'multipart/form-data',
+                    success: function(res){
+                                get_spinner.style.display = 'none';
+                                res = JSON.parse(res)
+                                if (res.status != 'success'){
+                                    window.location.reload();
+                                }else{
+                                    window.location.reload();
+                                }
+                            },
+                        error: function(error) {
+                            get_spinner.style.display = 'none';
+                            window.location.reload();
+                    }
+                });
+        });
+    function delete_task_func(taskid){
+        let task_list_id = document.getElementById(`task-id-${taskid}`);
+        console.log(task_list_id)
+        $.ajax({
+                type: 'GET',
+                url: `/job-advertisement/delete-todo-api/${taskid}`,
+                success: function(res){
+                        task_list_id.remove();
+                        },
+                    error: function(error) {
+                        }
+            });
+    };
+
+    function completed_task_func(taskid){
+        let task_list_id = document.getElementById(`task-id-${taskid}`);
+        console.log(taskid);
+        console.log('completed');
+        $.ajax({
+                type: 'GET',
+                url: `/job-advertisement/completed-todo-api/${taskid}`,
+                success: function(res){
+                        if (res.msg == 'true'){
+                            task_list_id.children[0].children[0].children[0].style.background='#35BA67';
+                            task_list_id.className = 'completed task';
+                            task_list_id.style = '';
+                        }
+                        else{
+                            task_list_id.children[0].children[0].children[0].style.background='';
+                            task_list_id.className = 'task';
+                        }
+                        },
+                    error: function(error) {
+                        // candidate_name.innerHTML = '<p class="text-danger">Fetching Error (Contact IT team)</p>'
+                }
+            });
+    };
+</script>
+{% endblock %}

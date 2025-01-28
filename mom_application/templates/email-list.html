@@ -1,0 +1,213 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+
+{% block csslink %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Inbox ({{ec.gmail_id}})</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">Inbox</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+<hr>
+{% if keyword %}
+    <div class="search-result">
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    </div>
+{% endif %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-0">
+            <div class="card-body">
+                <div class="email-header">
+                    <div class="row">
+                        <div class="col top-action-left">
+                            <div class="float-left d-none d-sm-block">
+                                <form method="get">
+                                    <input type="text" list="result-list-id" name="keyword" placeholder="Search Messages" id="email-search-input" class="form-control search-message">
+                                    <datalist id="result-list-id"></datalist>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-auto top-action-right">
+                            <div class="text-right">
+                                <p id="error-message" class="text-danger"></p>
+                                <div id="spinner{{ec.id}}" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                    <span class="sr-only"></span>
+                                </div>
+                                <button type="button" id="email_fetch_btn" onclick="fetching_new_emails({{ec.id}});" title="Refresh" class="fa fa-refresh btn btn-outline-success"></button>
+                                <a href="/mom-application/email-list/{{ec.id}}" class="btn btn-info btn-sm">Clear</a>
+                            </div>
+                        </div>
+                    </div>
+                </div> <br>
+                <div class="email-content">
+                    <div class="table-responsive">
+                        <table class="table table-inbox table-hover">
+                            <tbody>
+                                {% if not email_datas %} No Data Found...{%endif%}
+                                {% for email_data in email_datas %}
+                                    {% if email_data.read_status %}
+                                        <tr class="read" style="background-color: #f7f7f7;">
+                                            {% if email_data.read_status %}
+                                                <td><span><i class="fa fa-eye" style="color: rgb(108, 199, 134);"></i></span></td>
+                                            {% else %}
+                                                <td><span><i class="fa fa-eye-slash" style="color: rgb(244, 36, 36);"></i></span></td>
+                                            {% endif %}
+                                            <td class="name">
+                                                <a href="/mom-application/read-email/{{email_data.id}}">{{email_data.from_user}}</a>
+                                            </td>
+                                            <td class="subject">{{email_data.subject}}</td>
+                                            <td><i class="fa fa-paperclip"></i></td>
+                                            <td>
+                                                <small>{{email_data.receive_date|gmail_date_fix}}</small>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr class="unread">
+                                            {% if email_data.read_status %}
+                                                <td><span><i class="fa fa-eye" style="color: rgb(108, 199, 134);"></i></span></td>
+                                            {% else %}
+                                                <td><span><i class="fa fa-eye-slash" style="color: rgb(244, 36, 36);"></i></span></td>
+                                            {% endif %}
+                                            <td class="name">
+                                                <a href="/mom-application/read-email/{{email_data.id}}">{{email_data.from_user}}</a>
+                                            </td>
+                                            <td class="subject">{{email_data.subject}}</td>
+                                            <td><i class="fa fa-paperclip"></i></td>
+                                            <td>
+                                                <small>{{email_data.receive_date|gmail_date_fix}}</small>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+<div>
+    {% if email_datas.has_other_pages %}
+        <ul class="pagination">
+            {% if email_datas.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{{current_url}}page={{email_datas.previous_page_number}}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+            {% endif %}
+
+
+            {% for page in email_datas.paginator.page_range %}
+                {% if email_datas.number == page %}
+                    <li class="page-item active">
+                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                    </li>
+                {% elif page > email_datas.number|add:'-5' and page < email_datas.number|add:'5' %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if email_datas.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{current_url}}page={{email_datas.next_page_number}}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disable">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+    function fetching_new_emails(row_id){
+        let get_spinner = document.getElementById(`spinner${row_id}`);
+        let error_message = document.getElementById('error-message');
+        let email_fetch_btn = document.getElementById('email_fetch_btn');
+        get_spinner.style.display = '';
+        email_fetch_btn.setAttribute('disabled', '');
+        $.ajax({
+           type: 'GET',
+           url: `/mom-application/fetch-new-email/${row_id}`,
+           success: function(res){
+                   get_spinner.style.display = 'none';
+                   if (res.status != 'success'){
+                        error_message.innerText = 'Fetching Error!. Please Check Mail ID or App Password..'
+                    }else{
+                        window.location.reload();
+                    };
+                    email_fetch_btn.removeAttribute('disabled', '');
+                },
+            error: function(error) {
+                get_spinner.style.display = 'none';
+                email_fetch_btn.removeAttribute('disabled', '');
+           }
+       });
+    }
+</script>
+<script>
+    (function () {
+        window.onpageshow = function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        };
+    })();
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script>
+
+    document.getElementById('email-search-input').addEventListener('keyup', email_search_function);
+    function email_search_function(){
+        $("#email-search-input").autocomplete({
+            source: function(request, response) {
+                var search_input = document.getElementById('email-search-input').value;
+                var to_mail = '{{ec.id}}';
+                $.ajax({
+                    url: `/mom-application/email-search-autocomplete-api/${to_mail}/${search_input}`,
+                    data: {
+                        q: request.term
+                    },
+                    success: function(data) {
+                        console.log(data)
+                        response($.map(data.values, function(item) {
+                            return {
+                                label: item,
+                                value: item
+                            };
+                        }));
+                    },
+                    error: function() {
+                        console.error('Error fetching autocomplete data');
+                    }
+                });
+            },
+            minLength: 2
+        });
+    };
+
+</script>
+{% endblock %}
