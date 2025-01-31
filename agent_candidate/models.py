@@ -113,7 +113,6 @@ class AgentManagementCandidataFormModel(models.Model):
     upload_interview_audio = models.ManyToManyField(AMCandidateUploadInterviewAudioModel)
     is_deleted = models.BooleanField(default=False)
     status = models.CharField(max_length=100, null=True)
-
 class CandidateAssignCompanyModel(models.Model):
     from client_management.models import AddCompanyModel
     company = models.ForeignKey(AddCompanyModel, on_delete=models.SET_NULL, null=True)

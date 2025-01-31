@@ -304,39 +304,120 @@
 					<div class="row">
 						<div class="col-sm-6 col-md-4">
 							<div class="form-group">
-								<label>Company <span class="text-danger"></span></label>
-								<select name="comp-name" id="select-state" class="form-control" required>
-									<option value="">Select Company</option>
-									{% for comp in companies %}
-									{% if comp.company_name == job.comp_name.company_name %}
-									<option value="{{comp.id}}" selected>{{comp.company_id}}-{{comp.company_name}}
-									</option>
-									{% else %}
-									<option value="{{comp.id}}">{{comp.company_id}}-{{comp.company_name}}</option>
-									{% endif %}
-									{% endfor %}
+								<label for="notes_for">NOTES FOR:</label>
+								<select id="notes_for" name="notes_for" class="form-control" required>
+									<option value="">Select</option>
+									<option value="Employer">Employer</option>
+									<option value="Company">Company</option>
+									<option value="Agent">Agent</option>
+									<option value="Employee">Employee</option>
+									<option value="Contact">Contact</option>
+									<option value="New Contact">New Contact</option>
+									<option value="Others">Others</option>
 								</select>
 							</div>
-						</div>
-						<div class="col-sm-6 col-md-4">
+
+							<!-- Employer/Agent Dynamic Company and Candidate Selection -->
+							<div class="ctrls Company" id="company-selection" >
+								<div class="form-group">
+									<label for="company">Select Company:</label>
+									<select id="company" name="company" class="form-control" required>
+										<option value="">Select Company</option>
+										{% for company in companies %}
+											<option value="{{company.id}}">{{company.company_name}}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+							
+							<!-- Dynamic Fields Based on Selection -->
+							<div class="ctrls Employee" id="employer-agent-container">
+								<div class="form-group">
+									<label for="employer_or_agent">Select Employer or Agent:</label>
+									<select id="employer_or_agent" name="employer_or_agent" class="form-control" required>
+										<option value="">Select Employer or Agent</option>
+										<option value="Employer">Employer</option>
+										<option value="Agent">Agent</option>
+									</select>
+								</div>
+							</div>
+							
+							<!-- Employeer List / Client List -->
+
+							<div class="ctrls Employer" id="employer-selection" >
+								<div class="form-group">
+									<label for="employer">Select Employer:</label>
+									<select id="employer" name="employer" class="form-control" required>
+										<option value="">Select Employer</option>
+										{% for employer in employers %}
+											<option value="{{employer.id}}">{{employer.client_name}}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>					
+
+							<div class="ctrls Agent" id="agent-candidate-selection">
+								<div class="form-group">
+									<label for="agent_candidates">Select Agent Candidates:</label>
+									<select id="agent_candidates" name="agent_candidates" class="form-control" required>
+										<option value="">Select Candidate</option>
+										{% for agent in agents %}
+											<option value="{{agent.id}}">{{agent.name}}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>							
+							
+							<div class="ctrls Contact" id="employer-selection" >
+								<div class="form-group">
+									<label for="employee">Select Candidate:</label>
+									<select id="employer" name="employer" class="form-control" required>
+										<option value="">Select Candidate</option>
+										{% for employer in employers %}
+											<option value="{{employer.id}}">{{employer.client_name}}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+							
+						
+							<!-- Other Fields -->
+							<div class="ctrls" id="new-contact-fields">
+								<div class="form-group">
+									<label for="contact_name">Contact Name:</label>
+									<input type="text" id="contact_name" name="contact_name" class="form-control">
+								</div>
+								<div class="form-group">
+									<label for="contact_number">Contact Number:</label>
+									<input type="text" id="contact_number" name="contact_number" class="form-control">
+								</div>
+							</div>
+							
+							<!-- Other Field Display -->
+							<div class="ctrls" id="others-field">
+								<div class="form-group">
+									<label for="others">Others:</label>
+									<input type="text" id="others" name="others" class="form-control">
+								</div>
+							</div>
+							<!-- Alert Date Field -->
 							<div class="form-group">
 								<label>Alert Date <span class="text-danger"></span></label>
 								<input class="form-control" type="date" name="alert-date" required>
 							</div>
-						</div>
-						<div class="col-sm-6 col-md-4">
+
+							<!-- Remark Field -->
 							<div class="form-group">
 								<label>Remark <span class="text-danger"></span></label>
 								<textarea class="form-control" rows="2" name="remark"></textarea>
 							</div>
 						</div>
-					</div>
-					<div class="row">
-						<div class="col-md-12 col-sm-12">
+						
+						<div class="col-sm-6 col-md-4">
+							<!-- Audio File Upload -->
 							<div class="form-group">
 								<div class="mic-container">
 									<div class="display">
-
 									</div>
 									<div class="controllers">
 									</div>
@@ -345,152 +426,23 @@
 							</div>
 						</div>
 					</div>
+					
 					<input type="submit" id="submit-btn" class="btn btn-primary">
-					<div id="submit-spinner" class="spinner-border spinner-border-sm" role="status"
-						style="display: none;">
+					<div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
 						<span class="sr-only"></span>
 					</div>
-			</div>
-			</form>
-		</div>
-	</div>
-</div>
-</div>
-
-
-<div class="row">
-	<div class="col-sm-12">
-		<div class="card">
-			<div class="table-responsive">
-				<table class="table table-striped custom-table mb-0 datatable">
-					<thead>
-						<tr>
-							<th style="text-align:center">Client</th>
-							<th style="text-align:center">Company</th>
-							<th style="text-align:center">Alert Date</th>
-							<th style="text-align:center">Remark</th>
-							<th style="text-align:center">Audio</th>
-							<th style="text-align:center">Status</th>
-							<th style="text-align:center">Delete</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for note in notes %}
-						<tr>
-							<td style="text-align:center">
-								<p class="text-secondary">{{note.company.client.client_id}} -
-									{{note.company.client.client_name}}</p>
-							</td>
-							<td style="text-align:center">
-								<p class="text-secondary">{{note.company.company_id}} - {{note.company.company_name}}
-								</p>
-							</td>
-							<td style="text-align:center">{{note.alert_date}}</td>
-							<td style="text-align:center">{{note.remarks}}</td>
-							<td style="text-align:center">
-								{% if note.voice %}
-								<audio controls>
-									<source src="{{note.voice.url}}" type="audio/mpeg">
-								</audio>
-								{% else %}
-								-
-								{% endif %}
-							</td>
-							<td style="text-align:center">
-								{% if note.status %}
-								<button class="btn btn-sm btn-success" title="Set Your Task as Completed"
-									onclick="update_empnotes_func('{{note.id}}')" id="note-btn-id{{note.id}}">Completed</button>
-								{% else %}
-								<button class="btn btn-sm btn-warning" title="Set Your Task as Incomplete"
-									onclick="update_empnotes_func('{{note.id}}')" id="note-btn-id{{note.id}}">Pending</button>
-								{% endif %}
-							</td>
-							<td style="text-align:center">
-								<button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_note{{note.id}}"><i class="fa fa-trash"></i></button>
-							</td>
-
-							<div class="modal custom-modal fade" id="delete_note{{note.id}}" role="dialog">
-								<div class="modal-dialog modal-dialog-centered">
-									<div class="modal-content">
-										<div class="modal-body">
-											<div class="form-header">
-												<h3>Delete {{note.company.company_name}}</h3>
-												<p>Are you sure want to delete?</p>
-											</div>
-											<div class="modal-btn delete-action">
-												<div class="row">
-													<div class="col-6">
-														<a href="/job-advertisement/delete-employeer-personal-notes/{{note.id}}" class="btn btn-primary continue-btn">Delete</a>
-													</div>
-													<div class="col-6">
-														<a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+				</form>
 			</div>
 		</div>
 	</div>
 </div>
-{% endblock %}
 
+
+
+{% endblock %}	
+				
+							
 {% block jslink %}
-<script>
-	const dt = new DataTransfer(); // Permet de manipuler les fichiers de l'input file
-
-	$("#attachment").on('change', function (e) {
-
-		// Ajout des fichiers dans l'objet DataTransfer
-		for (let file of this.files) {
-			const fileSize = file.size / 1024 / 1024;
-			var chkfile = false;
-			console.log(fileSize);
-			if (fileSize > 25) {
-				alert(file.name + '\nFile size exceeds 25 MiB');
-				dt.item.remove(file);
-				chkfile = true;
-			}
-			if (chkfile == false) {
-				dt.items.add(file);
-			}
-		};
-		for (var i = 0; i < this.files.length; i++) {
-			let fileBloc = $('<span/>', { class: 'file-block' }),
-				fileName = $('<span/>', { class: 'name', text: this.files.item(i).name });
-			fileBloc.append('<span class="file-delete"><span>+</span></span>')
-				.append(fileName);
-			$("#filesList > #files-names").append(fileBloc);
-		}
-		// Mise à jour des fichiers de l'input file après ajout
-		this.files = dt.files;
-
-		// EventListener pour le bouton de suppression créé
-		$('span.file-delete').click(function () {
-			let name = $(this).next('span.name').text();
-			// Supprimer l'affichage du nom de fichier
-			$(this).parent().remove();
-
-			for (let i = 0; i < dt.items.length; i++) {
-
-				if (name === dt.items[i].getAsFile().name) {
-					// Suppression du fichier dans l'objet DataTransfer
-					dt.items.remove(i);
-					continue;
-				}
-			}
-			// Mise à jour des fichiers de l'input file après suppression
-			document.getElementById('attachment').files = dt.files;
-		});
-	});
-</script>
-
 
 <!-- ..................... -->
 <script>
@@ -667,6 +619,8 @@
 	});
 </script>
 
+
+
 <script>
 	function getCookie(name) {
 		var cookieValue = null;
@@ -769,4 +723,81 @@
 		});
 	}
 </script>
-{% endblock %}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		$('.ctrls').css('display', 'none');
+	})
+
+	$(document).on('change', '#notes_for,#employer_or_agent', function(e) {
+		$('.ctrls').css('display', 'none');
+		if($(this).val() == 'Employee') {
+			$('#employer-agent-container').css('display', 'block');
+		}
+		var selectedDrp = $(this).val();
+		$('.'+selectedDrp).css('display','block');
+		
+	})
+	$(document).on('change', '#notes_for', function(e) {
+        if ($(this).val() === 'New Contact') {
+            $('#new-contact-fields').css('display', 'block');
+        } else {
+            $('#new-contact-fields').css('display', 'none');
+        }
+    });
+	$(document).on('change', '#notes_for', function(e) {
+    if ($(this).val() === 'Others') {
+        $('#others-field').css('display', 'block');
+        $('#others').prop('required', true);  // Make it mandatory
+    } else {
+        $('#others-field').css('display', 'none');
+        $('#others').prop('required', false); // Remove the requirement if not needed
+    }
+});
+$(document).ready(function() {
+    $('#employeer-personal-notes-form').submit(function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        var formData = new FormData(this);
+        console.log(formData); // Log the form data to check if it is correct
+
+        $.ajax({
+            type: 'POST',
+            url: window.location.href,
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');  
+                $('#submit-spinner').show(); // Show spinner
+                $('#submit-btn').prop('disabled', true).text('Submitting...'); // Disable button
+            },
+            success: function(response) {
+                console.log(response); // Log the response to see if the server responds correctly
+                $('#submit-spinner').hide(); // Hide spinner
+                $('#submit-btn').prop('disabled', false).text('Submit'); // Enable button
+                if (response.success) {
+                    alert('Note added successfully!');
+                    location.reload(); // Refresh to update notes
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText); // Log the error response
+                $('#submit-spinner').hide(); // Hide spinner
+                $('#submit-btn').prop('disabled', false).text('Submit'); // Enable button
+                alert('Submission failed!');
+            }
+        });
+    });
+});
+
+</script>
+
+
+							
+	{% endblock %}					
+
