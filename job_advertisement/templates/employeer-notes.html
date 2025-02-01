@@ -321,7 +321,7 @@
 							<div class="ctrls Company" id="company-selection" >
 								<div class="form-group">
 									<label for="company">Select Company:</label>
-									<select id="company" name="company" class="form-control" required>
+									<select id="company" name="company" class="form-control">
 										<option value="">Select Company</option>
 										{% for company in companies %}
 											<option value="{{company.id}}">{{company.company_name}}</option>
@@ -334,7 +334,7 @@
 							<div class="ctrls Employee" id="employer-agent-container">
 								<div class="form-group">
 									<label for="employer_or_agent">Select Employer or Agent:</label>
-									<select id="employer_or_agent" name="employer_or_agent" class="form-control" required>
+									<select id="employer_or_agent" name="employer_or_agent" class="form-control">
 										<option value="">Select Employer or Agent</option>
 										<option value="Employer">Employer</option>
 										<option value="Agent">Agent</option>
@@ -347,7 +347,7 @@
 							<div class="ctrls Employer" id="employer-selection" >
 								<div class="form-group">
 									<label for="employer">Select Employer:</label>
-									<select id="employer" name="employer" class="form-control" required>
+									<select id="employer" name="employer" class="form-control">
 										<option value="">Select Employer</option>
 										{% for employer in employers %}
 											<option value="{{employer.id}}">{{employer.client_name}}</option>
@@ -359,7 +359,7 @@
 							<div class="ctrls Agent" id="agent-candidate-selection">
 								<div class="form-group">
 									<label for="agent_candidates">Select Agent Candidates:</label>
-									<select id="agent_candidates" name="agent_candidates" class="form-control" required>
+									<select id="agent_candidates" name="agent_candidates" class="form-control">
 										<option value="">Select Candidate</option>
 										{% for agent in agents %}
 											<option value="{{agent.id}}">{{agent.name}}</option>
@@ -370,11 +370,11 @@
 							
 							<div class="ctrls Contact" id="employer-selection" >
 								<div class="form-group">
-									<label for="employee">Select Candidate:</label>
-									<select id="employer" name="employer" class="form-control" required>
-										<option value="">Select Candidate</option>
-										{% for employer in employers %}
-											<option value="{{employer.id}}">{{employer.client_name}}</option>
+									<label for="contact">Select Contact:</label>
+									<select id="contact" name="contact" class="form-control">
+										<option value="">Select Contact</option>
+										{% for contact in contacts %}
+											<option value="{{contact.id}}">{{contact.contact_name}}</option>
 										{% endfor %}
 									</select>
 								</div>
@@ -437,7 +437,103 @@
 	</div>
 </div>
 
+<div class="row">
+	<div class="col-sm-12">
+		<div class="card">
+			<div class="table-responsive">
+				<table class="table table-striped custom-table mb-0 datatable">
+					<thead>
+						<tr>
+							<th style="text-align:center">Notes For</th>
+							<th style="text-align:center">Notes Value</th>
+							<th style="text-align:center">Alert Date</th>
+							<th style="text-align:center">Remark</th>
+							<th style="text-align:center">Audio</th>
+							<th style="text-align:center">Status</th>
+							<th style="text-align:center">Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for note in notes %}
+						<tr>
 
+							<td style="text-align:center">
+								<p class="text-secondary">{{note.notes_for}}</p>
+							</td>
+							
+							<td style="text-align:center">
+								<p class="text-secondary">
+									{% if note.notes_for == "Company" %}
+										{{ note.company.company_id }} - {{ note.company.company_name }}
+									{% elif note.notes_for == "Agent" %}
+										{{ note.agent.agent_id }} - {{ note.agent.name }}
+									{% elif note.notes_for == "Employee" %}
+										{{ note.employee.employee_id }} - {{ note.employee.employee_name }}
+									{% elif note.notes_for == "Employer" %}
+										{{ note.employer.id }} - {{ note.employer.client_name }}
+									{% elif note.notes_for == "Contact" %}
+										{{ note.contact.id }} - {{ note.contact.contact_name }}
+									{% elif note.notes_for == "New Contact" %}
+										{{ note.contact_name }} - {{ note.contact_number }}
+									{% else %}
+										{{ note.others}} 
+									{% endif %}
+								</p>
+							</td>
+							<td style="text-align:center">{{note.alert_date}}</td>
+							<td style="text-align:center">{{note.remarks}}</td>
+							<td style="text-align:center">
+								{% if note.voice %}
+								<audio controls>
+									<source src="{{note.voice.url}}" type="audio/mpeg">
+								</audio>
+								{% else %}
+								-
+								{% endif %}
+							</td>
+							<td style="text-align:center">
+								{% if note.status %}
+								<button class="btn btn-sm btn-success" title="Set Your Task as Completed"
+									onclick="update_empnotes_func('{{note.id}}')" id="note-btn-id{{note.id}}">Completed</button>
+								{% else %}
+								<button class="btn btn-sm btn-warning" title="Set Your Task as Incomplete"
+									onclick="update_empnotes_func('{{note.id}}')" id="note-btn-id{{note.id}}">Pending</button>
+								{% endif %}
+							</td>
+							<td style="text-align:center">
+								<button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_note{{note.id}}"><i class="fa fa-trash"></i></button>
+							</td>
+
+							<div class="modal custom-modal fade" id="delete_note{{note.id}}" role="dialog">
+								<div class="modal-dialog modal-dialog-centered">
+									<div class="modal-content">
+										<div class="modal-body">
+											<div class="form-header">
+												<h3>Delete {{note.notes_for}}</h3>
+												<p>Are you sure want to delete?</p>
+											</div>
+											<div class="modal-btn delete-action">
+												<div class="row">
+													<div class="col-6">
+														<a href="/job-advertisement/delete-employeer-personal-notes/{{note.id}}" class="btn btn-primary continue-btn">Delete</a>
+													</div>
+													<div class="col-6">
+														<a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
 
 {% endblock %}	
 				
@@ -638,6 +734,7 @@
 		return cookieValue;
 	}
 	var csrftoken = getCookie('csrftoken');
+	
 	$("#employeer-personal-notes-form").submit(function (e) {
 		e.preventDefault();
 		let get_spinner = document.getElementById('submit-spinner');
@@ -646,6 +743,7 @@
 		get_spinner.style.display = '';
 		var formData = new FormData(this);
 		formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
+		console.log(formData);
 		// Inserting
 		$.ajax({
 			type: 'POST',
@@ -661,11 +759,12 @@
 				location.reload()
 			},
 			error: function (error) {
-				location.reload()
+				console.log(error);
+				//location.reload()
 			},
 		});
 
-	})
+	}) 
 </script>
 
 <script>
@@ -756,45 +855,6 @@
         $('#others').prop('required', false); // Remove the requirement if not needed
     }
 });
-$(document).ready(function() {
-    $('#employeer-personal-notes-form').submit(function(event) {
-        event.preventDefault(); // Prevent default form submission
-
-        var formData = new FormData(this);
-        console.log(formData); // Log the form data to check if it is correct
-
-        $.ajax({
-            type: 'POST',
-            url: window.location.href,
-            data: formData,
-            processData: false,
-            contentType: false,
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');  
-                $('#submit-spinner').show(); // Show spinner
-                $('#submit-btn').prop('disabled', true).text('Submitting...'); // Disable button
-            },
-            success: function(response) {
-                console.log(response); // Log the response to see if the server responds correctly
-                $('#submit-spinner').hide(); // Hide spinner
-                $('#submit-btn').prop('disabled', false).text('Submit'); // Enable button
-                if (response.success) {
-                    alert('Note added successfully!');
-                    location.reload(); // Refresh to update notes
-                } else {
-                    alert('Error: ' + response.error);
-                }
-            },
-            error: function(xhr) {
-                console.log(xhr.responseText); // Log the error response
-                $('#submit-spinner').hide(); // Hide spinner
-                $('#submit-btn').prop('disabled', false).text('Submit'); // Enable button
-                alert('Submission failed!');
-            }
-        });
-    });
-});
-
 </script>
 
 

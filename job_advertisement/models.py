@@ -48,6 +48,7 @@ class StaffMaintenanceModel(models.Model):
 
 class EmployeerPersonalNotesModel(models.Model):
     id = models.BigAutoField(primary_key=True)  # BigSerial Primary Key
+    notes_for = models.CharField(max_length=100, null=True)  # Character varying(100) for notes for
     alert_date = models.DateField()  # Date field for alert
     remarks = models.TextField()  # Text field for remarks
     voice = models.CharField(max_length=100, null=True, blank=True)  # Character varying(100) for voice path
@@ -68,7 +69,9 @@ class EmployeerPersonalNotesModel(models.Model):
 
     def __str__(self):
         return f"Note by {self.user.username} on {self.alert_date}"
+    
 class ContactMasterModel(models.Model):
+    id= models.BigAutoField(primary_key=True) 
     contact_name = models.CharField(max_length=200)
     contact_number = models.CharField(max_length=100)
     email = models.EmailField(null=True, blank=True)

@@ -603,33 +603,53 @@ def employeer_personal_notes_api(request):
     if request.method == 'POST':
         try:
             user = User.objects.get(username=request.user)
-            compname = request.POST.get('comp-name')  # This will capture the selected company
-            company = AddCompanyModel.objects.get(id=int(compname))  # Get company instance
+            #compname = request.POST.get('comp-name')  # This will capture the selected company
+            #company = AddCompanyModel.objects.get(id=int(compname))  # Get company instance
+            company_id = request.POST.get('company')
+            company = AddCompanyModel.objects.get(id=int(company_id)) if company_id else None
             alert_date = request.POST.get('alert-date')
             remarks = request.POST.get('remark')
             voice = request.FILES.get('audio')
 
             # Handle dynamic fields based on 'notes_for'
             notes_for = request.POST.get('notes_for')
+            employer_id = request.POST.get('employer')
+            employer = NewClientModel.objects.get(id=int(employer_id)) if employer_id else None
+            agent_id = request.POST.get('agent_candidates')
+            agent = AgentManagementNewAgentModel.objects.get(id=int(agent_id)) if agent_id else None
             employer_or_agent = request.POST.get('employer_or_agent')
             contact_name = request.POST.get('contact_name')
             contact_number = request.POST.get('contact_number')
             others = request.POST.get('others')
+            conatct_id = request.POST.get('contact')
+            
+            #create new contact in contact master
+            if notes_for == 'New Contact':
+                contact = ContactMasterModel.objects.create(
+                    contact_name=contact_name,
+                    contact_number=contact_number
+            ) 
 
             # Create the note
             note = models.EmployeerPersonalNotesModel(
+                notes_for=notes_for,
                 user=user,
-                company=company,
+                company=company if notes_for == 'Company' else None,
+                employer=employer if notes_for == 'Employer' else None,
+                agent=agent if notes_for == 'Agent' else None,
                 alert_date=alert_date,
                 remarks=remarks,
                 voice=voice,
-                others=others if notes_for == 'Others' else None,
+                contact_id =conatct_id if notes_for == 'Contact' else None,
                 contact_name=contact_name if notes_for == 'New Contact' else None,
                 contact_number=contact_number if notes_for == 'New Contact' else None,
+                others=others if notes_for == 'Others' else None,
             )
             note.save()
 
-            messages.success(request, f'{company.company_name}, New Note Added.')
+            messages.success(request, f'New Note Added.')
+            
+            #messages.success(request, f'{company.company_name}, New Note Added.')
             response_data = {'status': 'success'}
         except Exception as e:
             messages.error(request, f'Error: {str(e)}')
@@ -703,7 +723,7 @@ class EmployeerPersonalNotesView(View):
 
             user = request.user
             notes = EmployeerPersonalNotesModel.objects.filter(user=user).order_by('-id')  # Fetching notes for user
-            
+            print(notes, 'notes')
             context = {
                 'companies': companies,
                 'agents': agents,
@@ -712,6 +732,7 @@ class EmployeerPersonalNotesView(View):
                 'contacts': contacts,
                 'notes': notes,
             }
+            print(context, 'context')
             return render(request, self.template_name, context)
         except Exception as e:
             return render(request, self.template_name, {'error': str(e)})
@@ -735,6 +756,12 @@ class EmployeerPersonalNotesView(View):
 
             # Make the datetime timezone-aware
             alert_date = make_aware(alert_date)  # This will make it timezone-aware
+            
+            if notes_for == 'New Contact':
+                contact = ContactMasterModel.objects.create(
+                    contact_name=contact_name,
+                    contact_number=contact_number
+                )
 
             new_note = EmployeerPersonalNotesModel.objects.create(
                 user=request.user,
@@ -762,6 +789,7 @@ class EmployeerPersonalNotesView(View):
             })
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
+
 def employer_notes_view(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:  # Admin sees all notes

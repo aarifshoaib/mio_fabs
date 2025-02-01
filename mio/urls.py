@@ -20,7 +20,7 @@ from mio import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    # path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('', views.Login.as_view()),
     path('login-authentication-check-secret-key-api', views.CheckAuthenticateSecretKeyAPI.as_view()),
     path('logout', views.Logout.as_view()),
