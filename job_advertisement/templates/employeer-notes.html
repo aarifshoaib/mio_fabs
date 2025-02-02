@@ -321,7 +321,7 @@
 							<div class="ctrls Company" id="company-selection" >
 								<div class="form-group">
 									<label for="company">Select Company:</label>
-									<select id="company" name="company" class="form-control">
+									<select id="company" name="company" class="form-control company">
 										<option value="">Select Company</option>
 										{% for company in companies %}
 											<option value="{{company.id}}">{{company.company_name}}</option>
@@ -334,7 +334,7 @@
 							<div class="ctrls Employee" id="employer-agent-container">
 								<div class="form-group">
 									<label for="employer_or_agent">Select Employer or Agent:</label>
-									<select id="employer_or_agent" name="employer_or_agent" class="form-control">
+									<select id="employer_or_agent" name="employer_or_agent" class="form-control employee">
 										<option value="">Select Employer or Agent</option>
 										<option value="Employer">Employer</option>
 										<option value="Agent">Agent</option>
@@ -347,7 +347,7 @@
 							<div class="ctrls Employer" id="employer-selection" >
 								<div class="form-group">
 									<label for="employer">Select Employer:</label>
-									<select id="employer" name="employer" class="form-control">
+									<select id="employer" name="employer" class="form-control employer">
 										<option value="">Select Employer</option>
 										{% for employer in employers %}
 											<option value="{{employer.id}}">{{employer.client_name}}</option>
@@ -359,19 +359,31 @@
 							<div class="ctrls Agent" id="agent-candidate-selection">
 								<div class="form-group">
 									<label for="agent_candidates">Select Agent Candidates:</label>
-									<select id="agent_candidates" name="agent_candidates" class="form-control">
+									<select id="agent_candidates" name="agent_candidates" class="form-control agent">
 										<option value="">Select Candidate</option>
 										{% for agent in agents %}
 											<option value="{{agent.id}}">{{agent.name}}</option>
 										{% endfor %}
 									</select>
 								</div>
-							</div>							
+							</div>
+							
+							<div class="ctrls Employee">
+								<div class="form-group">
+									<label for="employee">Select Employee:</label>
+									<select id="employee" name="employee" class="form-control employee">
+										<option value="">Select Employee</option>
+										{% for employee in employees %}
+											<option value="{{employee.id}}">{{employee.name}}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>	
 							
 							<div class="ctrls Contact" id="employer-selection" >
 								<div class="form-group">
 									<label for="contact">Select Contact:</label>
-									<select id="contact" name="contact" class="form-control">
+									<select id="contact" name="contact" class="form-control contact">
 										<option value="">Select Contact</option>
 										{% for contact in contacts %}
 											<option value="{{contact.id}}">{{contact.contact_name}}</option>
@@ -394,10 +406,10 @@
 							</div>
 							
 							<!-- Other Field Display -->
-							<div class="ctrls" id="others-field">
+							<div class="ctrls Others" id="others-field">
 								<div class="form-group">
 									<label for="others">Others:</label>
-									<input type="text" id="others" name="others" class="form-control">
+									<input type="text" id="others" name="others" class="form-control other">
 								</div>
 							</div>
 							<!-- Alert Date Field -->
@@ -468,7 +480,13 @@
 									{% elif note.notes_for == "Agent" %}
 										{{ note.agent.agent_id }} - {{ note.agent.name }}
 									{% elif note.notes_for == "Employee" %}
-										{{ note.employee.employee_id }} - {{ note.employee.employee_name }}
+										Employee : {{ note.employee_id }} - {{ note.employee.name }}
+										{% if note.employer_or_agent == 'Employer' %}
+											Employer: {{ note.employer.id }} - {{ note.employer.client_name }}
+										{% else %}
+											Agent : {{ note.agent.id }} - {{ note.agent.name }}
+										{% endif %}
+										
 									{% elif note.notes_for == "Employer" %}
 										{{ note.employer.id }} - {{ note.employer.client_name }}
 									{% elif note.notes_for == "Contact" %}
@@ -711,6 +729,9 @@
 <script>
 	$(document).ready(function () {
 		$('select').selectize({
+			searchField: 'text', // Ensure search works on text field
+    		create: false,
+    		highlight: true, 
 		});
 	});
 </script>
@@ -737,6 +758,10 @@
 	
 	$("#employeer-personal-notes-form").submit(function (e) {
 		e.preventDefault();
+		 let isValid = true;
+
+		
+
 		let get_spinner = document.getElementById('submit-spinner');
 		let submit_btn = document.getElementById('submit-btn');
 		submit_btn.setAttribute('disabled', '')
@@ -763,7 +788,7 @@
 				//location.reload()
 			},
 		});
-
+	
 	}) 
 </script>
 
@@ -830,31 +855,26 @@
 		$('.ctrls').css('display', 'none');
 	})
 
-	$(document).on('change', '#notes_for,#employer_or_agent', function(e) {
+	$(document).on('change', '#notes_for', function(e) {
 		$('.ctrls').css('display', 'none');
-		if($(this).val() == 'Employee') {
-			$('#employer-agent-container').css('display', 'block');
-		}
+		if ($(this).val() === 'New Contact') {
+            $('#new-contact-fields').css('display', 'block');
+        } 
 		var selectedDrp = $(this).val();
 		$('.'+selectedDrp).css('display','block');
-		
 	})
-	$(document).on('change', '#notes_for', function(e) {
-        if ($(this).val() === 'New Contact') {
-            $('#new-contact-fields').css('display', 'block');
-        } else {
-            $('#new-contact-fields').css('display', 'none');
-        }
-    });
-	$(document).on('change', '#notes_for', function(e) {
-    if ($(this).val() === 'Others') {
-        $('#others-field').css('display', 'block');
-        $('#others').prop('required', true);  // Make it mandatory
-    } else {
-        $('#others-field').css('display', 'none');
-        $('#others').prop('required', false); // Remove the requirement if not needed
-    }
-});
+	$(document).on('change', '#employer_or_agent', function(e) {
+		var selectedDrp = $('#notes_for').val();
+		var selectedDrpr = $(this).val();
+		if(selectedDrp == 'Employee') {
+			$('.Agent, .Employer').val('');
+			$('.Agent, .Employer').css('display','none');
+			$('#employer-agent-container').css('display', 'block');
+		}
+		var selectedDrpr = $(this).val();
+		$('.'+selectedDrpr).css('display','block');
+	})
+	
 </script>
 
 

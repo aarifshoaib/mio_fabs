@@ -614,6 +614,7 @@ def employeer_personal_notes_api(request):
             # Handle dynamic fields based on 'notes_for'
             notes_for = request.POST.get('notes_for')
             employer_id = request.POST.get('employer')
+            employee_id = request.POST.get('employee')
             employer = NewClientModel.objects.get(id=int(employer_id)) if employer_id else None
             agent_id = request.POST.get('agent_candidates')
             agent = AgentManagementNewAgentModel.objects.get(id=int(agent_id)) if agent_id else None
@@ -635,11 +636,13 @@ def employeer_personal_notes_api(request):
                 notes_for=notes_for,
                 user=user,
                 company=company if notes_for == 'Company' else None,
-                employer=employer if notes_for == 'Employer' else None,
-                agent=agent if notes_for == 'Agent' else None,
+                employer=employer if notes_for == 'Employer' or employer_or_agent == 'Employer' else None,
+                agent=agent if notes_for == 'Employer' or employer_or_agent == 'Agent' else None,
                 alert_date=alert_date,
                 remarks=remarks,
                 voice=voice,
+                employee_id=employee_id if notes_for == 'Employee' else None,
+                employer_or_agent=employer_or_agent if notes_for == 'Employee' else None,
                 contact_id =conatct_id if notes_for == 'Contact' else None,
                 contact_name=contact_name if notes_for == 'New Contact' else None,
                 contact_number=contact_number if notes_for == 'New Contact' else None,

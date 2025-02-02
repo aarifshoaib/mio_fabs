@@ -51,7 +51,8 @@ class EmployeerPersonalNotesModel(models.Model):
     notes_for = models.CharField(max_length=100, null=True)  # Character varying(100) for notes for
     alert_date = models.DateField()  # Date field for alert
     remarks = models.TextField()  # Text field for remarks
-    voice = models.CharField(max_length=100, null=True, blank=True)  # Character varying(100) for voice path
+    #voice = models.CharField(max_length=100, null=True, blank=True)  # Character varying(100) for voice path
+    voice = models.FileField(upload_to='EmployeerPersonalNotesVoices/', null=True)  # File field for voice
     status = models.BooleanField(default=False)  # Boolean field for status
 
     # Foreign Key References
@@ -61,6 +62,7 @@ class EmployeerPersonalNotesModel(models.Model):
     employer = models.ForeignKey('client_management.NewClientModel', on_delete=models.SET_NULL, null=True)  # Employer Master
     employee = models.ForeignKey('agent_candidate.CandidateFormModels', on_delete=models.SET_NULL, null=True)  # Candidate Master
     contact = models.ForeignKey('job_advertisement.ContactMasterModel', on_delete=models.SET_NULL, null=True)  # Contact Master (New Table)
+    employer_or_agent = models.CharField(max_length=100, null=True, blank=True)  # Character varying(100) for Employer or Agent
 
     # Additional Fields
     contact_name = models.CharField(max_length=200, null=True, blank=True)  # New Contact Name
