@@ -21,6 +21,7 @@ from django.utils.timezone import make_aware
 
 
 
+
 @method_decorator(login_required(login_url="/"), name='dispatch')
 class CreateJobView(View):
     template_name = 'create-job.html'
@@ -726,6 +727,7 @@ class EmployeerPersonalNotesView(View):
 
             user = request.user
             notes = EmployeerPersonalNotesModel.objects.filter(user=user).order_by('-id')  # Fetching notes for user
+            empnotescnt = notes.count()
             print(notes, 'notes')
             context = {
                 'companies': companies,
@@ -734,6 +736,7 @@ class EmployeerPersonalNotesView(View):
                 'employees': employees,
                 'contacts': contacts,
                 'notes': notes,
+                'empnotescnt': empnotescnt
             }
             print(context, 'context')
             return render(request, self.template_name, context)

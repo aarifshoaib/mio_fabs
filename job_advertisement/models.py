@@ -1,8 +1,6 @@
 from django.db import models
 from client_management.models import AddCompanyModel,NewClientModel
 from django.contrib.auth.models import User
-
-
 # Create your models here.
 class JobAdvertisementModel(models.Model):
     date_of_app = models.DateField()
@@ -45,7 +43,6 @@ class StaffMaintenanceModel(models.Model):
    # remarks = models.TextField()
    # voice = models.FileField(upload_to='EmployeerPersonalNotesVoices/', null=True)
    # status = models.BooleanField(default=False)
-
 class EmployeerPersonalNotesModel(models.Model):
     id = models.BigAutoField(primary_key=True)  # BigSerial Primary Key
     notes_for = models.CharField(max_length=100, null=True)  # Character varying(100) for notes for
@@ -53,6 +50,7 @@ class EmployeerPersonalNotesModel(models.Model):
     remarks = models.TextField()  # Text field for remarks
     #voice = models.CharField(max_length=100, null=True, blank=True)  # Character varying(100) for voice path
     voice = models.FileField(upload_to='EmployeerPersonalNotesVoices/', null=True)  # File field for voice
+    #voice = models.FileField(upload_to=voice_upload_path, null=True, blank=True)
     status = models.BooleanField(default=False)  # Boolean field for status
 
     # Foreign Key References
