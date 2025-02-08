@@ -768,6 +768,10 @@ class EmployeerPersonalNotesView(View):
                     contact_name=contact_name,
                     contact_number=contact_number
                 )
+            # if notes_for == 'Employee' and employee_id:
+            #     assigned_agent = AgentManagementCandidataFormModel.objects.filter(candidate_id=employee_id).first()
+            #     if assigned_agent:
+            #         agent_id = assigned_agent.agent_id
 
             new_note = EmployeerPersonalNotesModel.objects.create(
                 user=request.user,
