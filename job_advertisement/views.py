@@ -18,6 +18,7 @@ from .models import EmployeerPersonalNotesModel
 from datetime import datetime
 from django.utils.timezone import make_aware
 from django.core.serializers import serialize
+from django.shortcuts import get_object_or_404, redirect
 
 
 @method_decorator(login_required(login_url="/"), name='dispatch')
@@ -596,157 +597,289 @@ class StaffMaintenanceView(View):
         users = User.objects.all()
         datas = {'users': users}
         return render(request, self.template_name, context=datas)
-
-@login_required(login_url="/")
+    
 def employeer_personal_notes_api(request):
     if request.method == 'POST':
         try:
-            user = User.objects.get(username=request.user)
-            #compname = request.POST.get('comp-name')  # This will capture the selected company
-            #company = AddCompanyModel.objects.get(id=int(compname))  # Get company instance
+            user = get_object_or_404(User, username=request.user)
             company_id = request.POST.get('company')
-            company = AddCompanyModel.objects.get(id=int(company_id)) if company_id else None
+            company = AddCompanyModel.objects.filter(id=int(company_id)).first() if company_id else None
             alert_date = request.POST.get('alert-date')
             remarks = request.POST.get('remark')
             voice = request.FILES.get('audio')
-
-            # Handle dynamic fields based on 'notes_for'
             notes_for = request.POST.get('notes_for')
+
             employer_id = request.POST.get('employer')
-            employee_id = request.POST.get('employee')
-            employer = NewClientModel.objects.get(id=int(employer_id)) if employer_id else None
+            employer = NewClientModel.objects.filter(id=int(employer_id)).first() if employer_id else None
+
             agent_id = request.POST.get('agent_candidates')
-            agent = AgentManagementNewAgentModel.objects.get(id=int(agent_id)) if agent_id else None
+            agent = AgentManagementNewAgentModel.objects.filter(id=int(agent_id)).first() if agent_id else None
+
             employer_or_agent = request.POST.get('employer_or_agent')
+
+            employee_id = request.POST.get('employee')
+            employee = CandidateFormModels.objects.filter(id=int(employee_id)).first() if employee_id else None
+
+            contact_id = request.POST.get('contact')
+            contact = ContactMasterModel.objects.filter(id=int(contact_id)).first() if contact_id else None
+
             contact_name = request.POST.get('contact_name')
             contact_number = request.POST.get('contact_number')
             others = request.POST.get('others')
-            conatct_id = request.POST.get('contact')
-            
-            #create new contact in contact master
+
+            # Create new contact if "New Contact" is selected
             if notes_for == 'New Contact':
                 contact = ContactMasterModel.objects.create(
                     contact_name=contact_name,
                     contact_number=contact_number
-            ) 
+                )
 
-            # Create the note
-            note = models.EmployeerPersonalNotesModel(
+            # Create new note
+            note = models.EmployeerPersonalNotesModel.objects.create(
                 notes_for=notes_for,
                 user=user,
                 company=company if notes_for == 'Company' else None,
-                employer=employer if notes_for == 'Employer' or employer_or_agent == 'Employer' else None,
-                agent=agent if notes_for == 'Employer' or employer_or_agent == 'Agent' else None,
+                employer=employer if notes_for in ['Employer', 'Employer/Agent'] or employer_or_agent == 'Employer' else None,
+                agent=agent if notes_for in ['Employer', 'Employer/Agent'] or employer_or_agent == 'Agent' else None,
                 alert_date=alert_date,
                 remarks=remarks,
                 voice=voice,
-                employee_id=employee_id if notes_for == 'Employee' else None,
+                employee=employee if notes_for == 'Employee' else None,
                 employer_or_agent=employer_or_agent if notes_for == 'Employee' else None,
-                contact_id =conatct_id if notes_for == 'Contact' else None,
+                contact=contact if notes_for == 'Contact' else None,
                 contact_name=contact_name if notes_for == 'New Contact' else None,
                 contact_number=contact_number if notes_for == 'New Contact' else None,
                 others=others if notes_for == 'Others' else None,
             )
-            note.save()
 
-            messages.success(request, f'New Note Added.')
-            
-            #messages.success(request, f'{company.company_name}, New Note Added.')
+            messages.success(request, 'New Note Added.')
             response_data = {'status': 'success'}
         except Exception as e:
             messages.error(request, f'Error: {str(e)}')
             response_data = {'status': 'error', 'msg': str(e)}
 
-    return JsonResponse(response_data)
+        return JsonResponse(response_data)
+
 
 @login_required(login_url="/")
 def get_companies_for_employer_api(request, id):
     if request.method == 'GET':
         try:
-            print('id', id)
             companies = AddCompanyModel.objects.filter(client=id)
-            print('companies', companies)
-            response_data = {'status': 'success', 'companies': []}
-            for company in companies:
-                response_data['companies'].append({'id': company.id, 'company_name': company.company_name})
+            response_data = {'status': 'success', 'companies': [{'id': company.id, 'company_name': company.company_name} for company in companies]}
         except Exception as e:
             response_data = {'status': 'error', 'msg': str(e)}
         return JsonResponse(response_data)
-    
+
 
 @login_required(login_url="/")
 def get_employer_for_company_api(request, id):
     if request.method == 'GET':
         try:
-            print(id, 'id testing');
-            company=models.AddCompanyModel.objects.get(id=id)
-            print(company, 'company')
-            employees = list(AfterApprovalTEPModel.objects.filter(
+            company = get_object_or_404(AddCompanyModel, id=id)
+            employees = list(
+                AfterApprovalTEPModel.objects.filter(
                     issue__isnull=False,
-                    workpass__company_name__isnull=False, 
                     workpass__company_name=company
-                ).values('id', 'workpass__id', 'workpass__company_name', 'workpass__name'))
-
-            print(employees, 'employees')
-            # Convert to a list if needed
+                ).values('id', 'workpass__id', 'workpass__company_name', 'workpass__name')
+            )
             response_data = {'status': 'success', 'employees': employees}
-
-            return JsonResponse(response_data, safe=False)
-
         except Exception as e:
             response_data = {'status': 'error', 'msg': str(e)}
         return JsonResponse(response_data)
+
+
 @login_required(login_url="/")
 def update_employeer_personal_notes_api(request, id):
     if request.method == 'POST':
         try:
-            note = models.EmployeerPersonalNotesModel.objects.get(id=id)
-            if note.status:
-                note.status = False
-                note.save()
+            note = get_object_or_404(models.EmployeerPersonalNotesModel, id=id)
+            note.status = not note.status
+            note.save()
 
-                try:
-                    user = User.objects.get(username=request.user)
-                    empnotescnt = models.EmployeerPersonalNotesModel.objects.filter(user=user,
-                        status=False, alert_date__lte=datetime.today())
-                    empnotescnt = empnotescnt.count()
-                except:
-                    empnotescnt = 0
-                response_data = {'status': 'success', 'title': 'Set Your Task as Complete',
-                                 'name': 'Pending', 'cnt': empnotescnt, 'color': 'btn btn-sm btn-warning'}
-            else:
-                note.status = True
-                note.save()
+            user = request.user
+            empnotescnt = models.EmployeerPersonalNotesModel.objects.filter(
+                user=user, status=False, alert_date__lte=datetime.today()
+            ).count()
 
-                try:
-                    user = User.objects.get(username=request.user)
-                    empnotescnt = models.EmployeerPersonalNotesModel.objects.filter(user=user,
-                        status=False, alert_date__lte=datetime.today())
-                    empnotescnt = empnotescnt.count()
-                except:
-                    empnotescnt = 0
-
-                response_data = {'status': 'success', 'title': 'Set Your Task as Incomplete',
-                                 'name': 'Completed', 'cnt': empnotescnt, 'color': 'btn btn-sm btn-success'}
-        except:
+            response_data = {
+                'status': 'success',
+                'title': 'Set Your Task as Complete' if not note.status else 'Set Your Task as Incomplete',
+                'name': 'Pending' if not note.status else 'Completed',
+                'cnt': empnotescnt,
+                'color': 'btn btn-sm btn-warning' if not note.status else 'btn btn-sm btn-success'
+            }
+        except Exception:
             response_data = {'status': 'error'}
         return JsonResponse(response_data)
+
     return JsonResponse({'error': 'GET Request'})
+
 
 @method_decorator(login_required(login_url="/"), name='dispatch')
 class DeleteEmployeerPersonalNotes(View):
     def get(self, request, id):
         try:
-            note = models.EmployeerPersonalNotesModel.objects.get(id=id)
+            note = get_object_or_404(models.EmployeerPersonalNotesModel, id=id)
             voicenote = note.voice
             note.delete()
-            try:
+            if voicenote:
                 os.remove(voicenote.path)
-            except: pass
-            messages.success(request, f'NoteID: {id}, Deleted..')
+            messages.success(request, f'NoteID: {id}, Deleted.')
         except Exception as e:
             messages.error(request, f'Error: {e}')
         return redirect('/job-advertisement/employeer-notes')
+
+# @login_required(login_url="/")
+# def employeer_personal_notes_api(request):
+#     if request.method == 'POST':
+#         try:
+#             user = User.objects.get(username=request.user)
+#             #compname = request.POST.get('comp-name')  # This will capture the selected company
+#             #company = AddCompanyModel.objects.get(id=int(compname))  # Get company instance
+#             company_id = request.POST.get('company')
+#             company = AddCompanyModel.objects.get(id=int(company_id)) if company_id else None
+#             alert_date = request.POST.get('alert-date')
+#             remarks = request.POST.get('remark')
+#             voice = request.FILES.get('audio')
+
+#             # Handle dynamic fields based on 'notes_for'
+#             notes_for = request.POST.get('notes_for')
+#             employer_id = request.POST.get('employer')
+#             employee_id = request.POST.get('employee')
+#             employer = NewClientModel.objects.get(id=int(employer_id)) if employer_id else None
+#             agent_id = request.POST.get('agent_candidates')
+#             agent = AgentManagementNewAgentModel.objects.get(id=int(agent_id)) if agent_id else None
+#             employer_or_agent = request.POST.get('employer_or_agent')
+#             contact_name = request.POST.get('contact_name')
+#             contact_number = request.POST.get('contact_number')
+#             others = request.POST.get('others')
+#             conatct_id = request.POST.get('contact')
+            
+#             #create new contact in contact master
+#             if notes_for == 'New Contact':
+#                 contact = ContactMasterModel.objects.create(
+#                     contact_name=contact_name,
+#                     contact_number=contact_number
+#             ) 
+
+#             # Create the note
+#             note = models.EmployeerPersonalNotesModel(
+#                 notes_for=notes_for,
+#                 user=user,
+#                 company=company if notes_for == 'Company' else None,
+#                 employer=employer if notes_for == 'Employer' or employer_or_agent == 'Employer' else None,
+#                 agent=agent if notes_for == 'Employer' or employer_or_agent == 'Agent' else None,
+#                 alert_date=alert_date,
+#                 remarks=remarks,
+#                 voice=voice,
+#                 employee_id=employee_id if notes_for == 'Employee' else None,
+#                 employer_or_agent=employer_or_agent if notes_for == 'Employee' else None,
+#                 contact_id =conatct_id if notes_for == 'Contact' else None,
+#                 contact_name=contact_name if notes_for == 'New Contact' else None,
+#                 contact_number=contact_number if notes_for == 'New Contact' else None,
+#                 others=others if notes_for == 'Others' else None,
+#             )
+#             note.save()
+
+#             messages.success(request, f'New Note Added.')
+            
+#             #messages.success(request, f'{company.company_name}, New Note Added.')
+#             response_data = {'status': 'success'}
+#         except Exception as e:
+#             messages.error(request, f'Error: {str(e)}')
+#             response_data = {'status': 'error', 'msg': str(e)}
+
+#     return JsonResponse(response_data)
+
+# @login_required(login_url="/")
+# def get_companies_for_employer_api(request, id):
+#     if request.method == 'GET':
+#         try:
+#             print('id', id)
+#             companies = AddCompanyModel.objects.filter(client=id)
+#             print('companies', companies)
+#             response_data = {'status': 'success', 'companies': []}
+#             for company in companies:
+#                 response_data['companies'].append({'id': company.id, 'company_name': company.company_name})
+#         except Exception as e:
+#             response_data = {'status': 'error', 'msg': str(e)}
+#         return JsonResponse(response_data)
+    
+
+# @login_required(login_url="/")
+# def get_employer_for_company_api(request, id):
+#     if request.method == 'GET':
+#         try:
+#             print(id, 'id testing');
+#             company=models.AddCompanyModel.objects.get(id=id)
+#             print(company, 'company')
+#             employees = list(AfterApprovalTEPModel.objects.filter(
+#                     issue__isnull=False,
+#                     workpass__company_name__isnull=False, 
+#                     workpass__company_name=company
+#                 ).values('id', 'workpass__id', 'workpass__company_name', 'workpass__name'))
+
+#             print(employees, 'employees')
+#             # Convert to a list if needed
+#             response_data = {'status': 'success', 'employees': employees}
+
+#             return JsonResponse(response_data, safe=False)
+
+#         except Exception as e:
+#             response_data = {'status': 'error', 'msg': str(e)}
+#         return JsonResponse(response_data)
+# @login_required(login_url="/")
+# def update_employeer_personal_notes_api(request, id):
+#     if request.method == 'POST':
+#         try:
+#             note = models.EmployeerPersonalNotesModel.objects.get(id=id)
+#             if note.status:
+#                 note.status = False
+#                 note.save()
+
+#                 try:
+#                     user = User.objects.get(username=request.user)
+#                     empnotescnt = models.EmployeerPersonalNotesModel.objects.filter(user=user,
+#                         status=False, alert_date__lte=datetime.today())
+#                     empnotescnt = empnotescnt.count()
+#                 except:
+#                     empnotescnt = 0
+#                 response_data = {'status': 'success', 'title': 'Set Your Task as Complete',
+#                                  'name': 'Pending', 'cnt': empnotescnt, 'color': 'btn btn-sm btn-warning'}
+#             else:
+#                 note.status = True
+#                 note.save()
+
+#                 try:
+#                     user = User.objects.get(username=request.user)
+#                     empnotescnt = models.EmployeerPersonalNotesModel.objects.filter(user=user,
+#                         status=False, alert_date__lte=datetime.today())
+#                     empnotescnt = empnotescnt.count()
+#                 except:
+#                     empnotescnt = 0
+
+#                 response_data = {'status': 'success', 'title': 'Set Your Task as Incomplete',
+#                                  'name': 'Completed', 'cnt': empnotescnt, 'color': 'btn btn-sm btn-success'}
+#         except:
+#             response_data = {'status': 'error'}
+#         return JsonResponse(response_data)
+#     return JsonResponse({'error': 'GET Request'})
+
+# @method_decorator(login_required(login_url="/"), name='dispatch')
+# class DeleteEmployeerPersonalNotes(View):
+#     def get(self, request, id):
+#         try:
+#             note = models.EmployeerPersonalNotesModel.objects.get(id=id)
+#             voicenote = note.voice
+#             note.delete()
+#             try:
+#                 os.remove(voicenote.path)
+#             except: pass
+#             messages.success(request, f'NoteID: {id}, Deleted..')
+#         except Exception as e:
+#             messages.error(request, f'Error: {e}')
+#         return redirect('/job-advertisement/employeer-notes')
 
 @method_decorator(login_required(login_url="/"), name='dispatch')
 class EmployeerPersonalNotesView(View):
