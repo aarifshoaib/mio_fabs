@@ -51,10 +51,10 @@
 		/* height: 100vh;*/
 		/*width: 100vw;*/
 		display: flex;
-		flex-direction: column;
+		flex-direction: row-reverse;
 		align-items: center;
 		justify-content: center;
-		text-align: center;
+		margin-top: 10px;
 	}
 
 	.mic-container .display {
@@ -301,131 +301,167 @@
 			<div class="card-body">
 				<form method="post" enctype="multipart/form-data" id="employeer-personal-notes-form">
 					{% csrf_token %}
-					<div class="row">
-						<div class="col-sm-6 col-md-4">
-							<div class="form-group">
-								<label for="notes_for">NOTES FOR:</label>
-								<select id="notes_for" name="notes_for" class="form-control" required>
-									<option value="">Select</option>
-									<option value="Employer">Employer</option>
-									<option value="Company">Company</option>
-									<option value="Agent">Agent</option>
-									<option value="Employee">Employee</option>
-									<option value="Contact">Contact</option>
-									<option value="New Contact">New Contact</option>
-									<option value="Others">Others</option>
-								</select>
-							</div>
-
-							<!-- Employer/Agent Dynamic Company and Candidate Selection -->
-							<div class="ctrls Company" id="company-selection" >
+						<div class="row">
+							<div class="col-sm-12 col-md-3">
 								<div class="form-group">
-									<label for="company">Select Company:</label>
-									<select id="company" name="company" class="form-control company">
-										<option value="">Select Company</option>
-										{% for company in companies %}
-											<option value="{{company.id}}">{{company.company_name}}</option>
-										{% endfor %}
-									</select>
-								</div>
-							</div>
-							
-							<!-- Dynamic Fields Based on Selection -->
-							<div class="ctrls Employee" id="employer-agent-container">
-								<div class="form-group">
-									<label for="employer_or_agent">Select Employer or Agent:</label>
-									<select id="employer_or_agent" name="employer_or_agent" class="form-control employee">
-										<option value="">Select Employer or Agent</option>
+									<label for="notes_for">Notes For:</label>
+									<select id="notes_for" name="notes_for" class="form-control" required>
+										<option value="">Select</option>
 										<option value="Employer">Employer</option>
+										<option value="Company">Company</option>
 										<option value="Agent">Agent</option>
+										<option value="Employee">Employee</option>
+										<option value="Contact">Contact</option>
+										<option value="New Contact">New Contact</option>
+										<option value="Others">Others</option>
 									</select>
 								</div>
-							</div>
-							
-							<!-- Employeer List / Client List -->
-
-							<div class="ctrls Employer" id="employer-selection" >
-								<div class="form-group">
-									<label for="employer">Select Employer:</label>
-									<select id="employer" name="employer" class="form-control employer">
-										<option value="">Select Employer</option>
-										{% for employer in employers %}
-											<option value="{{employer.id}}">{{employer.client_name}}</option>
-										{% endfor %}
-									</select>
-								</div>
-							</div>					
-
-							<div class="ctrls Agent" id="agent-candidate-selection">
-								<div class="form-group">
-									<label for="agent_candidates">Select Agent Candidates:</label>
-									<select id="agent_candidates" name="agent_candidates" class="form-control agent">
-										<option value="">Select Candidate</option>
-										{% for agent in agents %}
-											<option value="{{agent.id}}">{{agent.name}}</option>
-										{% endfor %}
-									</select>
-								</div>
-							</div>
-							
-							<div class="ctrls Employee">
-								<div class="form-group">
-									<label for="employee">Select Employee:</label>
-									<select id="employee" name="employee" class="form-control employee">
-										<option value="">Select Employee</option>
-										{% for employee in employees %}
-											<option value="{{employee.id}}">{{employee.name}}</option>
-										{% endfor %}
-									</select>
-								</div>
-							</div>	
-							
-							<div class="ctrls Contact" id="employer-selection" >
-								<div class="form-group">
-									<label for="contact">Select Contact:</label>
-									<select id="contact" name="contact" class="form-control contact">
-										<option value="">Select Contact</option>
-										{% for contact in contacts %}
-											<option value="{{contact.id}}">{{contact.contact_name}}</option>
-										{% endfor %}
-									</select>
-								</div>
-							</div>
-							
-						
-							<!-- Other Fields -->
-							<div class="ctrls" id="new-contact-fields">
-								<div class="form-group">
-									<label for="contact_name">Contact Name:</label>
-									<input type="text" id="contact_name" name="contact_name" class="form-control">
-								</div>
-								<div class="form-group">
-									<label for="contact_number">Contact Number:</label>
-									<input type="text" id="contact_number" name="contact_number" class="form-control">
-								</div>
-							</div>
-							
-							<!-- Other Field Display -->
-							<div class="ctrls Others" id="others-field">
-								<div class="form-group">
-									<label for="others">Others:</label>
-									<input type="text" id="others" name="others" class="form-control other">
-								</div>
-							</div>
-							<!-- Alert Date Field -->
-							<div class="form-group">
-								<label>Alert Date <span class="text-danger"></span></label>
-								<input class="form-control" type="date" name="alert-date" required>
 							</div>
 
-							<!-- Remark Field -->
-							<div class="form-group">
-								<label>Remark <span class="text-danger"></span></label>
-								<textarea class="form-control" rows="2" name="remark"></textarea>
+							<!-- Employee List -->
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Employee" id="employer-agent-container">
+										<div class="form-group">
+											<label for="employer_or_agent">Select Employer or Agent:</label>
+											<select id="employer_or_agent" name="employer_or_agent" class="form-control employee clr">
+												<option value="">Select Employer or Agent</option>
+												<option value="Employers">Employer</option>
+												<option value="Agents">Agent</option>
+											</select>
+										</div>
+								</div>
 							</div>
 						</div>
+						<div class="row">
+							<!-- Employeer List / Client List -->
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Employer Employers" id="employer-selection" >
+									<div class="form-group">
+										<label for="employer">Select Employer:</label>
+										<select id="employer" name="employer" class="form-control employer clr">
+											<option value="">Select Employer</option>
+											{% for employer in employers %}
+												<option value="{{employer.id}}">{{employer.client_name}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>	
+							</div>
+							<!-- Company List -->
+							<div class="col-sm-12 col-md-3">
+									<div class="ctrls Company" id="company-selection" >
+									<div class="form-group">
+										<label for="company">Select Company:</label>
+										<select id="company" name="company" class="form-control company">
+											<option value="">Select Company</option>
+											{% for company in companies %}
+												<option value="{{company.id}}">{{company.company_name}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
 						
-						<div class="col-sm-6 col-md-4">
+							</div>
+							<!-- Agent List -->
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Agent Agents" id="agent-candidate-selection">
+									<div class="form-group">
+										<label for="agent_candidates">Select Agent Candidates:</label>
+										<select id="agent_candidates" name="agent_candidates" class="form-control agent clr">
+											<option value="">Select Candidate</option>
+											{% for agent in agents %}
+												<option value="{{agent.id}}">{{agent.name}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+							</div>
+							<!-- Contact List -->
+							<div class="col-sm-12 col-md-3">
+									<div class="ctrls Contact" id="employer-selection" >
+										<div class="form-group">
+											<label for="contact">Select Contact:</label>
+											<select id="contact" name="contact" class="form-control contact clr">
+												<option value="">Select Contact</option>
+												{% for contact in contacts %}
+													<option value="{{contact.id}}">{{contact.contact_name}}</option>
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+							</div>	
+							<!-- New Contact Fields -->	
+							<div class="col-sm-12 col-md-3">
+								<!-- Other Fields -->
+								<div class="ctrls new-contact-fields">
+									<div class="form-group">
+										<label for="contact_name">Contact Name:</label>
+										<input type="text" id="contact_name" name="contact_name" class="form-control clr">
+									</div>
+								</div>
+								
+							</div>
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls new-contact-fields">
+									<div class="form-group">
+										<label for="contact_number">Contact Number:</label>
+										<input type="text" id="contact_number" name="contact_number" class="form-control clr">
+									</div>
+								</div>
+								</div>
+							<!-- Others Field -->
+							<div class="col-sm-12 col-md-3">
+								<!-- Other Field Display -->
+								<div class="ctrls Others" id="others-field">
+									<div class="form-group">
+										<label for="others">Others:</label>
+										<input type="text" id="others" name="others" class="form-control other">
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Employers" id="company-selection" >
+									<div class="form-group">
+										<label for="companies">Select Company:</label>
+										<select id="companies" name="companies" class="form-control company">
+											<option value="">Select Company</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<!-- Employee List -->
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Employers Agents">
+									<div class="form-group">
+										<label for="employee">Select Employee:</label>
+										<select id="employee" name="employee" class="form-control employee">
+											<option value="">Select Employee</option>
+											{% for employee in employees %}
+												<option value="{{employee.id}}">{{employee.name}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>	
+							</div>
+							<!-- Alert Date Field -->
+						</div>
+						<div class="row">
+							<div class="col-sm-12 col-md-3">
+								<div class="form-group">
+									<label>Alert Date <span class="text-danger"></span></label>
+									<input class="form-control" type="date" name="alert-date" required>
+								</div>
+							</div>
+							<div class="col-sm-12 col-md-3">
+								<!-- Remark Field -->
+								<div class="form-group">
+									<label>Remark <span class="text-danger"></span></label>
+									<textarea class="form-control" rows="2" name="remark"></textarea>
+
+								</div>
+							</div>
+							<div class="col-sm-12 col-md-6">
+							
 							<!-- Audio File Upload -->
 							<div class="form-group">
 								<div class="mic-container">
@@ -436,13 +472,13 @@
 									<input type="file" name="audio" id="audio-file" hidden>
 								</div>
 							</div>
+						
+							</div>
 						</div>
-					</div>
-					
-					<input type="submit" id="submit-btn" class="btn btn-primary">
-					<div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
-						<span class="sr-only"></span>
-					</div>
+						<input type="submit" id="submit-btn" class="btn btn-primary">
+						<div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+							<span class="sr-only"></span>
+						</div>
 				</form>
 			</div>
 		</div>
@@ -728,11 +764,11 @@
 	integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
 <script>
 	$(document).ready(function () {
-		$('select').selectize({
+	$('select').selectize({
 			searchField: 'text', // Ensure search works on text field
     		create: false,
     		highlight: true, 
-		});
+		}); 
 	});
 </script>
 
@@ -853,26 +889,95 @@
 
 	$(document).ready(function() {
 		$('.ctrls').css('display', 'none');
+		$('.ctrls').parent().addClass('d-none');
 	})
 
-	$(document).on('change', '#notes_for', function(e) {
+	 $(document).on('change', '#notes_for', function(e) {
 		$('.ctrls').css('display', 'none');
+		$('.ctrls').parent().addClass('d-none');
+		$('select').each(function() {
+			if($(this).attr('id') !== 'notes_for') {
+			$(this).val('');
+			if (this.selectize ) {
+				this.selectize.clear();
+			}
+		}
+		});
+		
 		if ($(this).val() === 'New Contact') {
-            $('#new-contact-fields').css('display', 'block');
+			$('.new-contact-fields').parent().removeClass('d-none');
+            $('.new-contact-fields').css('display', 'block');
         } 
 		var selectedDrp = $(this).val();
-		$('.'+selectedDrp).css('display','block');
+		if(selectedDrp !== 'Employee') {
+			$('.'+selectedDrp).parent().removeClass('d-none');
+			$('.'+selectedDrp).css('display','block');
+		} else {
+			$('#employer-agent-container').css('display', 'block');
+			$('#employer-agent-container').parent().removeClass('d-none');
+		}
 	})
 	$(document).on('change', '#employer_or_agent', function(e) {
 		var selectedDrp = $('#notes_for').val();
 		var selectedDrpr = $(this).val();
-		if(selectedDrp == 'Employee') {
-			$('.Agent, .Employer').val('');
-			$('.Agent, .Employer').css('display','none');
-			$('#employer-agent-container').css('display', 'block');
-		}
+		$('.Employers, .Agents').css('display','none');
+		$('.Employers, .Agents').parent().addClass('d-none');
 		var selectedDrpr = $(this).val();
 		$('.'+selectedDrpr).css('display','block');
+		$('.'+selectedDrpr).parent().removeClass('d-none');
+	})
+
+	$(document).on('change', '.employer', function() {
+		if ($('#employer_or_agent').val() == 'Employers'){
+			$('#companies')[0].selectize.destroy();
+			$('#companies').empty();
+			$('#companies').append('<option value="">Select Companies</option>');
+			$.ajax({
+				type: 'GET',
+				url: '/job-advertisement/get-companies-for-employer-api/'+$(this).val(),
+				success: function(response) {
+					console.log(response.companies);
+					$.each(response.companies, function(key, value) {
+						console.log(value.company_name);
+						$('#companies').append('<option value="'+value.id+'">'+value.company_name+'</option>');
+					});
+					$('#companies').selectize({
+                    searchField: 'text',
+                    create: false,
+                    highlight: true
+                });
+				}
+			});
+		} else {
+			alert('dont fetch Values');
+		}
+	})
+
+		$(document).on('change', '.company', function() {
+		if ($('#employer_or_agent').val() == 'Employers'){
+			$('#employee')[0].selectize.destroy();
+			$('#employee').empty();
+			$('#employee').append('<option value="">Select Employees</option>');
+			alert($(this).val());
+			$.ajax({
+				type: 'GET',
+				url: '/job-advertisement/get_employees_for_company_api/'+$(this).val(),
+				success: function(response) {
+					console.log(response);
+					console.log(response.employees);
+					$.each(response.employees, function(key, value) {
+						$('#employee').append('<option value="'+value.workpass__id+'">'+value.workpass__name+'</option>');
+					});
+					$('#employee').selectize({
+                    searchField: 'text',
+                    create: false,
+                    highlight: true
+                });
+				}
+			});
+		} else {
+			alert('dont fetch Values');
+		}
 	})
 	
 </script>

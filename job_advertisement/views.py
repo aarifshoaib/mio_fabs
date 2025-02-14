@@ -13,13 +13,11 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 import openpyxl, os
 from job_advertisement.models import ContactMasterModel
+from mom_application.models import AfterApprovalTEPModel
 from .models import EmployeerPersonalNotesModel
 from datetime import datetime
 from django.utils.timezone import make_aware
-
-
-
-
+from django.core.serializers import serialize
 
 
 @method_decorator(login_required(login_url="/"), name='dispatch')
@@ -661,6 +659,43 @@ def employeer_personal_notes_api(request):
 
     return JsonResponse(response_data)
 
+@login_required(login_url="/")
+def get_companies_for_employer_api(request, id):
+    if request.method == 'GET':
+        try:
+            print('id', id)
+            companies = AddCompanyModel.objects.filter(client=id)
+            print('companies', companies)
+            response_data = {'status': 'success', 'companies': []}
+            for company in companies:
+                response_data['companies'].append({'id': company.id, 'company_name': company.company_name})
+        except Exception as e:
+            response_data = {'status': 'error', 'msg': str(e)}
+        return JsonResponse(response_data)
+    
+
+@login_required(login_url="/")
+def get_employer_for_company_api(request, id):
+    if request.method == 'GET':
+        try:
+            print(id, 'id testing');
+            company=models.AddCompanyModel.objects.get(id=id)
+            print(company, 'company')
+            employees = list(AfterApprovalTEPModel.objects.filter(
+                    issue__isnull=False,
+                    workpass__company_name__isnull=False, 
+                    workpass__company_name=company
+                ).values('id', 'workpass__id', 'workpass__company_name', 'workpass__name'))
+
+            print(employees, 'employees')
+            # Convert to a list if needed
+            response_data = {'status': 'success', 'employees': employees}
+
+            return JsonResponse(response_data, safe=False)
+
+        except Exception as e:
+            response_data = {'status': 'error', 'msg': str(e)}
+        return JsonResponse(response_data)
 @login_required(login_url="/")
 def update_employeer_personal_notes_api(request, id):
     if request.method == 'POST':
