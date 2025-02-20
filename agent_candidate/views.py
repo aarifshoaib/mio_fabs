@@ -13,11 +13,13 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Q, Sum, Count
 from django.http import JsonResponse
 import django, base64, os, random
+from job_advertisement.models import EmployeerPersonalNotesModel
 from datetime import datetime, timedelta
 from client_management.models import NewClientModel, AddCompanyModel, BuyingSellingModel
 from job_advertisement.models import JobAdvertisementModel, ServerStorageInfoModel
 from mom_application.models import (EmailTrackerModel, EmailCredentialModel,
                                     WorkPassModel, CreateApplicationQueueModel)
+
 import logging
 db_logger = logging.getLogger('db')
 
@@ -128,8 +130,41 @@ class CheckAuthenticateSecretKeyAPI(View):
         return JsonResponse(response_data)
 
 @method_decorator(login_required(login_url="/"), name='dispatch')
+# class Dashboard(View):
+#     template_name = 'admin-dashboard.html'
+
+#     def get(self, request):
+#         today = datetime.today().date()
+#         app_queue = CreateApplicationQueueModel.objects.all().order_by('-app_date')[:2]
+
+#         try:
+#             server_info = ServerStorageInfoModel.objects.first()
+#         except:
+#             server_info = None
+
+#         # Fetching the latest notes for the logged-in user
+#         try:
+#             user = request.user
+#             latest_notes = EmployeerPersonalNotesModel.objects.filter(user=user).order_by('-alert_date')[:5]  # Show latest 5 notes
+#         except Exception as e:
+#             latest_notes = []
+
+#         # Prepare the context data
+#         datas = {
+#             'today': today,
+#             'app_queue': app_queue,
+#             'server_info': server_info,
+#             'latest_notes': latest_notes
+#         }
+
+#         # Update context with dashboard-specific data
+#         d = models.DashboardModel.objects.last()
+#         datas.update(d.datas)
+
+#         return render(request, self.template_name, context=datas)
 class Dashboard(View):
     template_name = 'admin-dashboard.html'
+
     def get(self, request):
         today = datetime.today().date()
         app_queue = CreateApplicationQueueModel.objects.all().order_by('-app_date')[:2]
@@ -139,10 +174,31 @@ class Dashboard(View):
         except:
             server_info = None
 
-        datas = {'today': today, 'app_queue': app_queue,
-                'server_info': server_info}
+        # Fetch notes where alert_date matches today's date
+        try:
+            user = request.user
+            today_notes = EmployeerPersonalNotesModel.objects.filter(user=user, alert_date=today)
+            notes = EmployeerPersonalNotesModel.objects.filter(user=user).order_by('-id')  # Fetch all notes for the user
+            empnotescnt = notes.count()
+        except Exception as e:
+            today_notes = []
+            notes = []  # Handle if there's an issue fetching the notes
+            empnotescnt = 0
+
+        # Prepare the context data
+        datas = {
+            'today': today,
+            'app_queue': app_queue,
+            'server_info': server_info,
+            'today_notes': today_notes , # Updated to use only today's notes
+            'notes': notes,  # Add all notes to the context
+            'empnotescnt': empnotescnt,
+        }
+
+        # Update context with dashboard-specific data
         d = models.DashboardModel.objects.last()
         datas.update(d.datas)
+
         return render(request, self.template_name, context=datas)
 
 @method_decorator(login_required(login_url="/"), name='dispatch')

@@ -177,35 +177,69 @@
     </div>
 
     <div class="col-md-12 col-lg-6 col-xl-4 d-flex">
-        <div class="card flex-fill">
-            <div class="card-body">
-                <h4 class="card-title">Application Queue <span class="badge bg-inverse-danger ml-2">{{app_queue_cnt}}</span></h4>
+        <div class="card flex-fill shadow-sm" style="min-height: 250px;"> <!-- Reduced height -->
+            <div class="card-body p-2"> <!-- Reduced padding -->
+                <h5 class="card-title text-sm">Application Queue 
+                    <span class="badge bg-inverse-danger ml-2">{{app_queue_cnt}}</span>
+                </h5> 
                 {% for app_q in app_queue %}
-                <div class="leave-info-box">
+                <div class="leave-info-box mb-2"> <!-- Reduced spacing -->
                     <div class="media align-items-center">
-                        <a href="#" class="avatar"><img alt="" src="{% static 'assets/img/user.jpg' %}"></a>
-                        <div class="media-body">
-                            <div class="text-sm my-0 text-purple">{{app_q.staff}} (Staff)</div>
+                        <a href="#" class="avatar">
+                            <img alt="" src="{% static 'assets/img/user.jpg' %}" style="width: 30px; height: 30px;"> <!-- Smaller avatar -->
+                        </a>
+                        <div class="media-body ml-2">
+                            <div class="text-xs text-purple">{{app_q.staff}} (Staff)</div> <!-- Smaller text -->
                         </div>
                     </div>
-                    <div class="row align-items-center mt-3">
+                    <div class="row align-items-center mt-2">
                         <div class="col-6">
-                            <h6 class="mb-0">{{app_q.app_date}}</h6>
-                            <span class="text-sm text-muted">{{app_q.assigned_by}} (Assigned)</span>
+                            <h6 class="mb-0 text-xs">{{app_q.app_date}}</h6>
+                            <span class="text-xs text-muted">{{app_q.assigned_by}} (Assigned)</span>
                         </div>
                         <div class="col-6 text-right">
-                            <span class="badge bg-inverse-danger">{{app_q.status|data_padding}}</span>
+                            <span class="badge bg-inverse-danger text-xs">{{app_q.status|data_padding}}</span> <!-- Smaller badge -->
                         </div>
                     </div>
                 </div>
                 {% endfor %}
                 <div class="load-more text-center">
-                    <a class="text-dark" href="/mom-application/app-queue-list">Load More</a>
+                    <a class="text-dark text-xs" href="/mom-application/app-queue-list">Load More</a>
+                </div>
+    
+                <!-- Today's Notifications Inside the Application Queue -->
+                <div class="card-header bg-dark text-white py-0 mt-1">
+                    <h4 class="mb-0 text-center">Today's Notifications</h4>
+                </div>
+                <div class="card-body">
+                    <div class="dashboard-notifications" style="max-height: 300px; overflow-y: auto;">
+                        <ul class="list-unstyled">
+                            {% for note in today_notes %}
+                                <li class="notification-item py-0 mb-0 border-bottom-0">
+                                    <div class="d-flex flex-column">
+                                        <!-- <strong class="text-dark fs-6">{{ note.alert_date|date:"Y-m-d" }}</strong> -->
+                                        <p class="text-muted mb-0">{{ note.remarks }}</p>
+                                        {% if note.contact_name %}
+                                            <p class="text-secondary small mb-0">
+                                                <strong>Contact:</strong> {{ note.contact_name }} ({{ note.contact_number }})
+                                            </p>
+                                        {% endif %}
+                                        {% if note.others %}
+                                            <p class="text-info small mb-0"><strong>Other Notes:</strong> {{ note.others }}</p>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% empty %}
+                                <li class="text-center text-muted py-0">
+                                    <i class="fas fa-info-circle"></i> No notifications for today.
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 <!-- /Statistics Widget -->
 
 {% endblock %}
