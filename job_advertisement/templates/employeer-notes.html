@@ -4,6 +4,10 @@
 <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet" />
 <link rel="stylesheet" href="{% static 'assets/css/multi-select-bootstrap.min.css' %}" />
 <style>
+<<<<<<< HEAD
+=======
+	
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 	#files-area {
 		width: 100%;
 		margin: 0 auto;
@@ -16,6 +20,10 @@
 		color: initial;
 		display: flex;
 	}
+<<<<<<< HEAD
+=======
+	
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 
 	.file-block>span.name {
 		padding-right: 10px;
@@ -51,10 +59,17 @@
 		/* height: 100vh;*/
 		/*width: 100vw;*/
 		display: flex;
+<<<<<<< HEAD
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		text-align: center;
+=======
+		flex-direction: row-reverse;
+		align-items: center;
+		justify-content: center;
+		margin-top: 10px;
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 	}
 
 	.mic-container .display {
@@ -301,6 +316,7 @@
 			<div class="card-body">
 				<form method="post" enctype="multipart/form-data" id="employeer-personal-notes-form">
 					{% csrf_token %}
+<<<<<<< HEAD
 					<div class="row">
 						<div class="col-sm-6 col-md-4">
 							<div class="form-group">
@@ -337,12 +353,186 @@
 								<div class="mic-container">
 									<div class="display">
 
+=======
+						<div class="row">
+							<div class="col-sm-12 col-md-3">
+								<div class="form-group">
+									<label for="notes_for">Notes For:</label>
+									<select id="notes_for" name="notes_for" class="form-control" required>
+										<option value="">Select</option>
+										<option value="Employer">Employer</option>
+										<option value="Company">Company</option>
+										<option value="Agent">Agent</option>
+										<option value="Employee">Employee</option>
+										<option value="Contact">Contact</option>
+										<option value="New Contact">New Contact</option>
+										<option value="Others">Others</option>
+									</select>
+								</div>
+							</div>
+
+							<!-- Employee List -->
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Employee" id="employer-agent-container">
+										<div class="form-group">
+											<label for="employer_or_agent">Select Employer </label>
+											<select id="employer_or_agent" name="employer_or_agent" class="form-control employee clr" >
+												<option value="">Select Employer </option>
+												<option value="Employers">Employer</option>
+												<!-- <option value="Agents">Agent</option> -->
+											</select>
+										</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<!-- Employeer List / Client List -->
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Employer Employers" id="employer-selection" >
+									<div class="form-group">
+										<label for="employer">Employer:</label>
+										<select id="employer" name="employer" class="form-control employer clr">
+											<option value="">Select Employer </option>
+											{% for employer in employers %}
+												<!-- <option value="{{employer.id}}">{{employer.client_name}}</option> -->
+												<option value="{{ employer.id }}">{{ employer.id }} - {{ employer.client_name }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>	
+							</div>
+							<!-- Company List -->
+							<div class="col-sm-12 col-md-3">
+									<div class="ctrls Company" id="company-selection" >
+									<div class="form-group">
+										<label for="company">Select Company:</label>
+										<select id="company" name="company" class="form-control company" >
+											<option value="">Select Company</option>
+											{% for company in companies %}
+												<!-- <option value="{{company.id}}">{{company.company_name}}</option> -->
+												<option value="{{ company.id }}">{{ company.id }} - {{ company.company_name }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+						
+							</div>
+							<!-- Agent List -->
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Agent Agents" id="agent-candidate-selection">
+									<div class="form-group">
+										<label for="agent_candidates">Select Agent Candidates:</label>
+										<select id="agent_candidates" name="agent_candidates" class="form-control agent clr">
+											<option value="">Select Candidate</option>
+											{% for agent in agents %}
+												<!-- <option value="{{agent.id}}">{{agent.name}}</option> -->
+												<option value="{{ agent.id }}">{{ agent.id }} - {{ agent.name }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+							</div>
+							<!-- Contact List -->
+							<div class="col-sm-12 col-md-3">
+									<div class="ctrls Contact" id="employer-selection" >
+										<div class="form-group">
+											<label for="contact">Select Contact:</label>
+											<select id="contact" name="contact" class="form-control contact clr" >
+												<option value="">Select Contact</option>
+												{% for contact in contacts %}
+													<!-- <option value="{{contact.id}}">{{contact.contact_name}}</option> -->
+													<option value="{{ contact.id }}">{{ contact.id }} - {{ contact.contact_name }}</option>
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+							</div>	
+							<!-- New Contact Fields -->	
+							<div class="col-sm-12 col-md-3">
+								<!-- Other Fields -->
+								<div class="ctrls new-contact-fields">
+									<div class="form-group">
+										<label for="contact_name">Contact Name:</label>
+										<input type="text" id="contact_name" name="contact_name" class="form-control clr" >
+									</div>
+								</div>
+								
+							</div>
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls new-contact-fields">
+									<div class="form-group">
+										<label for="contact_number">Contact Number:</label>
+										<input type="text" id="contact_number" name="contact_number" class="form-control clr" >
+									</div>
+								</div>
+								</div>
+							<!-- Others Field -->
+							<div class="col-sm-12 col-md-3">
+								<!-- Other Field Display -->
+								<div class="ctrls Others" id="others-field">
+									<div class="form-group">
+										<label for="others">Others:</label>
+										<input type="text" id="others" name="others" class="form-control other" >
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Employers" id="company-selection" >
+									<div class="form-group">
+										<label for="companies">Select Company:</label>
+										<select id="companies" name="companies" class="form-control company" >
+											<option value="">Select Company</option>
+											
+										</select>
+									</div>
+								</div>
+							</div>
+							<!-- Employee List -->
+							<div class="col-sm-12 col-md-3">
+								<div class="ctrls Employers Agents">
+									<div class="form-group">
+										<label for="employee">Select Employee:</label>
+										<select id="employee" name="employee" class="form-control employee" >
+											<option value="">Select Employee</option>
+											{% for employee in employees %}
+												<!-- <option value="{{employee.id}}">{{employee.name}}</option> -->
+												<option value="{{ employee.id }}">{{ employee.id }} - {{ employee.name }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>	
+							</div>
+							<!-- Alert Date Field -->
+						</div>
+						<div class="row">
+							<div class="col-sm-12 col-md-3">
+								<div class="form-group">
+									<label>Alert Date <span class="text-danger"></span></label>
+									<input class="form-control" type="date" name="alert-date" required>
+								</div>
+							</div>
+							<div class="col-sm-12 col-md-3">
+								<!-- Remark Field -->
+								<div class="form-group">
+									<label>Remark <span class="text-danger"></span></label>
+									<textarea class="form-control" rows="2" name="remark" required></textarea>
+
+								</div>
+							</div>
+							<div class="col-sm-12 col-md-6">
+							
+							<!-- Audio File Upload -->
+							<div class="form-group">
+								<div class="mic-container">
+									<div class="display">
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 									</div>
 									<div class="controllers">
 									</div>
 									<input type="file" name="audio" id="audio-file" hidden>
 								</div>
 							</div>
+<<<<<<< HEAD
 						</div>
 					</div>
 					<input type="submit" id="submit-btn" class="btn btn-primary">
@@ -357,6 +547,20 @@
 </div>
 </div>
 
+=======
+						
+							</div>
+						</div>
+						<input type="submit" id="submit-btn" class="btn btn-primary">
+						<div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+							<span class="sr-only"></span>
+						</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 
 <div class="row">
 	<div class="col-sm-12">
@@ -365,8 +569,13 @@
 				<table class="table table-striped custom-table mb-0 datatable">
 					<thead>
 						<tr>
+<<<<<<< HEAD
 							<th style="text-align:center">Client</th>
 							<th style="text-align:center">Company</th>
+=======
+							<th style="text-align:center">Notes For</th>
+							<th style="text-align:center">Notes Value</th>
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 							<th style="text-align:center">Alert Date</th>
 							<th style="text-align:center">Remark</th>
 							<th style="text-align:center">Audio</th>
@@ -377,12 +586,43 @@
 					<tbody>
 						{% for note in notes %}
 						<tr>
+<<<<<<< HEAD
 							<td style="text-align:center">
 								<p class="text-secondary">{{note.company.client.client_id}} -
 									{{note.company.client.client_name}}</p>
 							</td>
 							<td style="text-align:center">
 								<p class="text-secondary">{{note.company.company_id}} - {{note.company.company_name}}
+=======
+
+							<td style="text-align:center">
+								<p class="text-secondary">{{note.notes_for}}</p>
+							</td>
+							
+							<td style="text-align:center">
+								<p class="text-secondary">
+									{% if note.notes_for == "Company" %}
+										{{ note.company.company_id }} - {{ note.company.company_name }}
+									{% elif note.notes_for == "Agent" %}
+										{{ note.agent.agent_id }} - {{ note.agent.name }}
+									{% elif note.notes_for == "Employee" %}
+										Employee : {{ note.employee_id }} - {{ note.employee.name }}
+										{% if note.employer_or_agent == 'Employer' %}
+											Employer: {{ note.employer.id }} - {{ note.employer.client_name }}
+										{% else %}
+											Agent : {{ note.agent.id }} - {{ note.agent.name }}
+										{% endif %}
+										
+									{% elif note.notes_for == "Employer" %}
+										{{ note.employer.id }} - {{ note.employer.client_name }}
+									{% elif note.notes_for == "Contact" %}
+										{{ note.contact.id }} - {{ note.contact.contact_name }}
+									{% elif note.notes_for == "New Contact" %}
+										{{ note.contact_name }} - {{ note.contact_number }}
+									{% else %}
+										{{ note.others}} 
+									{% endif %}
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 								</p>
 							</td>
 							<td style="text-align:center">{{note.alert_date}}</td>
@@ -398,11 +638,23 @@
 							</td>
 							<td style="text-align:center">
 								{% if note.status %}
+<<<<<<< HEAD
 								<button class="btn btn-sm btn-success" title="Set Your Task as Completed"
 									onclick="update_empnotes_func('{{note.id}}')" id="note-btn-id{{note.id}}">Completed</button>
 								{% else %}
 								<button class="btn btn-sm btn-warning" title="Set Your Task as Incomplete"
 									onclick="update_empnotes_func('{{note.id}}')" id="note-btn-id{{note.id}}">Pending</button>
+=======
+									<button class="btn btn-sm btn-success" title="Set Your Task as Completed"
+											onclick="update_empnotes_func('{{ note.id }}')" id="note-btn-id{{ note.id }}">
+										Completed
+									</button>
+								{% else %}
+									<button class="btn btn-sm btn-warning" title="Set Your Task as Incomplete"
+											onclick="update_empnotes_func('{{ note.id }}')" id="note-btn-id{{ note.id }}">
+										Pending
+									</button>
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 								{% endif %}
 							</td>
 							<td style="text-align:center">
@@ -414,7 +666,11 @@
 									<div class="modal-content">
 										<div class="modal-body">
 											<div class="form-header">
+<<<<<<< HEAD
 												<h3>Delete {{note.company.company_name}}</h3>
+=======
+												<h3>Delete {{note.notes_for}}</h3>
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 												<p>Are you sure want to delete?</p>
 											</div>
 											<div class="modal-btn delete-action">
@@ -439,6 +695,7 @@
 		</div>
 	</div>
 </div>
+<<<<<<< HEAD
 {% endblock %}
 
 {% block jslink %}
@@ -491,6 +748,14 @@
 	});
 </script>
 
+=======
+
+
+{% endblock %}	
+				
+							
+{% block jslink %}
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 
 <!-- ..................... -->
 <script>
@@ -662,11 +927,24 @@
 	integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
 <script>
 	$(document).ready(function () {
+<<<<<<< HEAD
 		$('select').selectize({
 		});
 	});
 </script>
 
+=======
+	$('select').selectize({
+			searchField: 'text', // Ensure search works on text field
+    		create: false,
+    		highlight: true, 
+		}); 
+	});
+</script>
+
+
+
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 <script>
 	function getCookie(name) {
 		var cookieValue = null;
@@ -684,14 +962,28 @@
 		return cookieValue;
 	}
 	var csrftoken = getCookie('csrftoken');
+<<<<<<< HEAD
 	$("#employeer-personal-notes-form").submit(function (e) {
 		e.preventDefault();
+=======
+	
+	$("#employeer-personal-notes-form").submit(function (e) {
+		e.preventDefault();
+		 let isValid = true;
+
+		
+
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 		let get_spinner = document.getElementById('submit-spinner');
 		let submit_btn = document.getElementById('submit-btn');
 		submit_btn.setAttribute('disabled', '')
 		get_spinner.style.display = '';
 		var formData = new FormData(this);
 		formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
+<<<<<<< HEAD
+=======
+		console.log(formData);
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 		// Inserting
 		$.ajax({
 			type: 'POST',
@@ -707,11 +999,20 @@
 				location.reload()
 			},
 			error: function (error) {
+<<<<<<< HEAD
 				location.reload()
 			},
 		});
 
 	})
+=======
+				console.log(error);
+				//location.reload()
+			},
+		});
+	
+	}) 
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 </script>
 
 <script>
@@ -769,4 +1070,272 @@
 		});
 	}
 </script>
+<<<<<<< HEAD
 {% endblock %}
+=======
+
+ 
+<!-- <script type="text/javascript">
+
+	$(document).ready(function() {
+		$('.ctrls').css('display', 'none');
+		$('.ctrls').parent().addClass('d-none');
+	})
+
+	 $(document).on('change', '#notes_for', function(e) {
+		$('.ctrls').css('display', 'none');
+		$('.ctrls').parent().addClass('d-none');
+		$('select').each(function() {
+			if($(this).attr('id') !== 'notes_for') {
+			$(this).val('');
+			if (this.selectize ) {
+				this.selectize.clear();
+			}
+		}
+		});
+		
+		if ($(this).val() === 'New Contact') {
+			$('.new-contact-fields').parent().removeClass('d-none');
+            $('.new-contact-fields').css('display', 'block');
+        } 
+		var selectedDrp = $(this).val();
+		if(selectedDrp !== 'Employee') {
+			$('.'+selectedDrp).parent().removeClass('d-none');
+			$('.'+selectedDrp).css('display','block');
+		} else {
+			$('#employer-agent-container').css('display', 'block');
+			$('#employer-agent-container').parent().removeClass('d-none');
+		}
+	})
+	$(document).on('change', '#employer_or_agent', function(e) {
+		var selectedDrp = $('#notes_for').val();
+		var selectedDrpr = $(this).val();
+		$('.Employers, .Agents').css('display','none');
+		$('.Employers, .Agents').parent().addClass('d-none');
+		var selectedDrpr = $(this).val();
+		$('.'+selectedDrpr).css('display','block');
+		$('.'+selectedDrpr).parent().removeClass('d-none');
+	})
+
+	$(document).on('change', '.employer', function() {
+		if ($('#employer_or_agent').val() == 'Employers'){
+			$('#companies')[0].selectize.destroy();
+			$('#companies').empty();
+			$('#companies').append('<option value="">Select Companies</option>');
+			$.ajax({
+				type: 'GET',
+				url: '/job-advertisement/get-companies-for-employer-api/'+$(this).val(),
+				success: function(response) {
+					console.log(response.companies);
+					$.each(response.companies, function(key, value) {
+						console.log(value.company_name);
+						$('#companies').append('<option value="'+value.id+'">'+value.company_name+'</option>');
+					});
+					$('#companies').selectize({
+                    searchField: 'text',
+                    create: false,
+                    highlight: true
+                });
+				}
+			});
+		} else {
+			alert('dont fetch Values');
+		}
+	})
+
+		$(document).on('change', '.company', function() {
+		if ($('#employer_or_agent').val() == 'Employers'){
+			$('#employee')[0].selectize.destroy();
+			$('#employee').empty();
+			$('#employee').append('<option value="">Select Employees</option>');
+			alert($(this).val());
+			$.ajax({
+				type: 'GET',
+				url: '/job-advertisement/get_employees_for_company_api/'+$(this).val(),
+				success: function(response) {
+					console.log(response);
+					console.log(response.employees);
+					$.each(response.employees, function(key, value) {
+						$('#employee').append('<option value="'+value.workpass__id+'">'+value.workpass__name+'</option>');
+					});
+					$('#employee').selectize({
+                    searchField: 'text',
+                    create: false,
+                    highlight: true
+                });
+				}
+			});
+		} else {
+			alert('dont fetch Values');
+		}
+	})
+	
+</script>   -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.ctrls').css('display', 'none');
+        $('.ctrls').parent().addClass('d-none');
+    });
+
+    $(document).on('change', '#notes_for', function(e) {
+        $('.ctrls').css('display', 'none');
+        $('.ctrls').parent().addClass('d-none');
+        $('select').each(function() {
+            if($(this).attr('id') !== 'notes_for') {
+                $(this).val('');
+                if (this.selectize) {
+                    this.selectize.clear();
+                }
+            }
+        });
+
+        if ($(this).val() === 'New Contact') {
+            $('.new-contact-fields').parent().removeClass('d-none');
+            $('.new-contact-fields').css('display', 'block');
+        } 
+
+        var selectedDrp = $(this).val();
+        if(selectedDrp !== 'Employee') {
+            $('.'+selectedDrp).parent().removeClass('d-none');
+            $('.'+selectedDrp).css('display','block');
+        } else {
+            $('#employer-agent-container').css('display', 'block');
+            $('#employer-agent-container').parent().removeClass('d-none');
+       
+		}
+    });
+
+    $(document).on('change', '#employer_or_agent', function(e) {
+        var selectedDrp = $('#notes_for').val();
+        var selectedDrpr = $(this).val();
+        $('.Employers, .Agents').css('display','none');
+        $('.Employers, .Agents').parent().addClass('d-none');
+        var selectedDrpr = $(this).val();
+        $('.'+selectedDrpr).css('display','block');
+        $('.'+selectedDrpr).parent().removeClass('d-none');
+    });
+
+    $(document).on('change', '.employer', function() {
+        if ($('#employer_or_agent').val() == 'Employers'){
+            $('#companies')[0].selectize.destroy();
+            $('#companies').empty();
+            $('#companies').append('<option value="">Select Companies</option>');
+            $.ajax({
+                type: 'GET',
+                url: '/job-advertisement/get-companies-for-employer-api/'+$(this).val(),
+                success: function(response) {
+                    console.log(response.companies);
+                    $.each(response.companies, function(key, value) {
+                        console.log(value.company_name);
+                        // $('#companies').append('<option value="'+value.id+'">'+value.company_name+'</option>');
+						$('#companies').append('<option value="'+value.id+'">'+value.id+' - '+value.company_name+'</option>');
+                    });
+                    $('#companies').selectize({
+                        searchField: 'text',
+                        create: false,
+                        highlight: true
+                    });
+                }
+            });
+        } else {
+            alert('dont fetch Values');
+        }
+    });
+
+    $(document).on('change', '.company', function() {
+        if ($('#employer_or_agent').val() == 'Employers'){
+            $('#employee')[0].selectize.destroy();
+            $('#employee').empty();
+            $('#employee').append('<option value="">Select Employees</option>');
+            alert($(this).val());
+            $.ajax({
+                type: 'GET',
+                url: '/job-advertisement/get_employees_for_company_api/'+$(this).val(),
+                success: function(response) {
+                    console.log(response);
+                    console.log(response.employees);
+                    $.each(response.employees, function(key, value) {
+                        // $('#employee').append('<option value="'+value.workpass__id+'">'+value.workpass__name+'</option>');
+						$('#employee').append('<option value="'+value.workpass__id+'">'+value.workpass__id+' - '+value.workpass__name+'</option>');
+                    });
+                    $('#employee').selectize({
+                        searchField: 'text',
+                        create: false,
+                        highlight: true
+                    });
+                }
+            });
+        } else {
+            alert('dont fetch Values');
+        }
+    });
+
+    // Form validation for 'Notes For' dropdown
+    $(document).on('submit', 'form', function(e) {
+        var notesForValue = $('#notes_for').val().trim();
+
+        // Validate "Notes For" dropdown
+        if (!notesForValue || notesForValue === '') {
+            e.preventDefault(); // Prevent form submission
+            alert('Please select a value for "Notes For".');
+            $('#notes_for').addClass('is-invalid'); // Add Bootstrap error class
+            $('#notes_for').focus();
+            return false;
+        }
+
+        // Validation for New Contact
+        if (notesForValue === 'New Contact') {
+            var contactName = $('#contact_name').val().trim();
+            var contactNumber = $('#contact_number').val().trim();
+            if (!contactName || !contactNumber) {
+                e.preventDefault();
+                alert('Please provide both Contact Name and Contact Number.');
+                return false;
+            }
+        }
+
+        // Validation for Employee
+        if (notesForValue === 'Employee') {
+            var employerOrAgent = $('#employer_or_agent').val().trim();
+            if (!employerOrAgent || employerOrAgent === '') {
+                e.preventDefault();
+                alert('Please select Employer for Employee.');
+                return false;
+            }
+
+            var company = $('#companies').val().trim();
+            if (!company || company === '') {
+                e.preventDefault();
+                alert('Please select a company.');
+                return false;
+            }
+
+            var employee = $('#employee').val().trim();
+            if (!employee || employee === '') {
+                e.preventDefault();
+                alert('Please select an employee.');
+                return false;
+            }
+        }
+
+        // Validation for other fields based on Notes For selection
+        if (notesForValue !== 'New Contact' && notesForValue !== 'Employee') {
+            var selectedField = $('.' + notesForValue).find('select').val().trim();
+            if (!selectedField || selectedField === '') {
+                e.preventDefault();
+                alert('Please select a valid option for ' + notesForValue + '.');
+                return false;
+            }
+        }
+
+        // If all validations pass, submit the form
+        return true;
+    });
+</script>
+
+
+							
+							
+	{% endblock %}					
+
+>>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
