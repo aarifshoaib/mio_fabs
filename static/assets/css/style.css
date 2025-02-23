@@ -197,6 +197,9 @@ a:focus {
 .form-control[disabled], fieldset[disabled] .form-control {
     cursor: not-allowed;
 }
+.sidebar .sidebar-menu>ul>li>a {
+	text-decoration: none !important;
+}
 input,
 button,
 a {
@@ -1327,6 +1330,7 @@ table.dataTable thead > tr > td.sorting {
 	font-size: 15px;
 	height: auto;
 	padding: 0 20px;
+	text-decoration: none !important;
 }
 .sidebar-menu li a:hover {
 	color: #fff;
@@ -1517,6 +1521,7 @@ table.dataTable thead > tr > td.sorting {
 	justify-content: flex-start;
 	position: relative;
 	transition: all 0.2s ease-in-out 0s;
+	text-decoration: none !important;
 }
 .sidebar-menu ul li a i {
 	display: inline-block;

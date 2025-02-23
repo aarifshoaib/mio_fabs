@@ -1,12 +1,6 @@
 from django.db import models
-<<<<<<< HEAD
-from client_management.models import AddCompanyModel
-from django.contrib.auth.models import User
-
-=======
 from client_management.models import AddCompanyModel,NewClientModel
 from django.contrib.auth.models import User
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 # Create your models here.
 class JobAdvertisementModel(models.Model):
     date_of_app = models.DateField()
@@ -42,15 +36,6 @@ class StaffMaintenanceModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     details = models.JSONField(null=True)
 
-<<<<<<< HEAD
-class EmployeerPersonalNotesModel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    company = models.ForeignKey(AddCompanyModel, on_delete=models.SET_NULL, null=True)
-    alert_date = models.DateField()
-    remarks = models.TextField()
-    voice = models.FileField(upload_to='EmployeerPersonalNotesVoices/', null=True)
-    status = models.BooleanField(default=False)
-=======
 #class EmployeerPersonalNotesModel(models.Model):
   #  user = models.ForeignKey(User, on_delete=models.CASCADE)
    # company = models.ForeignKey(AddCompanyModel, on_delete=models.SET_NULL, null=True)
@@ -96,4 +81,3 @@ class ContactMasterModel(models.Model):
 
     def __str__(self):
         return self.contact_name
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb

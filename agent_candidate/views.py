@@ -13,19 +13,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Q, Sum, Count
 from django.http import JsonResponse
 import django, base64, os, random
-<<<<<<< HEAD
-=======
 from job_advertisement.models import EmployeerPersonalNotesModel
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 from datetime import datetime, timedelta
 from client_management.models import NewClientModel, AddCompanyModel, BuyingSellingModel
 from job_advertisement.models import JobAdvertisementModel, ServerStorageInfoModel
 from mom_application.models import (EmailTrackerModel, EmailCredentialModel,
                                     WorkPassModel, CreateApplicationQueueModel)
-<<<<<<< HEAD
-=======
-
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 import logging
 db_logger = logging.getLogger('db')
 
@@ -69,12 +62,8 @@ class CheckAuthenticateSecretKeyAPI(View):
                 chk_user = models.GenerateOTPModel.objects.filter(user=user)
                 if chk_user and user_otp is not None: # Otp generated (database) and user input not empty
                     gen_otp = chk_user.first()
-<<<<<<< HEAD
-                    chk_secs = ((datetime.today()) - (gen_otp.otptime.replace(tzinfo=None))).seconds
-=======
                     #chk_secs = ((datetime.today()) - (gen_otp.otptime.replace(tzinfo=None))).seconds
                     chk_secs = 10
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
                     if chk_secs <= 60:
                         if user_otp == gen_otp.secret_key:
                             login(request, user)
@@ -140,10 +129,6 @@ class CheckAuthenticateSecretKeyAPI(View):
         return JsonResponse(response_data)
 
 @method_decorator(login_required(login_url="/"), name='dispatch')
-<<<<<<< HEAD
-class Dashboard(View):
-    template_name = 'admin-dashboard.html'
-=======
 # class Dashboard(View):
 #     template_name = 'admin-dashboard.html'
 
@@ -179,7 +164,6 @@ class Dashboard(View):
 class Dashboard(View):
     template_name = 'admin-dashboard.html'
 
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
     def get(self, request):
         today = datetime.today().date()
         app_queue = CreateApplicationQueueModel.objects.all().order_by('-app_date')[:2]
@@ -189,12 +173,6 @@ class Dashboard(View):
         except:
             server_info = None
 
-<<<<<<< HEAD
-        datas = {'today': today, 'app_queue': app_queue,
-                'server_info': server_info}
-        d = models.DashboardModel.objects.last()
-        datas.update(d.datas)
-=======
         # Fetch notes where alert_date matches today's date
         try:
             user = request.user
@@ -220,7 +198,6 @@ class Dashboard(View):
         d = models.DashboardModel.objects.last()
         datas.update(d.datas)
 
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
         return render(request, self.template_name, context=datas)
 
 @method_decorator(login_required(login_url="/"), name='dispatch')

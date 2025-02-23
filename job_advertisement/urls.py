@@ -27,10 +27,7 @@ urlpatterns = [
     path('employeer-personal-notes-api', views.employeer_personal_notes_api),
     path('update-employeer-personal-notes-api/<int:id>', views.update_employeer_personal_notes_api),
     path('delete-employeer-personal-notes/<int:id>', views.DeleteEmployeerPersonalNotes.as_view()),
-<<<<<<< HEAD
-=======
     
     path('get-companies-for-employer-api/<int:id>', views.get_companies_for_employer_api),
     path('get_employees_for_company_api/<int:id>', views.get_employer_for_company_api),
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 ]

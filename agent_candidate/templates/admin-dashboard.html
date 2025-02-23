@@ -177,26 +177,6 @@
     </div>
 
     <div class="col-md-12 col-lg-6 col-xl-4 d-flex">
-<<<<<<< HEAD
-        <div class="card flex-fill">
-            <div class="card-body">
-                <h4 class="card-title">Application Queue <span class="badge bg-inverse-danger ml-2">{{app_queue_cnt}}</span></h4>
-                {% for app_q in app_queue %}
-                <div class="leave-info-box">
-                    <div class="media align-items-center">
-                        <a href="#" class="avatar"><img alt="" src="{% static 'assets/img/user.jpg' %}"></a>
-                        <div class="media-body">
-                            <div class="text-sm my-0 text-purple">{{app_q.staff}} (Staff)</div>
-                        </div>
-                    </div>
-                    <div class="row align-items-center mt-3">
-                        <div class="col-6">
-                            <h6 class="mb-0">{{app_q.app_date}}</h6>
-                            <span class="text-sm text-muted">{{app_q.assigned_by}} (Assigned)</span>
-                        </div>
-                        <div class="col-6 text-right">
-                            <span class="badge bg-inverse-danger">{{app_q.status|data_padding}}</span>
-=======
         <div class="card flex-fill shadow-sm" style="min-height: 250px;"> <!-- Reduced height -->
             <div class="card-body p-2"> <!-- Reduced padding -->
                 <h5 class="card-title text-sm">Application Queue 
@@ -219,15 +199,11 @@
                         </div>
                         <div class="col-6 text-right">
                             <span class="badge bg-inverse-danger text-xs">{{app_q.status|data_padding}}</span> <!-- Smaller badge -->
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
                         </div>
                     </div>
                 </div>
                 {% endfor %}
                 <div class="load-more text-center">
-<<<<<<< HEAD
-                    <a class="text-dark" href="/mom-application/app-queue-list">Load More</a>
-=======
                     <a class="text-dark text-xs" href="/mom-application/app-queue-list">Load More</a>
                 </div>
     
@@ -260,15 +236,10 @@
                             {% endfor %}
                         </ul>
                     </div>
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
                 </div>
             </div>
         </div>
     </div>
-<<<<<<< HEAD
-</div>
-=======
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 <!-- /Statistics Widget -->
 
 {% endblock %}

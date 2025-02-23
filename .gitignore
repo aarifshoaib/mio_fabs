@@ -8,6 +8,8 @@ basefiles
 # C extensions
 *.so
 db.json
+.mio_env/*
+*/migrations/
 
 # Distribution / packaging
 .Python

@@ -4,10 +4,7 @@
 <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet" />
 <link rel="stylesheet" href="{% static 'assets/css/multi-select-bootstrap.min.css' %}" />
 <style>
-<<<<<<< HEAD
-=======
 	
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 	#files-area {
 		width: 100%;
 		margin: 0 auto;
@@ -20,10 +17,7 @@
 		color: initial;
 		display: flex;
 	}
-<<<<<<< HEAD
-=======
 	
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 
 	.file-block>span.name {
 		padding-right: 10px;
@@ -59,17 +53,10 @@
 		/* height: 100vh;*/
 		/*width: 100vw;*/
 		display: flex;
-<<<<<<< HEAD
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		text-align: center;
-=======
 		flex-direction: row-reverse;
 		align-items: center;
 		justify-content: center;
 		margin-top: 10px;
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 	}
 
 	.mic-container .display {
@@ -316,44 +303,6 @@
 			<div class="card-body">
 				<form method="post" enctype="multipart/form-data" id="employeer-personal-notes-form">
 					{% csrf_token %}
-<<<<<<< HEAD
-					<div class="row">
-						<div class="col-sm-6 col-md-4">
-							<div class="form-group">
-								<label>Company <span class="text-danger"></span></label>
-								<select name="comp-name" id="select-state" class="form-control" required>
-									<option value="">Select Company</option>
-									{% for comp in companies %}
-									{% if comp.company_name == job.comp_name.company_name %}
-									<option value="{{comp.id}}" selected>{{comp.company_id}}-{{comp.company_name}}
-									</option>
-									{% else %}
-									<option value="{{comp.id}}">{{comp.company_id}}-{{comp.company_name}}</option>
-									{% endif %}
-									{% endfor %}
-								</select>
-							</div>
-						</div>
-						<div class="col-sm-6 col-md-4">
-							<div class="form-group">
-								<label>Alert Date <span class="text-danger"></span></label>
-								<input class="form-control" type="date" name="alert-date" required>
-							</div>
-						</div>
-						<div class="col-sm-6 col-md-4">
-							<div class="form-group">
-								<label>Remark <span class="text-danger"></span></label>
-								<textarea class="form-control" rows="2" name="remark"></textarea>
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-md-12 col-sm-12">
-							<div class="form-group">
-								<div class="mic-container">
-									<div class="display">
-
-=======
 						<div class="row">
 							<div class="col-sm-12 col-md-3">
 								<div class="form-group">
@@ -525,29 +474,12 @@
 							<div class="form-group">
 								<div class="mic-container">
 									<div class="display">
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 									</div>
 									<div class="controllers">
 									</div>
 									<input type="file" name="audio" id="audio-file" hidden>
 								</div>
 							</div>
-<<<<<<< HEAD
-						</div>
-					</div>
-					<input type="submit" id="submit-btn" class="btn btn-primary">
-					<div id="submit-spinner" class="spinner-border spinner-border-sm" role="status"
-						style="display: none;">
-						<span class="sr-only"></span>
-					</div>
-			</div>
-			</form>
-		</div>
-	</div>
-</div>
-</div>
-
-=======
 						
 							</div>
 						</div>
@@ -560,7 +492,6 @@
 		</div>
 	</div>
 </div>
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 
 <div class="row">
 	<div class="col-sm-12">
@@ -569,13 +500,8 @@
 				<table class="table table-striped custom-table mb-0 datatable">
 					<thead>
 						<tr>
-<<<<<<< HEAD
-							<th style="text-align:center">Client</th>
-							<th style="text-align:center">Company</th>
-=======
 							<th style="text-align:center">Notes For</th>
 							<th style="text-align:center">Notes Value</th>
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 							<th style="text-align:center">Alert Date</th>
 							<th style="text-align:center">Remark</th>
 							<th style="text-align:center">Audio</th>
@@ -586,14 +512,6 @@
 					<tbody>
 						{% for note in notes %}
 						<tr>
-<<<<<<< HEAD
-							<td style="text-align:center">
-								<p class="text-secondary">{{note.company.client.client_id}} -
-									{{note.company.client.client_name}}</p>
-							</td>
-							<td style="text-align:center">
-								<p class="text-secondary">{{note.company.company_id}} - {{note.company.company_name}}
-=======
 
 							<td style="text-align:center">
 								<p class="text-secondary">{{note.notes_for}}</p>
@@ -622,7 +540,6 @@
 									{% else %}
 										{{ note.others}} 
 									{% endif %}
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 								</p>
 							</td>
 							<td style="text-align:center">{{note.alert_date}}</td>
@@ -638,13 +555,6 @@
 							</td>
 							<td style="text-align:center">
 								{% if note.status %}
-<<<<<<< HEAD
-								<button class="btn btn-sm btn-success" title="Set Your Task as Completed"
-									onclick="update_empnotes_func('{{note.id}}')" id="note-btn-id{{note.id}}">Completed</button>
-								{% else %}
-								<button class="btn btn-sm btn-warning" title="Set Your Task as Incomplete"
-									onclick="update_empnotes_func('{{note.id}}')" id="note-btn-id{{note.id}}">Pending</button>
-=======
 									<button class="btn btn-sm btn-success" title="Set Your Task as Completed"
 											onclick="update_empnotes_func('{{ note.id }}')" id="note-btn-id{{ note.id }}">
 										Completed
@@ -654,7 +564,6 @@
 											onclick="update_empnotes_func('{{ note.id }}')" id="note-btn-id{{ note.id }}">
 										Pending
 									</button>
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 								{% endif %}
 							</td>
 							<td style="text-align:center">
@@ -666,11 +575,7 @@
 									<div class="modal-content">
 										<div class="modal-body">
 											<div class="form-header">
-<<<<<<< HEAD
-												<h3>Delete {{note.company.company_name}}</h3>
-=======
 												<h3>Delete {{note.notes_for}}</h3>
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 												<p>Are you sure want to delete?</p>
 											</div>
 											<div class="modal-btn delete-action">
@@ -695,67 +600,12 @@
 		</div>
 	</div>
 </div>
-<<<<<<< HEAD
-{% endblock %}
-
-{% block jslink %}
-<script>
-	const dt = new DataTransfer(); // Permet de manipuler les fichiers de l'input file
-
-	$("#attachment").on('change', function (e) {
-
-		// Ajout des fichiers dans l'objet DataTransfer
-		for (let file of this.files) {
-			const fileSize = file.size / 1024 / 1024;
-			var chkfile = false;
-			console.log(fileSize);
-			if (fileSize > 25) {
-				alert(file.name + '\nFile size exceeds 25 MiB');
-				dt.item.remove(file);
-				chkfile = true;
-			}
-			if (chkfile == false) {
-				dt.items.add(file);
-			}
-		};
-		for (var i = 0; i < this.files.length; i++) {
-			let fileBloc = $('<span/>', { class: 'file-block' }),
-				fileName = $('<span/>', { class: 'name', text: this.files.item(i).name });
-			fileBloc.append('<span class="file-delete"><span>+</span></span>')
-				.append(fileName);
-			$("#filesList > #files-names").append(fileBloc);
-		}
-		// Mise à jour des fichiers de l'input file après ajout
-		this.files = dt.files;
-
-		// EventListener pour le bouton de suppression créé
-		$('span.file-delete').click(function () {
-			let name = $(this).next('span.name').text();
-			// Supprimer l'affichage du nom de fichier
-			$(this).parent().remove();
-
-			for (let i = 0; i < dt.items.length; i++) {
-
-				if (name === dt.items[i].getAsFile().name) {
-					// Suppression du fichier dans l'objet DataTransfer
-					dt.items.remove(i);
-					continue;
-				}
-			}
-			// Mise à jour des fichiers de l'input file après suppression
-			document.getElementById('attachment').files = dt.files;
-		});
-	});
-</script>
-
-=======
 
 
 {% endblock %}	
 				
 							
 {% block jslink %}
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 
 <!-- ..................... -->
 <script>
@@ -927,13 +777,6 @@
 	integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
 <script>
 	$(document).ready(function () {
-<<<<<<< HEAD
-		$('select').selectize({
-		});
-	});
-</script>
-
-=======
 	$('select').selectize({
 			searchField: 'text', // Ensure search works on text field
     		create: false,
@@ -944,7 +787,6 @@
 
 
 
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 <script>
 	function getCookie(name) {
 		var cookieValue = null;
@@ -962,10 +804,6 @@
 		return cookieValue;
 	}
 	var csrftoken = getCookie('csrftoken');
-<<<<<<< HEAD
-	$("#employeer-personal-notes-form").submit(function (e) {
-		e.preventDefault();
-=======
 	
 	$("#employeer-personal-notes-form").submit(function (e) {
 		e.preventDefault();
@@ -973,17 +811,13 @@
 
 		
 
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 		let get_spinner = document.getElementById('submit-spinner');
 		let submit_btn = document.getElementById('submit-btn');
 		submit_btn.setAttribute('disabled', '')
 		get_spinner.style.display = '';
 		var formData = new FormData(this);
 		formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
-<<<<<<< HEAD
-=======
 		console.log(formData);
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 		// Inserting
 		$.ajax({
 			type: 'POST',
@@ -999,20 +833,12 @@
 				location.reload()
 			},
 			error: function (error) {
-<<<<<<< HEAD
-				location.reload()
-			},
-		});
-
-	})
-=======
 				console.log(error);
 				//location.reload()
 			},
 		});
 	
 	}) 
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 </script>
 
 <script>
@@ -1070,9 +896,6 @@
 		});
 	}
 </script>
-<<<<<<< HEAD
-{% endblock %}
-=======
 
  
 <!-- <script type="text/javascript">
@@ -1338,4 +1161,3 @@
 							
 	{% endblock %}					
 
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb

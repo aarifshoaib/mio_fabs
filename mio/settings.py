@@ -104,18 +104,6 @@ WSGI_APPLICATION = 'mio.wsgi.application'
 #         'HOST': 'localhost'
 #     }
 # }
-<<<<<<< HEAD
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'miodb',
-        'USER': 'miouser',
-        'PASSWORD': 'MIo@!0864#Oversss',
-        'HOST': '82.112.238.195',
-        'PORT': '5432',
-    }
-}
-=======
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -127,18 +115,27 @@ DATABASES = {
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'miodb_local',
+#         'USER': 'postgres',
+#         'PASSWORD': 'Windows*1',
+#         'HOST': '92.96.112.184',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'miodb_local',
-        'USER': 'postgres',
-        'PASSWORD': 'Windows*1',
-        'HOST': '92.96.112.184',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'miodb',
+        'USER': 'miouser',
+        'PASSWORD': 'MIo@!0864#Oversss',
+        'HOST': '82.112.238.195',
+        'PORT': '5432',
     }
 }
 
-
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -175,16 +172,12 @@ USE_TZ = True
 
 STATIC_DIR = BASE_DIR / "static"
 STATIC_ROOT = "/var/www/mio/static/"
-STATIC_URL = '/static/'
+STATIC_URL = '/static/assets/'
 STATICFILES_DIRS = [STATIC_DIR,]
 
 MEDIA_ROOT = '/var/www/mio/media/'
 MEDIA_URL = '/media/'
 
-<<<<<<< HEAD
-=======
-
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 

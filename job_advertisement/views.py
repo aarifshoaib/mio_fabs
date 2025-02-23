@@ -3,12 +3,8 @@ from django.views import View
 from job_advertisement import models
 from datetime import datetime, timedelta
 from django.contrib import messages
-<<<<<<< HEAD
-from client_management.models import AddCompanyModel
-=======
 from client_management.models import AddCompanyModel,NewClientModel
 from agent_candidate.models import AgentManagementNewAgentModel,CandidateFormModels
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import login_required
@@ -16,8 +12,6 @@ from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 import openpyxl, os
-<<<<<<< HEAD
-=======
 from job_advertisement.models import ContactMasterModel
 from mom_application.models import AfterApprovalTEPModel
 from .models import EmployeerPersonalNotesModel
@@ -25,7 +19,6 @@ from datetime import datetime
 from django.utils.timezone import make_aware
 from django.core.serializers import serialize
 from django.shortcuts import get_object_or_404, redirect
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 
 
 @method_decorator(login_required(login_url="/"), name='dispatch')
@@ -604,32 +597,6 @@ class StaffMaintenanceView(View):
         users = User.objects.all()
         datas = {'users': users}
         return render(request, self.template_name, context=datas)
-<<<<<<< HEAD
-
-@login_required(login_url="/")
-def employeer_personal_notes_api(request):
-    if request.method == 'POST':
-        try:
-            user = User.objects.get(username=request.user)
-            compname = request.POST.get('comp-name')
-            company = AddCompanyModel.objects.get(id=int(compname))
-            alert_date = request.POST.get('alert-date')
-            remarks = request.POST.get('remark')
-            voice = request.FILES.get('audio')
-
-            note = models.EmployeerPersonalNotesModel(user=user, company=company,
-                                alert_date=alert_date, remarks=remarks, voice=voice)
-            note.save()
-            messages.success(request, f'{company.company_name}, New Note Added.')
-            response_data = {'status': 'success'}
-        except Exception as e:
-            messages.error(request, f'error: {e}')
-            response_data = {'status': 'error', 'msg': 'Error: {e}'}
-    else:
-        messages.error(request, f'Error..')
-        response_data = {'status': 'error'}
-    return JsonResponse(response_data)
-=======
     
 def employeer_personal_notes_api(request):
     if request.method == 'POST':
@@ -721,47 +688,11 @@ def get_employer_for_company_api(request, id):
             response_data = {'status': 'error', 'msg': str(e)}
         return JsonResponse(response_data)
 
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 
 @login_required(login_url="/")
 def update_employeer_personal_notes_api(request, id):
     if request.method == 'POST':
         try:
-<<<<<<< HEAD
-            note = models.EmployeerPersonalNotesModel.objects.get(id=id)
-            if note.status:
-                note.status = False
-                note.save()
-
-                try:
-                    user = User.objects.get(username=request.user)
-                    empnotescnt = models.EmployeerPersonalNotesModel.objects.filter(user=user,
-                        status=False, alert_date__lte=datetime.today())
-                    empnotescnt = empnotescnt.count()
-                except:
-                    empnotescnt = 0
-                response_data = {'status': 'success', 'title': 'Set Your Task as Complete',
-                                 'name': 'Pending', 'cnt': empnotescnt, 'color': 'btn btn-sm btn-warning'}
-            else:
-                note.status = True
-                note.save()
-
-                try:
-                    user = User.objects.get(username=request.user)
-                    empnotescnt = models.EmployeerPersonalNotesModel.objects.filter(user=user,
-                        status=False, alert_date__lte=datetime.today())
-                    empnotescnt = empnotescnt.count()
-                except:
-                    empnotescnt = 0
-
-                response_data = {'status': 'success', 'title': 'Set Your Task as Incomplete',
-                                 'name': 'Completed', 'cnt': empnotescnt, 'color': 'btn btn-sm btn-success'}
-        except:
-            response_data = {'status': 'error'}
-        return JsonResponse(response_data)
-    return JsonResponse({'error': 'GET Request'})
-
-=======
             note = get_object_or_404(models.EmployeerPersonalNotesModel, id=id)
             note.status = not note.status
             note.save()
@@ -785,45 +716,20 @@ def update_employeer_personal_notes_api(request, id):
     return JsonResponse({'error': 'GET Request'})
 
 
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
 @method_decorator(login_required(login_url="/"), name='dispatch')
 class DeleteEmployeerPersonalNotes(View):
     def get(self, request, id):
         try:
-<<<<<<< HEAD
-            note = models.EmployeerPersonalNotesModel.objects.get(id=id)
-            voicenote = note.voice
-            note.delete()
-            try:
-                os.remove(voicenote.path)
-            except: pass
-            messages.success(request, f'NoteID: {id}, Deleted..')
-=======
             note = get_object_or_404(models.EmployeerPersonalNotesModel, id=id)
             voicenote = note.voice
             note.delete()
             if voicenote:
                 os.remove(voicenote.path)
             messages.success(request, f'NoteID: {id}, Deleted.')
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
         except Exception as e:
             messages.error(request, f'Error: {e}')
         return redirect('/job-advertisement/employeer-notes')
 
-<<<<<<< HEAD
-@method_decorator(login_required(login_url="/"), name='dispatch')
-class EmployeerPersonalNotesView(View):
-    template_name = 'employeer-notes.html'
-    def get(self, request):
-        try:
-            companies = AddCompanyModel.objects.all()
-            user = User.objects.get(username=request.user)
-            notes = models.EmployeerPersonalNotesModel.objects.filter(user=user).order_by('-id')
-            datas = {'companies': companies, 'notes': notes}
-        except:
-            datas = {}
-        return render(request, self.template_name, context=datas)
-=======
 # @login_required(login_url="/")
 # def employeer_personal_notes_api(request):
 #     if request.method == 'POST':
@@ -1072,4 +978,3 @@ def employer_notes_view(request):
         notes = None  # No notes for anonymous users
     
     return render(request, 'employeer-notes.html', {'notes': notes})
->>>>>>> d7426f5d9cebde1847bc310f3a74a4dc3ce50afb
