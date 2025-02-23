@@ -1,0 +1,134 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block csslink %}
+<style> 
+.table-wrapper {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    height: fit-content;
+    max-height: 70vh;
+}
+
+table {
+    min-width: max-content;
+    border-collapse: separate;
+    border-spacing: 0px;    
+}
+
+table th{
+    position: sticky; 
+    top: 0px;
+    background-color: #2a2b2b;
+    color: rgb(250, 250, 248);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Order List </h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">Create Order List</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<!-- Search Filter -->
+<div class="main-search">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search...">
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="search-result">
+    {% if keyword %}
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    {% endif %}
+    <h6>{{result_cnt}} Results found | 
+        <a href="/client-management/grouped-order-list" class="text-primary">Clear Filter</a>
+    </h6>
+</div>
+<!-- /Search Filter -->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive table-wrapper">
+            <table class="table table-striped custom-table mb-0 datatable">
+                {% autoescape off %}
+                    {{orders_list|get_company:tot_cnts}}
+                {% endautoescape %}
+            </table> <br>
+            <div>
+                {% if orders.has_other_pages %}
+                    <ul class="pagination">
+                        {% if orders.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{orders.previous_page_number}}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                        {% endif %}
+
+
+                        {% for page in orders.paginator.page_range %}
+                            {% if orders.number == page %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% elif page > orders.number|add:'-5' and page < orders.number|add:'5' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if orders.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{orders.next_page_number}}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disable">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

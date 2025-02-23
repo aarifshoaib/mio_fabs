@@ -1,0 +1,53 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% block content %}
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">Users</th>
+                        <th style="text-align:center">Date of Last Activity</th>
+			<th style="text-align:center;">Location</th>
+                        <th style="text-align:center">Status<a href="#" class="noti-dot active">
+                        </a></th>
+                    </tr>
+                </thead>
+                <tbody id="active-user-tbody-id">
+                    {% for user in users %}
+                    <tr>
+                        <td style="text-align:center">{{user.user.username}}</td>
+                        <td style="text-align:center">{{user.active_date|gmail_date_fix}}</td>
+			<td style="text-align:center">{{user.location}}</td>
+                        <td style="text-align:center"><p class="badge bg-inverse-success">Online</p></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+    function update_realtime_user_function(){
+        var tbody = document.getElementById('active-user-tbody-id');
+        $.ajax({
+					type: 'GET',
+					url: '/job-advertisement/realtime-active-update-api',
+					processData: false,
+					contentType: false,
+					success: function(res){
+                                tbody.innerHTML = res.trows;
+							},
+					error: function(error) {
+
+					}
+				});
+    }
+    setInterval(update_realtime_user_function, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Payslip</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="$">Dashboard</a></li>
+                <li class="breadcrumb-item active">Payslip</li>
+            </ul>
+        </div>
+        <div class="col-auto float-right ml-auto">
+            <div class="btn-group btn-group-sm">
+                <a class="btn btn-white" href="#">PDF</a>
+                <a class="btn btn-white" href="/client-management/print-payslip/{{payslip.id}}"><i class="fa fa-print fa-lg"></i> Print</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="payslip-title">Payslip for {{payslip.payslip_date_from}} to {{payslip.payslip_date_to}}</h4>
+                <div class="row">
+                    <div class="col-sm-6 m-b-20">
+                        <ul class="list-unstyled mb-0">
+                            <li><strong>Employee : </strong>{{payslip.after_approved_tep.workpass.name.title}}</li>
+                            <li><strong>Designation : </strong>{{payslip.after_approved_tep.workpass.job.designation.title}}</li>
+                            <li><strong>NRIC/FIN No : </strong>{{payslip.after_approved_tep.workpass.fin_number}}</li>
+                            <li><strong>Company Name: </strong>{{payslip.after_approved_tep.workpass.company_name.company_name.title}}</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6 m-b-20">
+                        <div class="invoice-details">
+                            <h3 class="text-uppercase">Payslip #{{payslip.id}}</h3>
+                            <ul class="list-unstyled">
+                                <li><strong>Date of Payment:</strong> <span>{{payslip.payment_date}}</span></li>
+                                <li><strong>Mode of Payment:</strong> <span>{{payslip.mode_of_payment}}</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div>
+                            <h4 class="m-b-10"><strong>Earnings</strong></h4>
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Basic Salary (A)</strong> <span class="float-right">
+                                            {% if payslip.basic_pay %}
+                                                ${{payslip.basic_pay}}
+                                            {% else %} NIL
+                                            {% endif %}
+                                        </span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total Allowance (B)</strong> <span class="float-right">
+                                            {% if payslip.total_allowance %}
+                                                ${{payslip.total_allowance}}
+                                            {% else %} NIL
+                                            {% endif %}
+                                        </span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Overtime Payment Periods (C)</strong> <span class="float-right">
+                                            {% if payslip.overtime_payment_period %}
+                                                ${{payslip.overtime_payment_period}}
+                                            {% else %} NIL
+                                            {% endif %}
+                                        </span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Overtime Hours Worked (D)</strong> <span class="float-right">
+                                            {% if payslip.overtime_work_hours %}
+                                            ${{payslip.overtime_work_hours}}
+                                            {% else %} NIL
+                                            {% endif %}
+                                        </span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Other Additional (E)</strong> <span class="float-right"><strong>
+                                            {% if payslip.other_additional %}
+                                            ${{payslip.other_additional}}
+                                            {% else %} NIL
+                                            {% endif %}
+                                        </strong></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div>
+                            <h4 class="m-b-10"><strong>Deductions</strong></h4>
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Advance (F)</strong> <span class="float-right">
+                                            {% if payslip.advance %}
+                                            ${{payslip.advance}}
+                                            {% else %} NIL
+                                            {% endif %}
+                                        </span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Employee CPF Deduction (G)</strong> <span class="float-right">
+                                            {% if payslip.employee_cpf_deduction %}
+                                            ${{payslip.employee_cpf_deduction}}
+                                            {% else %} NIL
+                                            {% endif %}
+                                        </span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total Deduction</strong> <span class="float-right">
+                                            {% if payslip.total_deduction %}
+                                            ${{payslip.total_deduction}}
+                                            {% else %} NIL
+                                            {% endif %}
+                                        </span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <p><strong>Net Salary {{earn_deduct}}: ${{payslip.net_pay}}</strong> {% if payslip.net_pay %} {{payslip.net_pay|amount_to_words}} {% endif %}</p>
+                    </div>
+                </div>
+
+                <br> <br> <br>
+                <div class="col-auto float-left ml-auto">
+                    <div class="btn-group btn-group-sm">
+                        <div class="table-responsive no-border">
+                            <table class="table mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th class="text-right text-primary">Employee Signature </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto float-right ml-auto">
+                    <div class="btn-group btn-group-sm">
+                        <div class="table-responsive no-border">
+                            <table class="table mb-0">
+                                    <tr>
+                                        <th class="text-right text-primary">&nbsp; &nbsp; &nbsp; Aproved By &nbsp; &nbsp; &nbsp; </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Staff Maintenance</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Staff Maintenance</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0 datatable">
+                    <thead>
+                        <tr>
+                            <th><b>Name</b></th>
+                            <th><b>Location</b></th>
+                            <th><b>CompanyNo</b></th>
+                            <th><b>SIMOwner</b></th>
+                            <th><b>OwnSIM</b></th>
+                            <th><b>GroupNo</b></th>
+                            <th><b>GRP SIM</b></th>
+                            <th><b>PersonalNo</b></th>
+                            <th><b>SIMExpiry</b></th>
+                            <th><b>GRP SIM Exp</b></th>
+                            <th><b>TimeStart</b></th>
+                            <th><b>TimeEnd</b></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <p class="text-primary">{{user.username}}</p>
+                            </td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-location">{{user|staff_maintenance_templatetag:"location"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-companyno">{{user|staff_maintenance_templatetag:"companyno"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-simowner">{{user|staff_maintenance_templatetag:"simowner"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-ownsim">{{user|staff_maintenance_templatetag:"ownsim"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-groupno">{{user|staff_maintenance_templatetag:"groupno"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-grpsim">{{user|staff_maintenance_templatetag:"grpsim"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-personalno">{{user|staff_maintenance_templatetag:"personalno"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-simexpiry">{{user|staff_maintenance_templatetag:"simexpiry"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-grpsimexp">{{user|staff_maintenance_templatetag:"grpsimexp"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-timestart">{{user|staff_maintenance_templatetag:"timestart"}}</td>
+                            <td class="editable" contenteditable="true" id="{{user.username}}-timeend">{{user|staff_maintenance_templatetag:"timeend"}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block jslink %}
+<script>
+    $('.editable').on('blur', function() {
+            var row = $(this).closest('td');
+            var cell_id = row[0].getAttribute('id');
+            var cell_value = row.text();
+            console.log(cell_id, cell_value);
+
+            $.ajax({
+                type: 'GET',
+                url: `/job-advertisement/staff-maintenance-api`,
+                data: {"cellid": cell_id, "cellvalue": cell_value},
+                success: function(res){
+                        console.log(res);
+                        if (res.status != 'success'){
+                                row[0].value = cell_value;
+                            }
+                        },
+                    error: function(error) {
+                        row[0].value = cell_value;
+                        console.log(error)
+                }
+            });
+
+        });
+</script>
+{% endblock %}

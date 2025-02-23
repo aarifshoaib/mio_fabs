@@ -1,0 +1,976 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+<style>class .files-area {
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .file-block {
+      border-radius: 10px;
+      background-color: rgba(144, 163, 203, 0.2);
+      margin: 5px;
+      color: initial;
+      display: flex;
+    }
+    .file-block > span.name {
+      padding-right: 10px;
+      width: max-content;
+      display: inline-flex;
+    }
+
+    .file-delete {
+      display: flex;
+      width: 24px;
+      color: initial;
+      background-color: #6eb4ff00;
+      font-size: large;
+      justify-content: center;
+      margin-right: 3px;
+      cursor: pointer;
+    }
+    .file-delete:hover {
+      background-color: rgba(144, 163, 203, 0.2);
+      border-radius: 10px;
+    }
+    .file-delete > span {
+      transform: rotate(45deg);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row">
+        <div class="col">
+            <h3 class="page-title">Candidate Form</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Candidate</a></li>
+                <li class="breadcrumb-item active">Candidate Form</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Candidate Form</h4>
+            </div>
+            <div class="card-body">
+                <h4 class="card-title">Candidate Information</h4>
+                <form id="create-candidate-form" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        {% csrf_token %}
+                        <div class="col-xl-6">
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Agent Name:</label>
+                                <div class="col-lg-9">
+                                    <select name="agent-name" id="select-state" class="form-control" required>
+                                        <option value="">Select Name</option>
+                                        {% for agent in agents %}
+                                            {% if agent.id == candidate.agent.id %}
+                                                <option value="{{agent.id}}" selected>{{agent.agent_id|column_num_to_name}}-{{agent.name}}</option>
+                                            {% else %}
+                                                <option value="{{agent.id}}">{{agent.agent_id|column_num_to_name}}-{{agent.name}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Name:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.candidate_name}}" name="candidate-name" class="form-control" placeholder="Candidate Name" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">DOB:</label>
+                                <div class="col-lg-9">
+                                    <div class="cal-icon">
+                                        <input type="text" value="{{candidate_dob}}" name="candidate_dob" class="form-control datetimepicker">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">KYC:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.kyc}}" name="kyc" placeholder="Enter KYC" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Passport No:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.passport_no}}" name="passport_no" placeholder="Enter Passport No." class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Highest Edu:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.candidate_high_edu}}" name="candidate_high_edu" placeholder="Highest Education Details" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Abroad Exp:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.abroad_exp}}" name="abroad-exp" placeholder="Abroad Experience" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Current Location:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.current_location}}" name="current-location" placeholder="Current Location" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Local Exp:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.local_exp}}" name="local-exp" placeholder="Local Experience" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">SG Pass Detail:</label>
+                                <div class="col-lg-9">
+                                    <textarea name="sg-pass-detail" cols="30" class="form-control" rows="2" placeholder="If SG Specify Pass Detail">{{candidate.sg_pass_detail}}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Applied Position:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.applied_position}}" name="applied-position" placeholder="Applied Position" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Alternative Position:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.alternative_position}}" name="alternative-position" placeholder="Alternative Position" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Applied Pass:</label>
+                                <div class="col-lg-9">
+                                    <input type="text" value="{{candidate.applied_pass}}" name="applied-pass" placeholder="Applied Pass" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Spouse Details:</label>
+                                <div class="col-lg-9">
+                                    <textarea name="spouse-dob" cols="30" class="form-control" placeholder="Spouse Details" rows="2">{{candidate.spouse_dob}}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Any Physical Challenge:</label>
+                                <div class="col-lg-9">
+
+                                    <div class="form-check form-check-inline">
+                                        {% if candidate.any_physical_challenge %}
+                                            <input onclick="physicalCheck(1)" class="form-check-input" checked type="radio" name="any_physical_challenge" id="Physical-Yes" value="y">
+                                            <label class="form-check-label" for="Physical-Yes">
+                                            Yes
+                                            </label>
+                                        {% else %}
+                                            <input onclick="physicalCheck(1)" class="form-check-input" type="radio" name="any_physical_challenge" id="Physical-Yes" value="y">
+                                            <label class="form-check-label" for="Physical-Yes">
+                                            Yes
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {% if candidate.any_physical_challenge == False %}
+                                            <input onclick="physicalCheck(0)" class="form-check-input" checked type="radio" name="any_physical_challenge" id="Physical-No" value="n">
+                                            <label class="form-check-label" for="Physical-No">
+                                            No
+                                            </label>
+                                        {% else %}
+                                            <input onclick="physicalCheck(0)" class="form-check-input" type="radio" name="any_physical_challenge" id="Physical-No" value="n">
+                                            <label class="form-check-label" for="Physical-No">
+                                            No
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    {% if candidate.any_physical_challenge %}
+                                    <div class="form-group row" id="physical-inputs">
+                                        <label class="col-lg-3 col-form-label">Specify:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{candidate.specify_physical_challenge}}" id="physical-specify" name="specify_physical_challenge" placeholder="Specify" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="form-group row" id="physical-inputs" style="display: none;">
+                                        <label class="col-lg-3 col-form-label">Specify:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{candidate.specify_physical_challenge}}" id="physical-specify" name="specify_physical_challenge" placeholder="Specify" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Relative in Singapore :</label>
+                                <div class="col-lg-9">
+                                    <div class="form-check form-check-inline">
+                                        {% if candidate.any_relatives %}
+                                            <input onclick="relativesCheck(1)" class="form-check-input" checked type="radio" name="any_relatives" id="relatives-Yes" value="y">
+                                            <label class="form-check-label" for="Marital-Yes">
+                                            Yes
+                                            </label>
+                                        {% else %}
+                                            <input onclick="relativesCheck(1)" class="form-check-input" type="radio" name="any_relatives" id="relatives-Yes" value="y">
+                                            <label class="form-check-label" for="Marital-Yes">
+                                            Yes
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {% if candidate.any_relatives == False %}
+                                            <input onclick="relativesCheck(0)" class="form-check-input" checked type="radio" name="any_relatives" id="relatives-No" value="n">
+                                            <label class="form-check-label" for="Marital-No">
+                                            No
+                                            </label>
+                                        {% else %}
+                                            <input onclick="relativesCheck(0)" class="form-check-input" type="radio" name="any_relatives" id="relatives-No" value="n">
+                                            <label class="form-check-label" for="Marital-No">
+                                            No
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    {% if candidate.any_relatives %}
+                                    <div class="form-group row" id="relatives-inputs">
+                                        <label class="col-lg-3 col-form-label">Specify:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{candidate.specify_any_relatives}}" id="relative-specify" name="specify_any_relatives" placeholder="Specify About Him" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="form-group row" id="relatives-inputs" style="display: none;">
+                                        <label class="col-lg-3 col-form-label">Specify:</label>
+                                        <div class="col-lg-9">
+                                            <input type="text" value="{{candidate.specify_any_relatives}}" id="relative-specify" name="specify_any_relatives" placeholder="Specify About Him" class="form-control">
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Specify Note:</label>
+                                <div class="col-lg-9">
+                                    <textarea name="specify-note" cols="30" class="form-control" rows="2" placeholder="Specif Note">{{candidate.specify_note}}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Selection Command:</label>
+                                <div class="col-lg-9">
+                                    <textarea name="selection-command" cols="30" class="form-control" rows="2" placeholder="Selection Command">{{candidate.selection_command}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-6">
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Upload Passport:</label>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                      <p class="mt-5 text-center">
+                                          <label for="passport-attachment">
+                                              <a class="btn btn-primary text-light" role="button" aria-disabled="false">+ Upload Passports</a>
+                                          </label>
+                                          <input type="file" name="upload-passport" id="passport-attachment" style="visibility: hidden; position: absolute;" multiple/>
+                                      </p>
+                                      <p class="files-area">
+                                          <span id="passport-filesList">
+                                              <span id="passport-files-names"></span>
+                                          </span>
+                                      </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Upload Video:</label>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                      <p class="mt-5 text-center">
+                                          <label for="video-attachment">
+                                              <a class="btn btn-primary text-light" role="button" aria-disabled="false">+ Upload Video</a>
+                                          </label>
+                                          <input type="file" name="upload-video" id="video-attachment" style="visibility: hidden; position: absolute;" multiple/>
+                                      </p>
+                                      <p class="files-area">
+                                          <span id="video-filesList">
+                                              <span id="video-files-names"></span>
+                                          </span>
+                                      </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Upload Cert:</label>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                      <p class="mt-5 text-center">
+                                          <label for="cert-attachment">
+                                              <a class="btn btn-primary text-light" role="button" aria-disabled="false">+ Upload Cert</a>
+                                          </label>
+                                          <input type="file" name="upload-cert" id="cert-attachment" style="visibility: hidden; position: absolute;" multiple/>
+                                      </p>
+                                      <p class="files-area">
+                                          <span id="cert-filesList">
+                                              <span id="cert-files-names"></span>
+                                          </span>
+                                      </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Upload Resume:</label>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                      <p class="mt-5 text-center">
+                                          <label for="resume-attachment">
+                                              <a class="btn btn-primary text-light" role="button" aria-disabled="false">+ Upload Resume</a>
+                                          </label>
+                                          <input type="file" name="upload-resume" id="resume-attachment" style="visibility: hidden; position: absolute;" multiple/>
+                                      </p>
+                                      <p class="files-area">
+                                          <span id="resume-filesList">
+                                              <span id="resume-files-names"></span>
+                                          </span>
+                                      </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Upload Work Video:</label>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                      <p class="mt-5 text-center">
+                                          <label for="work-video-attachment">
+                                              <a class="btn btn-primary text-light" role="button" aria-disabled="false">+ Upload Work Video</a>
+                                          </label>
+                                          <input type="file" name="upload-work-video" id="work-video-attachment" style="visibility: hidden; position: absolute;" multiple/>
+                                      </p>
+                                      <p class="files-area">
+                                          <span id="work-video-filesList">
+                                              <span id="work-video-files-names"></span>
+                                          </span>
+                                      </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Upload Interview Audio:</label>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                      <p class="mt-5 text-center">
+                                          <label for="interview-audio-attachment">
+                                              <a class="btn btn-primary text-light" role="button" aria-disabled="false">+ Upload Interview Audio</a>
+                                          </label>
+                                          <input type="file" name="upload-interview-audio" id="interview-audio-attachment" style="visibility: hidden; position: absolute;" multiple/>
+                                      </p>
+                                      <p class="files-area">
+                                          <span id="interview-audio-filesList">
+                                              <span id="interview-audio-files-names"></span>
+                                          </span>
+                                      </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            {% if candidate.upload_passport.all %}
+                                <h5><u>Uploaded Passport</u></h5>
+                                {% for f in candidate.upload_passport.all %}
+                                    <h5>
+                                        <small class="text-muted">
+                                            <a href="{{f.upload_passport.url}}" target="_blank">
+                                                {{forloop.counter}} - {{f.upload_passport.name|get_filename}}
+                                            </a> |
+                                            <a href="#" class="text-danger" data-toggle="modal" data-target="#upload_passport{{f.id}}">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </small>
+                                    </h5>
+                                    <div class="modal custom-modal fade" id="upload_passport{{f.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete: {{f.upload_passport.name|get_filename}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/agent-candidate/agent-management-delete-file/{{candidate.id}}/{{f.id}}/L2FnZW50LWNhbmRpZGF0ZS9hZ2VudC1tYW5hZ2VtZW50LWNhbmRpZGF0ZS1saXN0/upload_passport" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            {% if candidate.upload_video.all %}
+                                <h5><u>Uploaded Video</u></h5>
+                                {% for f in candidate.upload_video.all %}
+                                    <h5>
+                                        <small class="text-muted">
+                                            <a href="{{f.upload_video.url}}" target="_blank">
+                                                {{forloop.counter}} - {{f.upload_video.name|get_filename}}
+                                            </a> |
+                                            <a href="#" class="text-danger" data-toggle="modal" data-target="#upload_video{{f.id}}">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </small>
+                                    </h5>
+                                    <div class="modal custom-modal fade" id="upload_video{{f.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete: {{f.upload_video.name|get_filename}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/agent-candidate/agent-management-delete-file/{{candidate.id}}/{{f.id}}/L2FnZW50LWNhbmRpZGF0ZS9hZ2VudC1tYW5hZ2VtZW50LWNhbmRpZGF0ZS1saXN0/upload_video" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            {% if candidate.upload_cert.all %}
+                                <h5><u>Uploaded Cert</u></h5>
+                                {% for f in candidate.upload_cert.all %}
+                                    <h5>
+                                        <small class="text-muted">
+                                            <a href="{{f.upload_cert.url}}" target="_blank">
+                                                {{forloop.counter}} - {{f.upload_cert.name|get_filename}}
+                                            </a> |
+                                            <a href="#" class="text-danger" data-toggle="modal" data-target="#upload_cert{{f.id}}">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </small>
+                                    </h5>
+                                    <div class="modal custom-modal fade" id="upload_cert{{f.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete: {{f.upload_cert.name|get_filename}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/agent-candidate/agent-management-delete-file/{{candidate.id}}/{{f.id}}/L2FnZW50LWNhbmRpZGF0ZS9hZ2VudC1tYW5hZ2VtZW50LWNhbmRpZGF0ZS1saXN0/upload_cert" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            {% if candidate.upload_resume.all %}
+                                <h5><u>Uploaded Resume</u></h5>
+                                {% for f in candidate.upload_resume.all %}
+                                    <h5>
+                                        <small class="text-muted">
+                                            <a href="{{f.upload_resume.url}}" target="_blank">
+                                                {{forloop.counter}} - {{f.upload_resume.name|get_filename}}
+                                            </a> |
+                                            <a href="#" class="text-danger" data-toggle="modal" data-target="#upload_resume{{f.id}}">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </small>
+                                    </h5>
+                                    <div class="modal custom-modal fade" id="upload_resume{{f.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete: {{f.upload_resume.name|get_filename}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/agent-candidate/agent-management-delete-file/{{candidate.id}}/{{f.id}}/L2FnZW50LWNhbmRpZGF0ZS9hZ2VudC1tYW5hZ2VtZW50LWNhbmRpZGF0ZS1saXN0/upload_resume" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if candidate.upload_work_video.all %}
+                                <h5><u>Uploaded Work Video</u></h5>
+                                {% for f in candidate.upload_work_video.all %}
+                                    <h5>
+                                        <small class="text-muted">
+                                            <a href="{{f.upload_work_video.url}}" target="_blank">
+                                                {{forloop.counter}} - {{f.upload_work_video.name|get_filename}}
+                                            </a> |
+                                            <a href="#" class="text-danger" data-toggle="modal" data-target="#upload_work_video{{f.id}}">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </small>
+                                    </h5>
+                                    <div class="modal custom-modal fade" id="upload_work_video{{f.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete: {{f.upload_work_video.name|get_filename}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/agent-candidate/agent-management-delete-file/{{candidate.id}}/{{f.id}}/L2FnZW50LWNhbmRpZGF0ZS9hZ2VudC1tYW5hZ2VtZW50LWNhbmRpZGF0ZS1saXN0/upload_work_video" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if candidate.upload_interview_audio.all %}
+                                <h5><u>Uploaded Interview Audio</u></h5>
+                                {% for f in candidate.upload_interview_audio.all %}
+                                    <h5>
+                                        <small class="text-muted">
+                                            <a href="{{f.upload_interview_audio.url}}" target="_blank">
+                                                {{forloop.counter}} - {{f.upload_interview_audio.name|get_filename}}
+                                            </a> |
+                                            <a href="#" class="text-danger" data-toggle="modal" data-target="#upload_interview_audio{{f.id}}">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </small>
+                                    </h5>
+                                    <div class="modal custom-modal fade" id="upload_interview_audio{{f.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete: {{f.upload_interview_audio.name|get_filename}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/agent-candidate/agent-management-delete-file/{{candidate.id}}/{{f.id}}/L2FnZW50LWNhbmRpZGF0ZS9hZ2VudC1tYW5hZ2VtZW50LWNhbmRpZGF0ZS1saXN0/upload_interview_audio" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="text-left">
+                        <input type="submit" id="submit-btn" class="btn btn-primary" value="Submit">
+                        <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                            <span class="sr-only"></span>
+                        </div>
+                        <span id="error-message" class="text-danger"></span>
+                        <span id="file-load-message" class="text-success"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+        }
+    var csrftoken = getCookie('csrftoken');
+    $("#create-candidate-form").submit(function(e) {
+        e.preventDefault();
+        let get_spinner = document.getElementById('submit-spinner');
+        let submit_btn = document.getElementById('submit-btn');
+        let error_message= document.getElementById('error-message');
+        let file_load_message= document.getElementById('file-load-message');
+        submit_btn.setAttribute('disabled', '')
+        get_spinner.style.display = '';
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
+
+        if (window.location.pathname == '/agent-candidate/agent-management-candidate-form'){
+            // Inserting
+            if (error_message.innerText.includes('Already Exist')){
+                formData.append("duplicate", "allow");
+            };
+            $.ajax({
+                    type: 'POST',
+                    url: '/agent-candidate/candidate-form-api/',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                        },
+                    mimeType: 'multipart/form-data',
+                    success: function(res){
+                                get_spinner.style.display = 'none';
+                                submit_btn.removeAttribute('disabled', '');
+                                res = JSON.parse(res)
+                                if (res.status != 'success'){
+                                    error_message.innerText = res.msg;
+                                    file_load_message.innerText = '';
+                                }else{
+                                    console.log(res);
+				    window.location.reload();
+                                }
+                            },
+                        error: function(error) {
+                            get_spinner.style.display = 'none';
+                            submit_btn.removeAttribute('disabled', '');
+                            console.log(error);
+			    window.location.reload();
+                    }
+                });
+        } else{
+            // Updating
+            $.ajax({
+                    type: 'POST',
+                    url: '/agent-candidate/candidate-form-api/{{candidate.id}}/{{return_url}}',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                        },
+                    mimeType: 'multipart/form-data',
+                    success: function(res){
+                                get_spinner.style.display = 'none';
+                                submit_btn.removeAttribute('disabled', '');
+                                res = JSON.parse(res)
+                                if (res.status != 'success'){
+                                    error_message.innerText = res.msg;
+                                    file_load_message.innerText = '';
+                                }else{
+                                    window.location = res.return_url;
+                                }
+                            },
+                        error: function(error) {
+                            get_spinner.style.display = 'none';
+                            submit_btn.removeAttribute('disabled', '');
+                            window.location.reload();
+                    }
+                });
+        }
+    })
+</script>
+
+<!-- --------------------------------------------------------------------------->
+<script>
+const passport_attachments = new DataTransfer();
+$("#passport-attachment").on('change', function(e){
+	for (let file of this.files) {
+        const fileSize = file.size / 1024 / 1024;
+        var chkfile = false;
+        console.log(fileSize);
+        if (fileSize > 50){
+            alert(file.name + '\nFile size exceeds 50 MiB');
+            passport_attachments.item.remove(file);
+            chkfile = true;
+        }
+        if (chkfile == false){
+            passport_attachments.items.add(file);
+        }
+	};
+    for(var i = 0; i < this.files.length; i++){
+		let fileBloc = $('<span/>', {class: 'file-block'}),
+			 fileName = $('<span/>', {class: 'name', text: this.files.item(i).name});
+		fileBloc.append('<span class="file-delete"><span>+</span></span>')
+			.append(fileName);
+		$("#passport-filesList > #passport-files-names").append(fileBloc);
+	}
+	this.files = passport_attachments.files;
+	$('span.file-delete').click(function(){
+		let name = $(this).next('span.name').text();
+		$(this).parent().remove();
+		for(let i = 0; i < passport_attachments.items.length; i++){
+            if(name === passport_attachments.items[i].getAsFile().name){
+				passport_attachments.items.remove(i);
+				continue;
+			}
+		}
+		document.getElementById('passport-attachment').files = passport_attachments.files;
+	});
+});
+</script>
+<!-- ----------------------------------------------------------------------- -->
+<script>
+    const video_attachments = new DataTransfer();
+    $("#video-attachment").on('change', function(e){
+        for (let file of this.files) {
+            const fileSize = file.size / 1024 / 1024;
+            var chkfile = false;
+            console.log(fileSize);
+            if (fileSize > 50){
+                alert(file.name + '\nFile size exceeds 50 MiB');
+                video_attachments.item.remove(file);
+                chkfile = true;
+            }
+            if (chkfile == false){
+                video_attachments.items.add(file);
+            }
+        };
+        for(var i = 0; i < this.files.length; i++){
+            let fileBloc = $('<span/>', {class: 'file-block'}),
+                 fileName = $('<span/>', {class: 'name', text: this.files.item(i).name});
+            fileBloc.append('<span class="file-delete"><span>+</span></span>')
+                .append(fileName);
+            $("#video-filesList > #video-files-names").append(fileBloc);
+        }
+        this.files = video_attachments.files;
+        $('span.file-delete').click(function(){
+            let name = $(this).next('span.name').text();
+            $(this).parent().remove();
+            for(let i = 0; i < video_attachments.items.length; i++){
+                if(name === video_attachments.items[i].getAsFile().name){
+                    video_attachments.items.remove(i);
+                    continue;
+                }
+            }
+            document.getElementById('video-attachment').files = video_attachments.files;
+        });
+    });
+</script>
+<!-- ------------------------------------------------------------------- -->
+<script>
+    const cert_attachments = new DataTransfer();
+    $("#cert-attachment").on('change', function(e){
+        for (let file of this.files) {
+            const fileSize = file.size / 1024 / 1024;
+            var chkfile = false;
+            console.log(fileSize);
+            if (fileSize > 50){
+                alert(file.name + '\nFile size exceeds 50 MiB');
+                cert_attachments.item.remove(file);
+                chkfile = true;
+            }
+            if (chkfile == false){
+                cert_attachments.items.add(file);
+            }
+        };
+        for(var i = 0; i < this.files.length; i++){
+            let fileBloc = $('<span/>', {class: 'file-block'}),
+                 fileName = $('<span/>', {class: 'name', text: this.files.item(i).name});
+            fileBloc.append('<span class="file-delete"><span>+</span></span>')
+                .append(fileName);
+            $("#cert-filesList > #cert-files-names").append(fileBloc);
+        }
+        this.files = cert_attachments.files;
+        $('span.file-delete').click(function(){
+            let name = $(this).next('span.name').text();
+            $(this).parent().remove();
+            for(let i = 0; i < cert_attachments.items.length; i++){
+                if(name === cert_attachments.items[i].getAsFile().name){
+                    cert_attachments.items.remove(i);
+                    continue;
+                }
+            }
+            document.getElementById('cert-attachment').files = cert_attachments.files;
+        });
+    });
+</script>
+<!-- ------------------------------------------------------------- -->
+<script>
+    const resume_attachments = new DataTransfer();
+    $("#resume-attachment").on('change', function(e){
+        for (let file of this.files) {
+            const fileSize = file.size / 1024 / 1024;
+            var chkfile = false;
+            console.log(fileSize);
+            if (fileSize > 50){
+                alert(file.name + '\nFile size exceeds 50 MiB');
+                resume_attachments.item.remove(file);
+                chkfile = true;
+            }
+            if (chkfile == false){
+                resume_attachments.items.add(file);
+            }
+        };
+        for(var i = 0; i < this.files.length; i++){
+            let fileBloc = $('<span/>', {class: 'file-block'}),
+                 fileName = $('<span/>', {class: 'name', text: this.files.item(i).name});
+            fileBloc.append('<span class="file-delete"><span>+</span></span>')
+                .append(fileName);
+            $("#resume-filesList > #resume-files-names").append(fileBloc);
+        }
+        this.files = resume_attachments.files;
+        $('span.file-delete').click(function(){
+            let name = $(this).next('span.name').text();
+            $(this).parent().remove();
+            for(let i = 0; i < resume_attachments.items.length; i++){
+                if(name === resume_attachments.items[i].getAsFile().name){
+                    resume_attachments.items.remove(i);
+                    continue;
+                }
+            }
+            document.getElementById('resume-attachment').files = resume_attachments.files;
+        });
+    });
+</script>
+<!-- ------------------------------------------------------ -->
+<script>
+    const work_video_attachments = new DataTransfer();
+    $("#work-video-attachment").on('change', function(e){
+        for (let file of this.files) {
+            const fileSize = file.size / 1024 / 1024;
+            var chkfile = false;
+            console.log(fileSize);
+            if (fileSize > 50){
+                alert(file.name + '\nFile size exceeds 50 MiB');
+                work_video_attachments.item.remove(file);
+                chkfile = true;
+            }
+            if (chkfile == false){
+                work_video_attachments.items.add(file);
+            }
+        };
+        for(var i = 0; i < this.files.length; i++){
+            let fileBloc = $('<span/>', {class: 'file-block'}),
+                 fileName = $('<span/>', {class: 'name', text: this.files.item(i).name});
+            fileBloc.append('<span class="file-delete"><span>+</span></span>')
+                .append(fileName);
+            $("#work-video-filesList > #work-video-files-names").append(fileBloc);
+        }
+        this.files = work_video_attachments.files;
+        $('span.file-delete').click(function(){
+            let name = $(this).next('span.name').text();
+            $(this).parent().remove();
+            for(let i = 0; i < work_video_attachments.items.length; i++){
+                if(name === work_video_attachments.items[i].getAsFile().name){
+                    work_video_attachments.items.remove(i);
+                    continue;
+                }
+            }
+            document.getElementById('work-video-attachment').files = work_video_attachments.files;
+        });
+    });
+</script>
+<!-- ---------------------------------------------------------- -->
+<script>
+    const interview_audio_attachments = new DataTransfer();
+    $("#interview-audio-attachment").on('change', function(e){
+        for (let file of this.files) {
+            const fileSize = file.size / 1024 / 1024;
+            var chkfile = false;
+            console.log(fileSize);
+            if (fileSize > 50){
+                alert(file.name + '\nFile size exceeds 50 MiB');
+                interview_audio_attachments.item.remove(file);
+                chkfile = true;
+            }
+            if (chkfile == false){
+                interview_audio_attachments.items.add(file);
+            }
+        };
+        for(var i = 0; i < this.files.length; i++){
+            let fileBloc = $('<span/>', {class: 'file-block'}),
+                 fileName = $('<span/>', {class: 'name', text: this.files.item(i).name});
+            fileBloc.append('<span class="file-delete"><span>+</span></span>')
+                .append(fileName);
+            $("#interview-audio-filesList > #interview-audio-files-names").append(fileBloc);
+        }
+        this.files = interview_audio_attachments.files;
+        $('span.file-delete').click(function(){
+            let name = $(this).next('span.name').text();
+            $(this).parent().remove();
+            for(let i = 0; i < interview_audio_attachments.items.length; i++){
+                if(name === interview_audio_attachments.items[i].getAsFile().name){
+                    interview_audio_attachments.items.remove(i);
+                    continue;
+                }
+            }
+            document.getElementById('interview-audio-attachment').files = interview_audio_attachments.files;
+        });
+    });
+</script>
+{% endblock %}

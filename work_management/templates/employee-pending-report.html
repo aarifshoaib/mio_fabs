@@ -1,0 +1,95 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Employee Pending Report</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">Employee Pending Report</li>
+            </ul>
+        </div>
+        <div class="col-auto float-right ml-auto">
+            <!-- <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_client"><i class="fa fa-plus"></i> Add Client</a> -->
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="/work-management/employee-pending-report">Employee</a>
+                    <a class="dropdown-item" href="/work-management/employeer-pending-report">Employeer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>{{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Search Filter -->
+
+<!-- /Search Filter -->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-striped custom-table mb-0 datatable">
+                {% autoescape off %}
+                    {{html_table}}
+                {% endautoescape %}
+            </table>
+        </div>
+    </div>
+</div>
+
+<div>
+    {% if tasks_list.has_other_pages %}
+        <ul class="pagination">
+            {% if tenders.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{{current_url}}page={{tasks_list.previous_page_number}}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+            {% endif %}
+
+
+            {% for page in tasks_list.paginator.page_range %}
+                {% if tasks_list.number == page %}
+                    <li class="page-item active">
+                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                    </li>
+                {% elif page > tasks_list.number|add:'-5' and page < tasks_list.number|add:'5' %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if tasks_list.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{current_url}}page={{tasks_list.next_page_number}}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disable">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    {% endif %}
+</div>
+
+{% endblock %}

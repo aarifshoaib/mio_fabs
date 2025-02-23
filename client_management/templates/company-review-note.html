@@ -1,0 +1,57 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 class="page-title">Company Review - Notes</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                <li class="breadcrumb-item active">Company Review - Notes</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-sm-12">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label>Note <span class="text-danger"></span></label>
+                        <textarea name="note" id="" cols="30" rows="4" class="form-control">{% if comp.company_review.note %}{{comp.company_review.note}}{% endif %}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="submit-section">
+                <input type="submit" value="Submit" class="btn btn-primary submit-btn">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

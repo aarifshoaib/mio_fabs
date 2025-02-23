@@ -1,0 +1,349 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% load static %}
+{% block content %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Adira Leads List</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">Adira</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="card tab-box">
+    <div class="row user-tabs">
+        <div class="col-lg-12 col-md-12 col-sm-12 line-tabs">
+            <ul class="nav nav-tabs nav-tabs-bottom">
+                <li class="nav-item col-sm-3"><a class="nav-link active" data-toggle="tab" href="#UnProcessedleadlists-id" onclick="show_process_unprocess('UnProcessedleadlists-id')">UnProcessed</a></li>
+                <li class="nav-item col-sm-3"><a class="nav-link" data-toggle="tab" href="#Processedleadlists-id" onclick="show_process_unprocess('Processedleadlists-id')">Processed</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12" id="UnProcessedleadlists-id">
+        <div class="table-responsive">
+            <table class="table table-bordered custom-table mb-0 datatable tab">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">RefID</th>
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">PassType</th>
+                        <th style="text-align:center">DOB</th>
+                        <th style="text-align:center">Job</th>
+                        <th style="text-align:center">Contacts</th>
+                        <th style="text-align:center">Passport</th>
+                        <th style="text-align:center">Education Cert</th>
+                        <th style="text-align:center">BioData</th>
+                        <th style="text-align:center">Audio</th>
+                        <th style="text-align:center">Video</th>
+                        <th style="text-align:center">OtherDOC</th>
+                        <th style="text-align:center">Processed?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mdata in leads.leads %}
+                        {% for lead in mdata.leads %}
+                            {% if lead.lead_rowid not in processed_leads %}
+                            <tr>
+                                <td style="text-align:center">
+                                    <span class="badge border broder-primary text-danger">{{lead.lead_refid}}</span> ->
+                                    <span class="badge border broder-primary text-success">{{mdata.mio_refid}}</span>
+                                </td>
+                                <td style="text-align:center">{{lead.name}}</td>
+                                <td style="text-align:center">{{lead.passtype}}</td>
+                                <td style="text-align:center">{{lead.dob}}</td>
+                                <td style="text-align:center">
+                                    {% for j in lead.job %}
+                                    <span class="badge border broder-primary text-primary">{{forloop.counter}}. {{j}}</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <span class="badge border broder-primary text-primary"><i class="fa fa-phone"></i> {{lead.contact1}}</span>
+                                    {% if lead.contact2 %}
+                                    <span class="badge border broder-primary text-primary"><i class="fa fa-phone"></i> {{lead.contact2}}</span>
+                                    {% endif %}
+                                    <span class="badge border broder-primary text-primary"><i class="fa fa-whatsapp"></i> {{lead.whatsapp_no}}</span>
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.passport %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> Doc-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.education_cert %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> Doc-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.biodata %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> Doc-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.interview_audio %}
+
+                                    <div><audio controls style="width: 250px; height: 30px;">
+                                        <source src="{{p}}" type="audio/mpeg">
+                                     </audio></div>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.interview_video %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> video-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.other_docs %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> Doc-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <a href="#" class="badge badge-success" data-toggle="modal" data-target="#move-to-processed-{{lead.lead_rowid}}">Move</a>
+                                    <div class="modal custom-modal fade" id="move-to-processed-{{lead.lead_rowid}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Lead : {{lead.name}}</h3>
+                                                        <p>Move To Processed?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="#" type="button" id="lead-moved-to-processed-submit-btn-id-{{lead.lead_rowid}}" 
+                                                                    class="btn btn-primary continue-btn" onclick="move_to_processed_leadlist_func('{{lead.lead_rowid}}')">
+                                                                    Move
+                                                                    <div id="lead-moved-to-processed-spinner-id-{{lead.lead_rowid}}" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                                                        <span class="sr-only"></span>
+                                                                    </div>
+                                                                </a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-12" id="Processedleadlists-id" style="display: none;">
+        <div class="table-responsive">
+            <table class="table table-bordered custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">RefID</th>
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">PassType</th>
+                        <th style="text-align:center">DOB</th>
+                        <th style="text-align:center">Job</th>
+                        <th style="text-align:center">Contacts</th>
+                        <th style="text-align:center">Passport</th>
+                        <th style="text-align:center">Education Cert</th>
+                        <th style="text-align:center">BioData</th>
+                        <th style="text-align:center">Audio</th>
+                        <th style="text-align:center">Video</th>
+                        <th style="text-align:center">OtherDOC</th>
+                        <th style="text-align:center">Processed?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mdata in leads.leads %}
+                        {% for lead in mdata.leads %}
+                            {% if lead.lead_rowid in processed_leads %}
+                            <tr>
+                                <td style="text-align:center">
+                                    <span class="badge border broder-primary text-danger">{{lead.lead_refid}}</span> ->
+                                    <span class="badge border broder-primary text-success">{{mdata.mio_refid}}</span>
+                                </td>
+                                <td style="text-align:center">{{lead.name}}</td>
+                                <td style="text-align:center">{{lead.passtype}}</td>
+                                <td style="text-align:center">{{lead.dob}}</td>
+                                <td style="text-align:center">
+                                    {% for j in lead.job %}
+                                    <span class="badge border broder-primary text-primary">{{forloop.counter}}. {{j}}</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <span class="badge border broder-primary text-primary"><i class="fa fa-phone"></i> {{lead.contact1}}</span>
+                                    {% if lead.contact2 %}
+                                    <span class="badge border broder-primary text-primary"><i class="fa fa-phone"></i> {{lead.contact2}}</span>
+                                    {% endif %}
+                                    <span class="badge border broder-primary text-primary"><i class="fa fa-whatsapp"></i> {{lead.whatsapp_no}}</span>
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.passport %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> Doc-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.education_cert %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> Doc-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.biodata %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> Doc-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.interview_audio %}
+
+                                    <div><audio controls style="width: 250px; height: 30px;">
+                                        <source src="{{p}}" type="audio/mpeg">
+                                     </audio></div>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.interview_video %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> video-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align:center">
+                                    {% for p in lead.other_docs %}
+                                    <a href="{{p}}" target="_blank" class="badge border broder-primary text-primary"><i class="fa fa-download"></i> Doc-{{forloop.counter}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <a href="#" class="badge badge-danger" data-toggle="modal" data-target="#move-to-processed-{{lead.lead_rowid}}">Remove</a>
+                                    <div class="modal custom-modal fade" id="move-to-processed-{{lead.lead_rowid}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Lead : {{lead.name}}</h3>
+                                                        <p>Move To UnProcessed?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="#" type="button" id="lead-moved-to-processed-submit-btn-id-{{lead.lead_rowid}}" 
+                                                                    onclick="move_to_processed_leadlist_func('{{lead.lead_rowid}}')" class="btn btn-primary continue-btn">
+                                                                    Move
+                                                                    <div id="lead-moved-to-processed-spinner-id-{{lead.lead_rowid}}" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                                                        <span class="sr-only"></span>
+                                                                    </div>
+                                                                </a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script src="{% static 'assets/js/task.js' %}"></script>
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function move_to_processed_leadlist_func(leadid){
+        let get_spinner = document.getElementById(`lead-moved-to-processed-spinner-id-${leadid}`);
+        let submit_btn = document.getElementById(`lead-moved-to-processed-submit-btn-id-${leadid}`);
+        submit_btn.setAttribute('disabled', '')
+        get_spinner.style.display = '';
+
+        var formData = new FormData();
+        formData.append('leadid', leadid);
+
+        $.ajax({
+            type: 'POST',
+            url: '/client-management/update-adira-lead-moved-to-process',
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+            },
+            mimeType: 'multipart/form-data',
+            success: function (res) {
+                get_spinner.style.display = 'none';
+                submit_btn.removeAttribute('disabled', '');
+                location.reload();
+            },
+            error: function (error) {
+                get_spinner.style.display = 'none';
+                submit_btn.removeAttribute('disabled', '');
+                location.relad();
+            }
+        });
+    };
+
+    function show_process_unprocess(pid){
+        const p1id = 'Processedleadlists-id';
+        const p2id = 'UnProcessedleadlists-id';
+        if (pid == p1id){
+            document.getElementById(p1id).style.display = '';
+            document.getElementById(p2id).style.display = 'none';
+        }else{
+            document.getElementById(p2id).style.display = '';
+            document.getElementById(p1id).style.display = 'none';
+        }
+    }
+</script>
+
+{% endblock %}

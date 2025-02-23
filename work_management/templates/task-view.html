@@ -1,0 +1,166 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Task</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Work Management</a></li>
+                <li class="breadcrumb-item active">Task</li>
+            </ul>
+        </div>
+        <div class="col-auto float-right ml-auto">
+            <a href="/work-management/create-task/{{task.id}}" class="btn add-btn"><i class="fa fa-plus"></i> Edit Project</a>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+<div class="row">
+    <div class="col-lg-8 col-xl-9">
+        <div class="card">
+            <div class="card-body">
+                <div class="project-title">
+                    <h5 class="card-title">{{task.subject.subject}}</h5>
+                    <small class="block text-ellipsis m-b-15">
+                        <span class="text-xs"></span> <span class="text-muted">Task ID : </span><span class="text-xs">{{task.id}}</span> <span class="text-muted"></span> |
+                        <span class="text-xs"></span> <span class="text-muted">Assigned To : </span><span class="text-xs">{{task|mtm_users:'true'}}</span> <span class="text-muted"></span>
+                    </small>
+                </div>
+                {% autoescape off %}
+                    {{task.description}}
+                {% endautoescape %}
+
+                {% if task.voice_record %}
+                    <h5>Voice Note</h5>
+                    <audio controls>
+                        <source src="{{task.voice_record.url}}" type="audio/mpeg">
+                    </audio>
+                {% endif %}
+
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title m-b-20">Uploaded files</h5>
+                <ul class="files-list">
+                    {% for attach in attachments %}
+                        <li>
+                            <div class="files-cont">
+                                <div class="file-type">
+                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                </div>
+                                <div class="files-info">
+                                    <span class="file-name text-ellipsis"><a href="#">{{attach.attachments}}</a></span>
+                                    <span class="file-author"><a href="#">{{attach.task.asigned_by.username}}</a></span> <span class="file-date">{{attach.task.created_date}}</span>
+                                    <div class="file-size">Size: {{attach.attachments.size|bytes_to_mb}}</div>
+                                </div>
+                                <ul class="files-action">
+                                    <li class="dropdown dropdown-action">
+                                        <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" target="_blank" href="{{attach.attachments.url}}">Download</a>
+                                            <a class="dropdown-item" href="javascript:void(0)">Delete</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title m-b-15">Task details</h6>
+                <table class="table table-striped table-border">
+                    <tbody>
+                        <tr>
+                            <td>Employer:</td>
+                            <td class="text-right">
+                                {% if task.employer_name.client_name %}
+                                {{task.employer_name.client_name}}
+                                {% else %}-
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Company:</td>
+                            <td class="text-right">
+                                {% if task.company_name.company_name %}
+                                {{task.company_name.company_name}}
+                                {% else %}-
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Created Date:</td>
+                            <td class="text-right">{{task.created_date}}</td>
+                        </tr>
+                        <tr>
+                            <td>Completed Date:</td>
+                            {% if task.status == 'Closed' %}
+                                <td class="text-right">{{task.completed_date}}</td>
+                            {% else %}
+                                <td class="text-right">-</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td>Priority:</td>
+                            <td class="text-right">
+                                <div class="btn-group">
+                                    {% if task.priority == 'High' %}
+                                        <a href="#" class="badge badge-danger dropdown-toggle" data-toggle="dropdown">High </a>
+                                    {% elif task.priority == 'Medium' %}
+                                        <a href="#" class="badge badge-primary dropdown-toggle" data-toggle="dropdown">Medium </a>
+                                    {% else %}
+                                        <a href="#" class="badge badge-pill dropdown-toggle" data-toggle="dropdown">Low </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Assigned by:</td>
+                            <td class="text-right"><a href="#">{{task.asigned_by.username}}</a></td>
+                        </tr>
+                        <tr>
+                            <td>Status:</td>
+                            <td class="text-right">
+                                <div class="btn-group">
+                                    <!--{% if task.status is None %}-->
+                                    <!--    <a href="#" class="badge badge-primary dropdown-toggle" data-toggle="dropdown">Open </a>-->
+                                    <!--{% else %}-->
+                                    <!--    <a href="#" class="badge badge-success dropdown-toggle" data-toggle="dropdown">{{task.status}} </a>-->
+                                    <!--{% endif %}-->
+                                    <a class="btn btn-white btn-sm btn-rounded dropdown-toggle" href="#" data-toggle="dropdown" aria-expanded="false">
+                                        {% if task.status is None %}
+                                            <i class="fa fa-dot-circle-o text-danger"></i> Open
+                                        {% elif task.status == 'Closed' %}
+                                            <i class="fa fa-dot-circle-o text-success"></i> Closed
+                                        {% elif task.status == 'In-Progress' %}
+                                            <i class="fa fa-dot-circle-o text-warning"></i> In-Progress
+                                        {% else %}
+                                            <i class="fa fa-dot-circle-o text-danger"></i> Open
+                                        {% endif %}
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="/work-management/tasks-list/status-update/{{task.id}}/Open/task-view"><i class="fa fa-dot-circle-o text-info"></i> Open</a>
+                                        <a class="dropdown-item" href="/work-management/tasks-list/status-update/{{task.id}}/Closed/task-view"><i class="fa fa-dot-circle-o text-success"></i> Closed</a>
+                                        <a class="dropdown-item" href="/work-management/tasks-list/status-update/{{task.id}}/In-Progress/task-view"><i class="fa fa-dot-circle-o text-warning"></i> In-Progress</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

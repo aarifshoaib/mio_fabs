@@ -15,7 +15,10 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 AGENT_CANDIDATE = BASE_DIR / 'agent_candidate' / 'templates'
-
+WORK_MANAGEMENT = BASE_DIR / 'work_management' / 'templates'
+JOB_ADVERTISEMENT = BASE_DIR / 'job_advertisement' / 'templates'
+CLIENT_MANAGEMENT = BASE_DIR / 'client_management' / 'templates'
+MOM_APPLICATION = BASE_DIR / 'mom_application' / 'templates'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -26,7 +29,7 @@ SECRET_KEY = 'django-insecure-i$b^qyf_x-jd1+xe(*v#n1vf)tt8zntexmf-v!x1i*snwg@4bu
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,7 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_db_logger',
     'agent_candidate',
+    'work_management',
+    'job_advertisement',
+    'client_management',
+    'mom_application',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +64,8 @@ ROOT_URLCONF = 'mio.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [AGENT_CANDIDATE],
+        'DIRS': [AGENT_CANDIDATE, WORK_MANAGEMENT, JOB_ADVERTISEMENT, CLIENT_MANAGEMENT,
+                MOM_APPLICATION],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'agent_candidate.context_processors.folderslists'
             ],
         },
     },
@@ -75,23 +85,35 @@ WSGI_APPLICATION = 'mio.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#        'OPTIONS': {
+#            'timeout': 20,  # timeout in seconds
+#        }
+#   }
+#}
+
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'mio_prod',
+#         'USER': 'dbadmin',
+#         'PASSWORD': 'Mio.me@94956!Mio',
+#         'HOST': 'localhost'
 #     }
 # }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mio_prod',
-        'USER': 'dbadmin',
-        'PASSWORD': 'Mio.me@94956!Mio',
-        'HOST': 'localhost'
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'miodb',
+        'USER': 'miouser',
+        'PASSWORD': 'MIo@!0864#Oversss',
+        'HOST': '82.112.238.195',
+        'PORT': '5432',
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -127,17 +149,45 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_DIR = BASE_DIR / "static"
+STATIC_ROOT = "/var/www/mio/static/"
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-                    STATIC_DIR,
-                    ]
+STATICFILES_DIRS = [STATIC_DIR,]
+
+MEDIA_ROOT = '/var/www/mio/media/'
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-try:
-    from .local_settings import *
-except Exception as e:
-    pass
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(asctime)s %(message)s'
+        },
+    },
+    'handlers': {
+        'db_log': {
+            'level': 'DEBUG',
+            'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
+        },
+    },
+    'loggers': {
+        'db': {
+            'handlers': ['db_log'],
+            'level': 'DEBUG'
+        },
+        'django.request': { # logging 500 errors to database
+            'handlers': ['db_log'],
+            'level': 'ERROR',
+            'propagate': False,
+        }
+    }
+}

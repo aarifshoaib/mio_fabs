@@ -1,0 +1,269 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block csslink %}
+<style>
+.table-wrapper {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    height: fit-content;
+    max-height: 70vh;
+}
+
+table {
+    min-width: max-content;
+    border-collapse: separate;
+    border-spacing: 0px;
+}
+
+table th{
+    position: sticky;
+    top: 0px;
+    background-color: #2a2b2b;
+    color: rgb(250, 250, 248);
+    z-index: 1;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">RenewalTracker</h3>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>{{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search Filter -->
+    <div class="main-search">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search.. (Employeer Search: emp=1)">
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+    </div>
+    <div class="search-result">
+    {% if keyword %}
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    {% endif %}
+    <h6>{{count}} Results found | <a href="/work-management/renewal-tracker" class="text-primary">Clear Filter</a></h6>
+    </div>
+    <!-- /Search Filter -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-wrapper">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center">CO ID</th>
+                            <th style="text-align:center">COMPANYNAME</th>
+                            <th style="text-align:center">EMPLOYEE NAME</th>
+                            <th style="text-align:center">PASS TYP</th>
+                            <th style="text-align:center">EXPIRY DATE</th>
+                            <th style="text-align:center">RE DUE DATE</th>
+                            <th style="text-align:center">EXPIRY COUNT</th>
+                            <th style="text-align:center">DUE COUNT</th>
+                            <th style="text-align:center">REASON</th>
+                            <th style="text-align:center">APPLICATION NO.</th>
+                            <th style="text-align:center">Mark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rd in renewal_datas %}
+                        <tr id="{{rd.company.id}}_{{rd.passtype}}">
+                            <td style="text-align:center" class="fixed-column">{{rd.company.company_id}}</td>
+                            <td style="text-align:center"><a href="/work-management/cpf-tracker-hr-tracking-list/{{rd.company.id}}">{{rd.company.company_name}}</a></td>
+                            <td style="text-align:center">{{rd.employeename}}</td>
+                            <td style="text-align:center">{{rd.passtype}}</td>
+                            <td style="text-align:center">{{rd.expiry_date}}</td>
+                            <td style="text-align:center">{{rd.re_due_date}}</td>
+                            {% if rd.expiry_count_bool and rd.expiry_count <= 180 %}
+                                <td style="text-align:center"><span class="badge badge-pill badge-danger" style="font-size: medium;">{{rd.expiry_count}}</span></td>
+                            {% else %}
+                                <td style="text-align:center"><span class="badge badge-pill badge-info" style="font-size: medium;">{{rd.expiry_count}}</span></td>
+                            {% endif %}
+                            <td style="text-align:center"><span class="badge badge-pill badge-dark" style="font-size: medium;">{{rd.redue_count}}</span></td>
+                            <td style="text-align:center">
+                                <select class="remark-dropdown select" id="{{rd.company.id}}_{{rd.passtype}}_renewal_remark_reason">
+                                    <option value="">Select</option>
+                                    {% for reason in reasons %}
+                                        {% if rd.remark_reason == reason %}
+                                            <option value="{{reason}}" selected>{{reason}}</option>
+                                        {% else %}
+                                            <option value="{{reason}}" title="{{reason}}">{{reason}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            {% if rd.remark_reason == 'Applied' %}
+                                <td style="text-align:center" class="editable" contenteditable="true" id="{{rd.company.id}}_{{rd.passtype}}_renewal_application_no">{{rd.application_no}}</td>
+                            {% else %}
+                                <td style="text-align:center" id="{{rd.company.id}}_{{rd.passtype}}_renewal_application_no"></td>
+                            {% endif %}
+                            {% if rd.remark_reason %}
+                            <td style="text-align: center;" id="{{rd.company.id}}_{{rd.passtype}}_markasdone">
+                                <button class="edit-icon"
+                                data-toggle="modal" data-target="#confirmtoclose{{rd.company.id}}_{{rd.passtype}}_markasdone"><i class="fa fa-check"></i></button>
+                            </td>
+                            <div class="modal custom-modal fade" id="confirmtoclose{{rd.company.id}}_{{rd.passtype}}_markasdone" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <div class="form-header">
+                                                <h3>{{rd.company.company_name}}<br><b>{{rd.employeename.title}}</b></h3>
+                                                <p>Confirm To Remove From <b>RenewalTracker</b></p>
+                                            </div>
+                                            <div class="modal-btn delete-action">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <a href="#" onclick="markAsDoneFunction('{{rd.company.id}}_{{rd.passtype}}_markasdone')" class="btn btn-primary continue-btn">Confirm</a>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <td style="text-align: center;" id="{{rd.company.id}}_{{rd.passtype}}_markasdone" compname="{{rd.company.company_name}}" empname="{{rd.employeename}}"></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table> <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+    $('.remark-dropdown').on('change', function() {
+            var row = $(this).closest('td');
+            var cell_id = row[0].getElementsByClassName('remark-dropdown')[0].getAttribute('id');
+            var cell_value = $(this).val();
+            var application_no = `${cell_id.split('_').slice(0, 2).join('_')}_renewal_application_no`;
+            var markasdone = `${cell_id.split('_').slice(0, 2).join('_')}_markasdone`;
+            $.ajax({
+                type: 'GET',
+                url: `/work-management/cpf-tracker-hr-tracking-update`,
+                data: {"cellid": cell_id, "cellvalue": cell_value},
+                success: function(res){
+                        if (res.status != 'success'){
+                            }
+                        else{
+                            var appno = document.getElementById(application_no);
+                            if (cell_value == 'Applied'){
+                                    appno.setAttribute('class', "editable");
+                                    appno.setAttribute('contenteditable', "true");
+                            }else{
+                                appno.removeAttribute('class');
+                                appno.removeAttribute('contenteditable');
+                            }
+                            if (cell_value === ''){
+                                document.getElementById(markasdone).innerHTML = '';
+                            } else{
+                                var marktd = document.getElementById(markasdone);
+                                marktd.innerHTML = `<button class="edit-icon" data-toggle="modal" data-target="#confirmtoclose${markasdone}"><i class="fa fa-check"></i></button>
+                                                    <div class="modal custom-modal fade" id="confirmtoclose${markasdone}" role="dialog">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <div class="modal-body">
+                                                                    <div class="form-header">
+                                                                        <h3>${marktd.getAttribute('compname')}<br><b>${marktd.getAttribute('empname')}</b></h3>
+                                                                        <p>Confirm To Remove From <b>RenewalTracker</b></p>
+                                                                    </div>
+                                                                    <div class="modal-btn delete-action">
+                                                                        <div class="row">
+                                                                            <div class="col-6">
+                                                                                <a href="#" onclick="markAsDoneFunction('${markasdone}')" class="btn btn-primary continue-btn">Confirm</a>
+                                                                            </div>
+                                                                            <div class="col-6">
+                                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>`;
+                            }
+
+                        }
+                        },
+                    error: function(error) {
+                        row[0].value = cell_value;
+                }
+            });
+        });
+
+        $('.editable').on('blur', function() {
+            var row = $(this).closest('td');
+            var cell_id = row[0].getAttribute('id');
+            var cell_value = row.text();
+
+            $.ajax({
+                type: 'GET',
+                url: `/work-management/cpf-tracker-hr-tracking-update`,
+                data: {"cellid": cell_id, "cellvalue": cell_value},
+                success: function(res){
+                        if (res.status != 'success'){
+                                row[0].value = cell_value;
+                            }
+                        },
+                    error: function(error) {
+                        row[0].value = cell_value;
+                        console.log(error)
+                }
+            });
+        });
+
+        function markAsDoneFunction(id){
+            var cell_id = id;
+            var cell_value = 'Done';
+            var tdid = `${cell_id.split('_').slice(0, 2).join('_')}`;
+            var confmmodal = `#confirmtoclose${id}`;
+            $.ajax({
+                type: 'GET',
+                url: `/work-management/cpf-tracker-hr-tracking-update`,
+                data: {"cellid": cell_id, "cellvalue": cell_value},
+                success: function(res){
+                        if (res.status != 'success'){
+                            }else{
+                                document.getElementById(tdid).remove();
+                                $(confmmodal).modal('hide');
+                                $('body').removeClass('modal-open');
+                                $('.modal-backdrop').remove();
+                            }
+                        },
+                    error: function(error) {
+                        console.log(error)
+                    }
+            });
+        }
+</script>
+{% endblock %}

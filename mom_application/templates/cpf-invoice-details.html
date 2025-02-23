@@ -1,0 +1,53 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">CPF List</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">CPF List</li>
+            </ul>
+        </div>
+        <div class="col-auto float-right ml-auto">
+            <a href="/mom-application/cpf-invoice" class="btn add-btn"><i class="fa fa-plus"></i> Upload CPF</a>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+<!-- Search Filter -->
+<div class="main-search">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search...">
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="search-result">
+    {% if keyword %}
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    {% endif %}
+    <h6>{{result_cnt}} Results found | <a href="{{clear_filter}}" class="text-primary">Clear Filter</a></h6>
+</div>
+<!-- /Search Filter -->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-striped custom-table mb-0 datatable">
+                {% autoescape off %}
+                    {{cpf_datas|get_invoice_data}}
+                {% endautoescape %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">{{read_email.email_credential.company.company_name.title}}</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">{{read_email.email_credential.gmail_id}}</a></li>
+            </ul>
+        </div>
+        <div class="col-auto float-right ml-auto">
+            <div class="btn-group btn-group-sm">
+                <a href="#" class="btn btn-white" data-toggle="modal" data-target="#reply_email_model"><i class="fa fa-reply fa-lg"></i> reply</a>
+                <a href="/mom-application/print-email/{{read_email.id}}" class="btn btn-white"><i class="fa fa-print fa-lg"></i> Print</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-8 col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="project-title">
+                    <h5 class="card-title">{{read_email.subject}}</h5>
+                    <small class="block text-ellipsis m-b-15">
+                        <span class="text-xs"></span> <span class="text-muted">Email : </span><span class="text-xs">{{read_email.from_user}}</span> <span class="text-muted"></span> |
+                        <span class="text-xs"></span> <span class="text-muted">Received Date : </span><span class="text-xs">{{read_email.receive_date|gmail_date_fix}}</span> <span class="text-muted"></span>
+                    </small>
+                </div>
+                {% autoescape off %}
+                    {{read_email.body}}
+                {% endautoescape %}
+
+                <hr>
+
+                <div class="mail-attachments">
+                    <p><i class="fa fa-paperclip"></i> {{read_email.attachments.count}} Attachments</p>
+                    <ul class="attachments clearfix">
+                        {% for attach_file in read_email.attachments.all %}
+                        <li>
+                            <div><i class="fa fa-file"></i></div>
+                            <div> <a href="{{attach_file.attachments.url}}" target="_blank" class="attach-filename">{{attach_file.attachments.name|get_filename|slice_filename}}</a> 
+                            <div class="attach-fileize"> {{attach_file.attachments.size|bytes_to_mb}}</div></div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- reply email Modal -->
+<div id="reply_email_model" class="modal custom-modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reply ({{read_email.from_user}})</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="reply-email-client-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>From</label>
+                                <input class="form-control" value="{{read_email.email_credential.gmail_id}}" type="text" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>To</label>
+                                <input class="form-control" value="{{read_email.from_user}}" type="text" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <input class="form-control" name="subject" type="text" placeholder="Subject:" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea rows="2" class="summernote" name="message" placeholder="Enter your message here"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Files</label>
+                        <input class="form-control" type="file" name="attachments" multiple>
+                    </div>
+                    <div class="text-left">
+                        <input type="submit" id="submit-btn" class="btn btn-primary" value="Send">
+                        <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                            <span class="sr-only"></span>
+                        </div>
+                        <span id="error-message" class="text-danger"></span>
+                        <span id="file-load-message" class="text-success"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- reply email Modal -->
+{% endblock %}
+
+{% block jslink %}
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+        }
+    var csrftoken = getCookie('csrftoken');
+    $("#reply-email-client-form").submit(function(e) {
+        e.preventDefault();
+        let get_spinner = document.getElementById('submit-spinner');
+        let submit_btn = document.getElementById('submit-btn');
+        let error_message= document.getElementById('error-message');
+        let file_load_message= document.getElementById('file-load-message');
+        submit_btn.setAttribute('disabled', '')
+        get_spinner.style.display = '';
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val());
+
+        $.ajax({
+                type: 'POST',
+                url: '/mom-application/reply-email-api/{{read_email.id}}',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                    },
+                mimeType: 'multipart/form-data',
+                success: function(res){
+                            get_spinner.style.display = 'none';
+                            submit_btn.removeAttribute('disabled', '');
+                            res = JSON.parse(res)
+                            if (res.status != 'success'){
+                                error_message.innerText = res.msg;
+                                file_load_message.innerText = '';
+                            }else{
+                                window.location.reload();
+                            }
+                        },
+                    error: function(error) {
+                        get_spinner.style.display = 'none';
+                        submit_btn.removeAttribute('disabled', ''); 
+                        error_message.innerText = error.msg;
+                        file_load_message.innerText = '';
+                        console.log(error);
+                }
+            });
+    })
+</script>
+{% endblock %}

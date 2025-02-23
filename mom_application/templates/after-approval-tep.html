@@ -1,0 +1,500 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% block csslink %}
+<style>
+section {
+  margin: 20px 0;
+}
+.timeline {
+  margin-top: 35px;
+  padding: 15px;
+  display: grid;
+  grid-template-columns: 40% auto;
+  justify-content: center;
+}
+
+.timeline-ul {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+}
+.timeline-li {
+  margin-top: 30px;
+  position: relative;
+  padding: 25px;
+}
+
+.date {
+  position: absolute;
+
+  top: 30px;
+  left: -50px;
+  opacity: 100%;
+  transition: 1.5s;
+  font-size: 12px;
+}
+.timeline-line {
+  background: rgb(228, 228, 228);
+  width: 4px;
+  border-radius: 12px;
+  position: relative;
+  justify-self: end;
+}
+
+.timeline-point {
+  border: none;
+  position: absolute;
+
+  border-radius: 50%;
+  background: rgb(228, 228, 228);
+  width: 8px;
+  height: 8px;
+
+  top: 30px;
+  left: -6px;
+  transition: 1.5s ease;
+}
+.timeline-innerline {
+  position: absolute;
+  background: rgb(0, 0, 0);
+  width: 4px;
+  height: 90px;
+
+  top: 0%;
+  left: 0%;
+
+  transition: 1s linear;
+}
+
+@media screen and (min-width: 728px) {
+  .timeline {
+    display: block;
+  }
+  .timeline-ul {
+    flex-direction: row;
+  }
+  .timeline-li {
+    margin-top: 0px;
+    position: relative;
+    width: 100%;
+    padding: 0px;
+  }
+
+  .date {
+    opacity: 100%;
+    transition: 1.5s;
+    font-size: 12px;
+
+    position: absolute;
+    top: -60px;
+    left: 38%;
+  }
+
+  .timeline-point {
+    width: 15px;
+    height: 15px;
+
+    top: -40px;
+    left: 40%;
+    transition: 1.5s ease;
+  }
+
+  .timeline-line {
+    width: 100%;
+    height: 4px;
+  }
+
+  .timeline-innerline {
+    position: absolute;
+    background: rgb(0, 0, 0);
+    width: 7%;
+    height: 4px;
+
+    top: 0%;
+    left: 0%;
+
+    transition: 1s linear;
+    border-radius: 999px;
+  }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 class="page-title">After Approval TEP</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">MOM Application</a></li>
+                <li class="breadcrumb-item active">After Approval TEP</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="card mb-0">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="profile-view">
+                    <div class="profile-basic">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="profile-info-left">
+                                    <h4 class="user-name m-t-0 mb-0"><b>{{workpass.name}}</b></h4>
+                                    <h6 class="text-muted">{{workpass.company_name.company_name}}</h6>
+                                    <div class="staff-id">Pass Type : {{workpass.epass_type}}</div>
+                                    <div class="small doj text-muted">Approved Date : {{workpass.last_update}}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <ul class="personal-info">
+									<li>
+									    <div class="title">Passport No:</div>
+										<div class="text">{{workpass.passport_no}}</div>
+									</li>
+									<li>
+										<div class="title">Birthday:</div>
+										<div class="text-info">{{workpass.dob}}</div>
+									</li>
+									<li>
+										<div class="title">Status:</div>
+										<div class="text-success">{{workpass.status}}</div>
+									</li>
+								</ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content">
+    <!-- Bank Statutory Tab -->
+    <div class="pro-overview tab-pane fade show active" id="bank_statutory">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Step-1 -->
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Upload IPA <span class="text-danger">*</span>
+                                    {% if after_approval.upload_ipa %}
+                                    <small class="text-muted">(Uploaded File: <a href="{{after_approval.upload_ipa.url}}" title="{{after_approval.upload_ipa}}" target="_blank">Download)</a>
+                                    </small>
+                                    | <a href="#" class="text-danger" data-toggle="modal" data-target="#upload_ipa{{after_approval.id}}">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                    <div class="modal custom-modal fade" id="upload_ipa{{after_approval.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete IPA File: {{after_approval.upload_ipa}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="#" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </label>
+                                <input type="file" name="upload-ipa" value="" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">IPA Expiry Date <span class="text-danger">*</span></label>
+                                <input type="date" id="ipa-exp-date" name="ipa-exp-date" value="{{after_approval_ipa_exp_date}}" class="form-control" placeholder="IPA Expiry Date">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Employee Ind Contact</label>
+                                <input type="number" name="emp-ind-contact" class="form-control"
+                                placeholder="Ind Contact Number" value="{{after_approval.employee_ind_contact}}">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Employee SG Contact</label>
+                                <input type="number" name="emp-sg-contact" class="form-control"
+                                placeholder="SG Contact Number" value="{{after_approval.employee_sg_contact}}">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">IPA To Agent <small class="text-muted">(AHMED)</small> <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="ipa-to-agent" placeholder="IPA To Agent" value="{{after_approval.ipa_to_agent}}">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">IPA To Employer <span class="text-danger">*</span></label>
+                                <input type="text" name="ipa-to-employeer" value="{{after_approval.ipa_to_employer}}" class="form-control" placeholder="IPA To Employer">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Payment <small class="text-muted">(NASEER)</small> <span class="text-danger">*</span></label>
+                                <input type="text" name="payment" value="{{after_approval.payment}}" class="form-control" placeholder="Payment">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Travel Date <span class="text-danger">*</span></label>
+                                <input type="date" id="travel-date" name="travel-date" value="{{after_approval_traval_date}}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Arived Travel Date <span class="text-danger">*</span></label>
+                                <input type="date" id="arived-travel-date" name="arived-travel-date" value="{{after_approval_arived_traval_date}}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Arrival Card<span class="text-danger">*</span>
+                                    {% if after_approval.ica_upload %}
+                                    <small class="text-muted">(Uploaded File: <a href="{{after_approval.ica_upload.url}}" title="{{after_approval.ica_upload}}">Download)</a></small>
+                                    | <a href="#" class="text-danger" data-toggle="modal" data-target="#ica_upload{{after_approval.id}}">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                    <div class="modal custom-modal fade" id="ica_upload{{after_approval.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete ICA File: {{after_approval.ica_upload}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/mom-application/delete-uploaded-file-tep/{{workpass.id}}/ica_upload" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </label>
+                                <input type="file" name="ica-upload" class="form-control" placeholder="ICA">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">New Valid <span class="text-danger">*</span></label>
+                                <input type="date" id="new-valid" name="new-valid" value="{{after_approval_new_valid}}" class="form-control" placeholder="New Valid">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Issue Docs <span class="text-danger">*</span>
+                                    {% if after_approval.issue_docs %}
+                                    <small class="text-muted">(Uploaded File: <a href="{{after_approval.issue_docs.url}}" title="{{after_approval.issue_docs}}">Download)</a></small>
+                                    | <a href="#" class="text-danger" data-toggle="modal" data-target="#issue_docs{{after_approval.id}}">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                    <div class="modal custom-modal fade" id="issue_docs{{after_approval.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete ICA File: {{after_approval.issue_docs}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/mom-application/delete-uploaded-file-tep/{{workpass.id}}/issue_docs" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </label>
+                                <input type="file" name="issue-docs" value="" class="form-control" placeholder="Issue Docs">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Issuance Date<span class="text-danger">*</span></label>
+                                <input type="date" id="issue" name="issue" value="{{after_approval_issue}}" class="form-control" placeholder="Issue">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">MOM Notification<span class="text-danger">*</span>
+                                    {% if after_approval.notify_acknowledgement %}
+                                    <small class="text-muted">(Uploaded File: <a href="{{after_approval.notify_acknowledgement.url}}" title="{{after_approval.notify_acknowledgement}}">Download)</a></small>
+                                    | <a href="#" class="text-danger" data-toggle="modal" data-target="#notify_acknowledgement{{after_approval.id}}">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                    <div class="modal custom-modal fade" id="notify_acknowledgement{{after_approval.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete ICA File: {{after_approval.notify_acknowledgement}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/mom-application/delete-uploaded-file-tep/{{workpass.id}}/notify_acknowledgement" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </label>
+                                <input type="file" name="notify-acknowledgement" value="" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Card Exp<span class="text-danger">*</span></label>
+                                <input type="date" id="card-exp" name="card-exp" value="{{after_approval_card_exp}}" class="form-control" placeholder="Card Exp">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Card Copy <span class="text-danger">*</span>
+                                    {% if after_approval.card_status %}
+                                    <small class="text-muted">(Uploaded File: <a href="{{after_approval.card_status.url}}" title="{{after_approval.card_status}}">Download)</a></small>
+                                    | <a href="#" class="text-danger" data-toggle="modal" data-target="#card_status{{after_approval.id}}">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                    <div class="modal custom-modal fade" id="card_status{{after_approval.id}}" role="dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <div class="form-header">
+                                                        <h3>Delete ICA File: {{after_approval.card_status}}</h3>
+                                                        <p>Are you sure want to delete?</p>
+                                                    </div>
+                                                    <div class="modal-btn delete-action">
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <a href="/mom-application/delete-uploaded-file-tep/{{workpass.id}}/card_status" class="btn btn-primary continue-btn">Delete</a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </label>
+                                <input type="file" name="card-status" class="form-control" placeholder="Card Status">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Remarks <span class="text-danger">*</span></label>
+                                <input type="text" name="remarks" value="{{after_approval.remarks}}" class="form-control" placeholder="Remarks">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Driving <span class="text-danger">*</span></label>
+                                <input type="text" name="driving" value="{{after_approval.driving}}" class="form-control" placeholder="Driving">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Other Assignment <span class="text-danger">*</span></label>
+                                <input type="text" name="other-assignment" value="{{after_approval.other_assignment}}" class="form-control" placeholder="Other Assignment">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Step-1 END -->
+                    <div>
+                        <input action="action" class="btn btn-primary btn-sm" onclick="window.history.go(-2); return false;" type="submit" value="Back"/>
+                        <input type="submit" class="btn btn-primary btn-sm" value="Submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /Bank Statutory Tab -->
+
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+    var current_date = new Date().toISOString().split('T')[0];
+    // document.getElementById("ipa-exp-date").setAttribute('min', current_date);
+    // document.getElementById("travel-date").setAttribute('min', current_date);
+    // document.getElementById("card-exp").setAttribute('min', current_date);
+    // document.getElementById("new-valid").setAttribute('min', current_date);
+    // document.getElementById("arived-travel-date").setAttribute('max', current_date);
+    // document.getElementById("issue").setAttribute('max', current_date);
+</script>
+{% endblock %}

@@ -1,0 +1,211 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Payslip</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Payslip</li>
+                </ul>
+            </div>
+            <div class="col-auto float-right ml-auto">
+                <span class="text-purple">{{current_date}}</span>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <!-- Search Filter -->
+    <div class="main-search">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" name="keyword" class="form-control" placeholder="Search...">
+                <div class="input-group-append">
+                    <input class="btn btn-primary" type="submit" value="Search">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="search-result">
+        {% if keyword %}
+            <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+        {% endif %}
+        <h6>{{result_cnt}} Results found | <a href="/client-management/grouped-companies-payslip" class="text-primary">Clear Filter</a></h6>
+    </div>
+    <!-- /Search Filter -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped custom-table mb-0 datatable">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center">#</th>
+                            <th style="text-align:center">CompanyID</th>
+                            <th style="text-align:center">CompanyName</th>
+                            <th style="text-align:center">Employee Count</th>
+                            <th style="text-align:center">More</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for approved in after_approved %}
+                        <tr>
+                            <td style="text-align:center">
+                                {{forloop.counter|forcounter_serialno:after_approved}}
+                            </td>
+                            <td style="text-align:center">{{approved.workpass__company_name__company_id|null_handle}}</td>
+                            <td style="text-align:center">
+                                <p class="btn btn-light btn-sm badge bg-inverse-success">{{approved.workpass__company_name__company_name|null_handle}}</p>
+                            </td>
+                            <td style="text-align:center">
+                                {{approved.count}}
+                            </td>
+                            <td style="text-align:center">
+                                <a href="/client-management/approved-emp-payslip/{{approved.workpass__company_name__id}}" class="btn btn-sm btn-primary">Click</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table> <br>
+
+                <div>
+                    {% if after_approved.has_other_pages %}
+                        <ul class="pagination">
+                            {% if after_approved.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{after_approved.previous_page_number}}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+
+
+                            {% for page in after_approved.paginator.page_range %}
+                                {% if after_approved.number == page %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% elif page > after_approved.number|add:'-5' and page < after_approved.number|add:'5' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if after_approved.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{after_approved.next_page_number}}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disable">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+        }
+    var csrftoken = getCookie('csrftoken');
+    $("#payslip-generate-from").submit(function(e) {
+        e.preventDefault();
+        let get_spinner = document.getElementById('submit-spinner');
+        let submit_btn = document.getElementById('submit-btn');
+        let error_message= document.getElementById('error-message');
+        let file_load_message= document.getElementById('file-load-message');
+        submit_btn.setAttribute('disabled', '')
+        get_spinner.style.display = '';
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
+        $.ajax({
+                type: 'POST',
+                url: '/client-management/payslip-generate-api-form',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                    },
+                mimeType: 'multipart/form-data',
+                success: function(res){
+                            get_spinner.style.display = 'none';
+                            submit_btn.removeAttribute('disabled', '');
+                            res = JSON.parse(res)
+                            if (res.status != 'success'){
+                                error_message.innerText = res.msg;
+                                file_load_message.innerText = '';
+                            }else{
+                                window.location.reload();
+                            }
+                        },
+                    error: function(error) {
+                        get_spinner.style.display = 'none';
+                        submit_btn.removeAttribute('disabled', ''); 
+                        error_message.innerText = error;
+                }
+            });
+        })
+  </script>
+  
+{% endblock %}

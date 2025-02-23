@@ -1,0 +1,756 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+{% block content %}
+
+{% block csslink %}
+<style>
+.blink {
+    animation: blink 1s steps(1, end) infinite;
+  }
+
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+</style>
+{% endblock %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">{{title}}</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">MOM Application</li>
+            </ul>
+        </div>
+        <div class="col-auto float-right ml-auto">
+            <a href="/mom-application/create-workpass" class="btn add-btn"><i class="fa fa-plus"></i> Create EPOL</a>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<!-- Search Filter -->
+<div class="main-search">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search...">
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="search-result">
+    {% if keyword %}
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    {% endif %}
+    <h6>{{result_cnt}} Results found | <a href="{{clear_filter_url}}" class="text-primary">Clear Filter</a></h6>
+</div>
+<!-- /Search Filter -->
+
+<hr>
+<div class="search-result">
+    <h6>Last Update (Status) :<u> {% if error %}
+        <u class="text-danger blink">WORKPASS STATUS CHECKING ISSUE: please contact developers</u>
+    {% else %}
+        <u class="text-primary blink">{{last_update}}</u>
+    {% endif %}</u> &nbsp;|&nbsp;
+    Captcha Remaining : <u> {{captcha_cnt}}</u> &nbsp;|&nbsp;
+    Pending : <p class="badge bg-inverse-warning">{{pending_cnt}}</p> &nbsp;|&nbsp;
+    Approved : <p class="badge bg-inverse-success">{{approved_cnt}}</p> &nbsp;|&nbsp;
+    Rejected : <p class="badge bg-inverse-danger">{{rejected_cnt}}</p>
+    </h6>
+</div>
+<hr>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            {% if 'daily_status' in request.get_full_path %}
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">DOA</th>
+                        <!--th style="text-align:center">AppNo</th-->
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">CompanyName</th>
+                        <th style="text-align:center">PassType</th>
+                        <th style="text-align:center">FIN</th>
+                        <!--th style="text-align:center">JobCode</th>
+                        <th style="text-align:center">PassportNo</th>
+                        <th style="text-align:center">DOB</th-->
+                        <th style="text-align:center">Status</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wp in workpass_page %}
+                    <tr>
+                        <td style="text-align:center">{{ forloop.counter|forcounter_serialno:workpass_page }}</td>
+                        <td style="text-align:center">{% if wp.doa %}{{wp.doa}}{% else %}-{% endif %}</td>
+                        <!--td style="text-align:center">{% if wp.application_no %}{{wp.application_no}}{% else %}-{% endif %}</td-->
+                        <td style="text-align:center">{% if wp.name %}{{wp.name}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.company_name.company_name %}{{wp.company_name.company_name}}{% else %} -{%endif%}</td>
+                        <td style="text-align:center">{% if wp.epass_type %}{{wp.epass_type}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.fin_number %}{{wp.fin_number}}{% else %}-{% endif %}</td>
+                        <!--td style="text-align:center">{% if wp.job.job_code %}{{wp.job.job_code}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{{wp.passport_no}}</td>
+                        <td style="text-align:center">{{wp.dob}}</td-->
+                        <td style="text-align:center">
+                            {% if wp.status == 'INVALID' or 'REJECT' in wp.status.upper %}
+                                <p class="badge bg-inverse-danger">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'VALID' or wp.status == 'APPROVED' %}
+                                <p class="badge bg-inverse-success">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'PENDING' %}
+                                <p class="badge bg-inverse-warning">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'NO_RECORD_FOUND' %}
+                                <p class="badge">{{wp.status}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% else %}
+                                {% if wp.status %}<p class="badge bg-inverse-primary">{{wp.status.upper}}</p>{% else %}-{% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="text-right">
+                            <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/mom-application/create-workpass/{{wp.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                    <!--a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{client.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a-->
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div class="modal custom-modal fade" id="delete_project{{client.id}}" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="form-header">
+                                        <h3>Delete Client : {{client.client_id}}-{{client.client_name}}</h3>
+                                        <p>Are you sure want to delete?</p>
+                                    </div>
+                                    <div class="modal-btn delete-action">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a href="/mom-application/delete-workpass/{{wp.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% elif 'approved' in request.get_full_path %}
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">DOA</th>
+                        <!--th style="text-align:center">AppNo</th-->
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">CompanyName</th>
+                        <th style="text-align:center">PassType</th>
+                        <th style="text-align:center">FIN</th>
+                        <!--th style="text-align:center">JobCode</th>
+                        <th style="text-align:center">PassportNo</th>
+                        <th style="text-align:center">DOB</th-->
+                        <th style="text-align:center">Status</th>
+                        <th style="text-align:center">Approved Date</th>
+                        <th style="text-align:center">AfterApproved</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wp in workpass_page %}
+                    <tr>
+                        <td style="text-align:center">{{ forloop.counter|forcounter_serialno:workpass_page }}</td>
+                        <td style="text-align:center">{% if wp.doa %}{{wp.doa}}{% else %}-{% endif %}</td>
+                        <!--td style="text-align:center">{% if wp.application_no %}{{wp.application_no}}{% else %}-{% endif %}</td-->
+                        <td style="text-align:center">{% if wp.name %}{{wp.name}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.company_name.company_name %}{{wp.company_name.company_name}}{% else %} -{%endif%}</td>
+                        <td style="text-align:center">{% if wp.epass_type %}{{wp.epass_type}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.fin_number %}{{wp.fin_number}}{% else %}-{% endif %}</td>
+                        <!--td style="text-align:center">{% if wp.job.job_code %}{{wp.job.job_code}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{{wp.passport_no}}</td>
+                        <td style="text-align:center">{{wp.dob}}</td-->
+                        <td style="text-align:center">
+                            {% if wp.status == 'INVALID' or 'REJECT' in wp.status.upper %}
+                                <p class="badge bg-inverse-danger">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'VALID' or wp.status == 'APPROVED' %}
+                                <p class="badge bg-inverse-success">{{wp.status.upper}}</p><!--p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p-->
+                            {% elif wp.status == 'PENDING' %}
+                                <p class="badge bg-inverse-warning">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'NO_RECORD_FOUND' %}
+                                <p class="badge">{{wp.status}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% else %}
+                                {% if wp.status %}<p class="badge bg-inverse-primary">{{wp.status.upper}}</p>{% else %}-{% endif %}
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center">{{wp.last_update}}</td>
+                        <td style="text-align:center">
+                            <a href="/mom-application/after-approval-tep/{{wp.id}}/{{return_url}}" class="badge bg-inverse-primary">Click</a>
+			    {% if wp|get_after_approval_url_tag %}
+                            <i class="fa fa-check" title="IPA Uploaded"></i>
+                            {% endif %}			    
+                        </td>
+                        <td class="text-right">
+                            <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/mom-application/create-workpass/{{wp.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                    <!--a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{client.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a-->
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div class="modal custom-modal fade" id="delete_project{{client.id}}" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="form-header">
+                                        <h3>Delete Client : {{client.client_id}}-{{client.client_name}}</h3>
+                                        <p>Are you sure want to delete?</p>
+                                    </div>
+                                    <div class="modal-btn delete-action">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a href="/mom-application/delete-workpass/{{wp.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% elif 'pending' == request.get_full_path %}
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">DOA</th>
+                        <!--th style="text-align:center">AppNo</th-->
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">CompanyName</th>
+                        <th style="text-align:center">PassType</th>
+                        <!--th style="text-align:center">FIN</th>
+                        <th style="text-align:center">JobCode</th>
+                        <th style="text-align:center">PassportNo</th>
+                        <th style="text-align:center">DOB</th-->
+                        <th style="text-align:center">Status</th>
+                        <!--th style="text-align:center">Approved Date</th-->
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wp in workpass_page %}
+                    <tr>
+                        <td style="text-align:center">{{ forloop.counter|forcounter_serialno:workpass_page }}</td>
+                        <td style="text-align:center">{% if wp.doa %}{{wp.doa}}{% else %}-{% endif %}</td>
+                        <!--td style="text-align:center">{% if wp.application_no %}{{wp.application_no}}{% else %}-{% endif %}</td-->
+                        <td style="text-align:center">{% if wp.name %}{{wp.name}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.company_name.company_name %}{{wp.company_name.company_name}}{% else %} -{%endif%}</td>
+                        <td style="text-align:center">{% if wp.epass_type %}{{wp.epass_type}}{% else %}-{% endif %}</td>
+                        <!--td style="text-align:center">{% if wp.fin_number %}{{wp.fin_number}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.job.job_code %}{{wp.job.job_code}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{{wp.passport_no}}</td>
+                        <td style="text-align:center">{{wp.dob}}</td-->
+                        <td style="text-align:center">
+                            {% if wp.status == 'INVALID' or 'REJECT' in wp.status.upper %}
+                                <p class="badge bg-inverse-danger">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'VALID' or wp.status == 'APPROVED' %}
+                                <p class="badge bg-inverse-success">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'PENDING' %}
+                                <p class="badge bg-inverse-warning">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'NO_RECORD_FOUND' %}
+                                <p class="badge">{{wp.status}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% else %}
+                                {% if wp.status %}<p class="badge bg-inverse-primary">{{wp.status.upper}}</p>{% else %}-{% endif %}
+                            {% endif %}
+                        </td>
+                        <!--td style="text-align:center">{{wp.last_update}}</td-->
+                        <td class="text-right">
+                            <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/mom-application/create-workpass/{{wp.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                    <!--a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{client.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a-->
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div class="modal custom-modal fade" id="delete_project{{client.id}}" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="form-header">
+                                        <h3>Delete Client : {{client.client_id}}-{{client.client_name}}</h3>
+                                        <p>Are you sure want to delete?</p>
+                                    </div>
+                                    <div class="modal-btn delete-action">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a href="/mom-application/delete-workpass/{{wp.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+
+             {% elif 'rejected' in request.get_full_path %}
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">DOA</th>
+                        <!--th style="text-align:center">AppNo</th-->
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">CompanyName</th>
+                        <th style="text-align:center">PassType</th>
+                        <!--th style="text-align:center">FIN</th>
+                        <th style="text-align:center">JobCode</th>
+                        <th style="text-align:center">PassportNo</th>
+                        <th style="text-align:center">DOB</th-->
+                        <th style="text-align:center">Status</th>
+                        <th style="text-align:center">Rejected Date</th>
+                        <th style="text-align:center">ReasonDoc</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wp in workpass_page %}
+                    <tr>
+                        <td style="text-align:center">{{ forloop.counter|forcounter_serialno:workpass_page }}</td>
+                        <td style="text-align:center">{% if wp.doa %}{{wp.doa}}{% else %}-{% endif %}</td>
+                        <!--td style="text-align:center">{% if wp.application_no %}{{wp.application_no}}{% else %}-{% endif %}</td-->
+                        <td style="text-align:center">{% if wp.name %}{{wp.name}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.company_name.company_name %}{{wp.company_name.company_name}}{% else %} -{%endif%}</td>
+                        <td style="text-align:center">{% if wp.epass_type %}{{wp.epass_type}}{% else %}-{% endif %}</td>
+                        <!--td style="text-align:center">{% if wp.fin_number %}{{wp.fin_number}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.job.job_code %}{{wp.job.job_code}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{{wp.passport_no}}</td>
+                        <td style="text-align:center">{{wp.dob}}</td-->
+                        <td style="text-align:center">
+                            {% if wp.status == 'INVALID' or 'REJECT' in wp.status.upper %}
+                                <p class="badge bg-inverse-danger">{{wp.status.upper}}</p><!--p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p-->
+                            {% elif wp.status == 'VALID' or wp.status == 'APPROVED' %}
+                                <p class="badge bg-inverse-success">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'PENDING' %}
+                                <p class="badge bg-inverse-warning">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% elif wp.status == 'NO_RECORD_FOUND' %}
+                                <p class="badge">{{wp.status}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}</p>
+                            {% else %}
+                                {% if wp.status %}<p class="badge bg-inverse-primary">{{wp.status.upper}}</p>{% else %}-{% endif %}
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center">{{wp.last_update}}</td>
+                        <td style="text-align:center">
+                            <a href="#" class="badge bg-inverse-primary" data-toggle="modal" data-target="#reason_doc{{wp.id}}">Upload</a>
+                        </td>
+                        <!-- <td style="text-align: center;">
+                            <div class="dropdown">
+								<a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> Rework </a>
+								<div class="dropdown-menu" style="">
+									<a class="dropdown-item" href="#">Live</a>
+									<a class="dropdown-item" href="#">Appeal</a>
+                                    <a class="dropdown-item" href="#">Not Workable</a>
+								</div>
+							</div>
+                        </td> -->
+                        <td class="text-right">
+                            <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/mom-application/create-workpass/{{wp.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                    <!--a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{client.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a-->
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div class="modal custom-modal fade" id="delete_project{{client.id}}" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="form-header">
+                                        <h3>Delete Client : {{client.client_id}}-{{client.client_name}}</h3>
+                                        <p>Are you sure want to delete?</p>
+                                    </div>
+                                    <div class="modal-btn delete-action">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a href="/mom-application/delete-workpass/{{wp.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="reason_doc{{wp.id}}" class="modal custom-modal fade" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Reason Doc</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/mom-application/upload-rejected-doc/{{wp.id}}/{{workpass_page.number}}" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <label class="col-form-label">Upload Reason Doc
+                                                        {% if wp.rejected_reason %}
+                                                        <small class="text-muted">(Uploaded File:
+                                                            <a href="{{wp.rejected_reason.url}}" title="{{wp.rejected_reason}}" target="_blank">Download)</a>
+                                                        </small>
+                                                        {% endif %}
+                                                        <span class="text-danger">*</span></label>
+                                                    <input type="file" class="form-control" name="reason-doc" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="submit-section">
+                                            <input type="submit" class="btn btn-primary submit-btn">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {%elif 'pending-doc' in request.get_full_path %}
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">DOA</th>
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">CompanyName</th>
+                        <th style="text-align:center">Status</th>
+                        <th style="text-align:center">ImageUpload</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wp in workpass_page %}
+                    <tr>
+                        <td style="text-align:center">{{ forloop.counter|forcounter_serialno:workpass_page }}</td>
+                        <td style="text-align:center">{{wp.doa|null_handle}}</td>
+                        <td style="text-align:center">{{wp.name|null_handle}}</td>
+                        <td style="text-align:center">{{wp.company_name.company_name|null_handle}}</td>
+                        <td style="text-align:center">
+                            <a href="#" class="badge bg-inverse-warning">{{wp.status}}</a>
+                        </td>
+                        <td style="text-align:center">
+                            <a href="#" class="badge bg-inverse-primary" data-toggle="modal" data-target="#upload{{wp.id}}">Upload</a>
+                        </td>
+                        <td class="text-right">
+                            <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/mom-application/create-workpass/{{wp.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                    <!--a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{client.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a-->
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div class="modal custom-modal fade" id="delete_project{{client.id}}" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="form-header">
+                                        <h3>Delete Client : {{client.client_id}}-{{client.client_name}}</h3>
+                                        <p>Are you sure want to delete?</p>
+                                    </div>
+                                    <div class="modal-btn delete-action">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a href="/mom-application/delete-workpass/{{wp.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="upload{{wp.id}}" class="modal custom-modal fade" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Upload Image</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/mom-application/upload-pending-doc/{{wp.id}}/{{workpass_page.number}}" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <label class="col-form-label">Upload Image
+                                                        {% if wp.pending_doc %}
+                                                        <small class="text-muted">(Uploaded File:
+                                                            <a href="{{wp.pending_doc.url}}" title="{{wp.pending_doc}}" target="_blank">Download)</a>
+                                                        </small>
+                                                        {% endif %}
+                                                        <span class="text-danger">*</span></label>
+                                                    <input type="file" class="form-control" name="upload-image" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="submit-section">
+                                            <input type="submit" class="btn btn-primary submit-btn">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">DOA</th>
+                        <th style="text-align:center">AppNo</th>
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">CompanyName</th>
+                        <th style="text-align:center">PassType</th>
+                        <th style="text-align:center">FIN</th>
+                        <th style="text-align:center">JobCode</th>
+                        <th style="text-align:center">PassportNo</th>
+                        <th style="text-align:center">DOB</th>
+                        <th style="text-align:center">Status</th>
+                        <th style="text-align:center">S.Check</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wp in workpass_page %}
+                    <tr>
+                        <td style="text-align:center">{{ forloop.counter|forcounter_serialno:workpass_page }}</td>
+                        <td style="text-align:center">{% if wp.doa %}{{wp.doa}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.application_no %}{{wp.application_no}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.name %}{{wp.name}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.company_name.company_name %}{{wp.company_name.company_name}}{% else %} -{%endif%}</td>
+                        <td style="text-align:center">{% if wp.epass_type %}{{wp.epass_type}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.fin_number %}{{wp.fin_number}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{% if wp.job.job_code %}{{wp.job.job_code}}{% else %}-{% endif %}</td>
+                        <td style="text-align:center">{{wp.passport_no}}</td>
+                        <td style="text-align:center">{{wp.dob}}</td>
+                        <td style="text-align:center">
+                            {% if wp.status == 'INVALID' or 'REJECT' in wp.status.upper %}
+                                <div id="spinner{{wp.id}}" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                    <span class="sr-only"></span>
+                                </div>
+                                <p id="data{{wp.id}}" class="badge bg-inverse-danger">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}
+                                <!--button onclick="epol_api_checking({{wp.id}});" class="fa fa-refresh btn btn-outline-success"></button--></p>
+                            {% elif wp.status == 'VALID' or wp.status == 'APPROVED' %}
+                                <div id="spinner{{wp.id}}" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                    <span class="sr-only"></span>
+                                </div>
+                                <p id="data{{wp.id}}" class="badge bg-inverse-success">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}
+                                <!--button onclick="epol_api_checking({{wp.id}});" class="fa fa-refresh btn btn-outline-success"></button--></p>
+                            {% elif wp.status == 'PENDING' %}
+                                <div id="spinner{{wp.id}}" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                    <span class="sr-only"></span>
+                                </div>
+                                <p id="data{{wp.id}}" class="badge bg-inverse-warning">{{wp.status.upper}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}
+                                <!--button onclick="epol_api_checking({{wp.id}});" class="fa fa-refresh btn btn-outline-success"></button--></p>
+                            {% elif wp.status == 'NO_RECORD_FOUND' %}
+                                <div id="spinner{{wp.id}}" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                    <span class="sr-only"></span>
+                                </div>
+                                <p id="data{{wp.id}}" class="badge">{{wp.status}}</p><p class="badge">{% if wp.last_update %}({{wp.last_update}}){% endif %}
+                                <!--button onclick="epol_api_checking({{wp.id}});" class="fa fa-refresh btn btn-outline-success"></button--></p>
+                            {% else %}
+                                {% if wp.status %}<p class="badge bg-inverse-primary">{{wp.status.upper}}</p>{% else %}-{% endif %}
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center">
+                            <button onclick="epol_api_checking({{wp.id}});" class="fa fa-refresh btn btn-outline-success"></button>
+                        </td>
+                        <td class="text-right">
+                            <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/mom-application/create-workpass/{{wp.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                    <!--a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{client.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a-->
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div class="modal custom-modal fade" id="delete_project{{client.id}}" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="form-header">
+                                        <h3>Delete Client : {{client.client_id}}-{{client.client_name}}</h3>
+                                        <p>Are you sure want to delete?</p>
+                                    </div>
+                                    <div class="modal-btn delete-action">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a href="/mom-application/delete-workpass/{{wp.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            <div>
+                {% if workpass_page.has_other_pages %}
+                    <ul class="pagination">
+                        {% if workpass_page.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{workpass_page.previous_page_number}}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                        {% endif %}
+
+
+                        {% for page in workpass_page.paginator.page_range %}
+                            {% if workpass_page.number == page %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% elif page > workpass_page.number|add:'-5' and page < workpass_page.number|add:'5' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if workpass_page.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{workpass_page.next_page_number}}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disable">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+    function epol_api_checking(row_id){
+        let get_spinner = document.getElementById(`spinner${row_id}`);
+        let change_status_data = document.getElementById(`data${row_id}`);
+        get_spinner.style.display = '';
+        $.ajax({
+           type: 'GET',
+           url: `/mom-application/epol-status-checking-api/${row_id}`,
+           success: function(res){
+                   change_status_data.innerHTML = res.status;
+                   if (res.status == 'VALID') {
+                        change_status_data.setAttribute('class', 'badge bg-inverse-success');
+                   }else if (res.status == 'INVALID'){
+                        change_status_data.setAttribute('class', 'badge bg-inverse-danger');
+                   }else if (res.status == 'PENDING'){
+                        change_status_data.setAttribute('class', 'badge bg-inverse-warning');
+                   }else if (res.status == 'NO_RECORD_FOUND'){
+                        change_status_data.setAttribute('class', 'badge');
+                   }
+                   get_spinner.style.display = 'none';
+                   },
+            error: function(error) {
+                get_spinner.style.display = 'none';
+           }
+       });
+    };
+</script>
+{% endblock %}

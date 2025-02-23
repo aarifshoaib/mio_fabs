@@ -1,0 +1,315 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block csslink %}
+<style>
+.table-wrapper {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    height: fit-content;
+    max-height: 70vh;
+}
+
+table {
+    min-width: max-content;
+    border-collapse: separate;
+    border-spacing: 0px;
+}
+
+table th{
+    position: sticky;
+    top: 0px;
+    background-color: #2a2b2b;
+    color: rgb(250, 250, 248);
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">{{title}}</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">{{title}}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<!-- Search Filter -->
+<div class="main-search">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search.. date format (dd/mm/yyyy)">
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="search-result">
+    {% if keyword %}
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    {% endif %}
+    <h6>{{result_cnt}} Results found |
+        {% if 'other-type' in request.get_full_path %}
+            <a href="/mom-application/after-approved-tep-list/other-type" class="text-primary">Clear Filter</a>
+        {% else %}
+            <a href="/mom-application/after-approved-tep-list" class="text-primary">Clear Filter</a>
+        {%endif%}
+    </h6>
+</div>
+<!-- /Search Filter -->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive table-wrapper">
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th style="text-align:center">Name</th>
+                        <th style="text-align:center">Source</th>
+                        <th style="text-align:center">CompName</th>
+                        {% if 'SPASS' in title %}
+                            <th style="text-align:center">Type</th>
+                        {% endif %}
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> T.A.Due </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=traval_date_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=traval_date_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> IssuanceDt </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=new_valid_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=new_valid_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> ExtDue20 </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=extension_due_20_days_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=extension_due_20_days_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> ThumpDue </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=thump_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=thump_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> Remarks </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=remarks_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=remarks_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> ArrivalDate </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=arived_traval_date_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=arived_traval_date_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> IssueDate </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=issue_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=issue_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> IPA </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=upload_ipa_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=upload_ipa_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> ArrivalCard </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=ica_upload_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=ica_upload_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> IssueDoc </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=issue_docs_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=issue_docs_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> MOM App </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=notify_acknowledgement_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=notify_acknowledgement_null">Null</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center">
+                            <a style="color: aliceblue;" class="dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false"> IDCopy </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=card_status_data">Data</a>
+                                <a class="dropdown-item" href="/mom-application/after-approved-tep-list?filter=card_status_null">Null</a>
+                            </div>
+                        </th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tep in approved_tep %}
+                    <tr>
+                        <td style="text-align:center">{{forloop.counter|forcounter_serialno:approved_tep}}</td>
+                        <td style="text-align:center">{{tep.workpass.name.title|null_handle}}</td>
+                        <td style="text-align:center">{{tep.workpass.source|null_handle}}</td>
+                        <td style="text-align:center">{{tep.workpass.company_name.company_name.title|null_handle}}</td>
+                        {% if 'SPASS' in title %}
+                            <td style="text-align:center">{{tep.workpass.epass_type|null_handle}}</td>
+                        {% endif %}
+                        <td style="text-align:center" title="DD/MM/YYYY">{{tep.traval_date|date:"d/m/Y"|null_handle}}</td>
+                        <td style="text-align:center" title="DD/MM/YYYY">{{tep.new_valid|date:"d/m/Y"|null_handle}}</td>
+                        <td style="text-align:center" title="DD/MM/YYYY">{{tep.extension_due_20_days|date:"d/m/Y"|null_handle}}</td>
+                        <td style="text-align:center" title="DD/MM/YYYY">{{tep.thump|date:"d/m/Y"|null_handle}}</td>
+                        <td style="text-align:center">{{tep.remarks|null_handle}}</td>
+                        <td style="text-align:center" title="DD/MM/YYYY">{{tep.arived_traval_date|date:"d/m/Y"|null_handle}}</td>
+                        <td style="text-align:center" title="DD/MM/YYYY">{{tep.issue|date:"d/m/Y"|null_handle}}</td>
+                        <td style="text-align:center">
+                            {% if tep.upload_ipa %}
+                            <a href="{{tep.upload_ipa.url}}" class="badge bg-inverse-primary" target="_blank">IPA <i class="fa fa-download" aria-hidden="true"></i></a>
+                            {% else %} -
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center">
+                            {% if tep.ica_upload %}
+                            <a href="{{tep.ica_upload.url}}" class="badge bg-inverse-primary" target="_blank">Download</a>
+                            {% else %} -
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center">
+                            {% if tep.issue_docs %}
+                            <a href="{{tep.issue_docs.url}}" class="badge bg-inverse-primary" target="_blank">Download</a>
+                            {% else %} -
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center">
+                            {% if tep.notify_acknowledgement %}
+                            <a href="{{tep.notify_acknowledgement.url}}" class="badge bg-inverse-primary" target="_blank">Download</a>
+                            {% else %} -
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center">
+                            {% if tep.card_status %}
+                            <a href="{{tep.card_status.url}}" class="badge bg-inverse-primary" target="_blank">Download</a>
+                            {% else %} -
+                            {% endif %}
+                        </td>
+                        <td class="text-right">
+                            <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/mom-application/after-approval-tep/{{tep.workpass.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{tep.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div class="modal custom-modal fade" id="delete_project{{tep.id}}" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="form-header">
+                                        <h3>Delete TEP-ID: {{tep.id}}</h3>
+                                        <p>Are you sure want to delete?</p>
+                                    </div>
+                                    <div class="modal-btn delete-action">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a href="/mom-application/delete-approved-tep/{{tep.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table> <br>
+            <div>
+                {% if approved_tep.has_other_pages %}
+                    <ul class="pagination">
+                        {% if approved_tep.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{approved_tep.previous_page_number}}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                        {% endif %}
+
+
+                        {% for page in approved_tep.paginator.page_range %}
+                            {% if approved_tep.number == page %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% elif page > approved_tep.number|add:'-5' and page < approved_tep.number|add:'5' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if approved_tep.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{approved_tep.next_page_number}}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disable">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

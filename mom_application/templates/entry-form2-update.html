@@ -1,0 +1,170 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+{% endblock %}
+{% block content %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row">
+            <div class="col">
+                <h3 class="page-title">Customer Entry Form2</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Customer Entry Form2</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Customer Entry Form2</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="customer-entry-form2-update" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">CompanyName:</label>
+                                    <div class="col-lg-9">
+                                        <select name="company" required>
+                                            <option value="">Select Company</option>
+                                            {% for comp in companies %}
+                                                {% if comp.id == edit_entry_form.company_name.id %}
+                                                <option value="{{comp.id}}" selected>{{comp.company_id}}-{{comp.company_name}}</option>
+                                                {% else %}
+                                                <option value="{{comp.id}}">{{comp.company_id}}-{{comp.company_name}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">No.of FullTime:</label>
+                                    <div class="col-lg-9">
+                                        <input class="form-control" value="{{edit_entry_form.no_of_fulltime}}" type="number" name="fulltime" placeholder="No. of FullTime"  >
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Declaration:</label>
+                                    <div class="col-lg-9">
+                                        <input class="form-control" value="{{edit_entry_form.declaration}}" type="text" name="declaration" placeholder="Declaration"  >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">MonthYear:</label>
+                                    <div class="col-lg-9">
+                                        <input placeholder="Month Year" value="{{edit_entry_form_my}}" class="form-control" type="month" name="month_year">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">No.of PartTime:</label>
+                                    <div class="col-lg-9">
+                                        <input class="form-control" value="{{edit_entry_form.no_of_parttime}}" type="number" name="parttime" placeholder="No. of PartTime"  >
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Draft Upload
+                                        {% if edit_entry_form.draft_upload %}
+                                        <small class="text-muted">(Uploaded File: <a href="{{edit_entry_form.draft_upload.url}}"
+                                             title="{{edit_entry_form.draft_upload.name}}" target="_blank">Download)</a>
+                                        </small>:
+                                        {% endif %}
+                                    </label>
+                                    <div class="col-lg-9">
+                                        <input class="form-control" type="file" name="ic-copy-file">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <input type="submit" id="submit-btn" class="btn btn-primary btn-sm">
+                        <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                            <span class="sr-only"></span>
+                        </div>
+                        <span id="error-message" class="text-danger"></span>
+                        <span id="file-load-message" class="text-success"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+<!-- --------------------------------------------------------- -->
+
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+        }
+    var csrftoken = getCookie('csrftoken');
+    $("#customer-entry-form2-update").submit(function(e) {
+        e.preventDefault();
+        let get_spinner = document.getElementById('submit-spinner');
+        let submit_btn = document.getElementById('submit-btn');
+        let error_message= document.getElementById('error-message');
+        submit_btn.setAttribute('disabled', '')
+        get_spinner.style.display = '';
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val())
+            // Updating
+            $.ajax({
+                    type: 'POST',
+                    url: '/mom-application/cpf-entry-form2-api/{{edit_entry_form.id}}/{{return_url}}',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                        },
+                    mimeType: 'multipart/form-data',
+                    success: function(res){
+                              get_spinner.style.display = 'none';
+                              submit_btn.removeAttribute('disabled', '');
+                              res = JSON.parse(res)
+                              if (res.status != 'success'){
+                                  error_message.innerText = res.msg;
+                              }else{
+                                window.location = res.return_url;
+                              }
+                            },
+                        error: function(error) {
+                          get_spinner.style.display = 'none';
+                          submit_btn.removeAttribute('disabled', ''); 
+                          error_message.innerText = error;
+                    }
+                });
+      })
+</script>
+{% endblock %}

@@ -16,12 +16,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from agent_candidate import views
+from mio import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
     path('', views.Login.as_view()),
+    path('login-authentication-check-secret-key-api', views.CheckAuthenticateSecretKeyAPI.as_view()),
     path('logout', views.Logout.as_view()),
     path('dashboard', views.Dashboard.as_view()),
 
     path('agent-candidate/', include('agent_candidate.urls')),
+    path('work-management/', include('work_management.urls')),
+    path('job-advertisement/', include('job_advertisement.urls')),
+    path('client-management/', include('client_management.urls')),
+    path('mom-application/', include('mom_application.urls')),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

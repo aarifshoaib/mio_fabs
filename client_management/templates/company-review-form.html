@@ -1,0 +1,126 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 class="page-title">Company Review</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                <li class="breadcrumb-item active">Company Review</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-sm-12">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-sm-6 col-md-4">
+                    <div class="form-group">
+                        <label>Company <span class="text-danger"></span></label>
+                        <input class="form-control"  type="text" value="{{select_company.company_id}}-{{select_company.company_name}}" readonly>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="form-group">
+                        <label>ROC <span class="text-danger"></span></label>
+                        <input class="form-control"  type="text" value="{{select_company.roc}}" readonly>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="form-group">
+                        <label>Status Date <span class="text-danger"></span></label>
+                        <input class="form-control" max="2999-12-31" value="{{edit_status_date}}" name="status_date" type="date" placeholder="Status Date">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="form-group">
+                        <label>Status<span class="text-danger"></span></label>
+                        <input class="form-control" type="text" value="{{select_company.company_review.status}}" name="status" placeholder="Enter Status">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="form-group">
+                        <label>Local<span class="text-danger"></span></label>
+                        <input class="form-control" type="text" value="{% if select_company.company_review.local_col %}{{select_company.company_review.local_col}}{% endif %}" name="local_col" placeholder="Enter Local">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="form-group">
+                        <label>SFA<span class="text-danger"></span></label>
+                        <input class="form-control" type="text" value="{% if select_company.company_review.new_sfa %}{{select_company.company_review.new_sfa}}{% endif %}" name="new_sfa" placeholder="Enter SFA">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="form-group">
+                        <label>SP<span class="text-danger"></span></label>
+                        <input class="form-control" name="new_sp" value="{{select_company.company_review.new_sp}}" type="text" value="0" placeholder="Enter SP">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="form-group">
+                        <label>WP<span class="text-danger"></span></label>
+                        <input class="form-control" type="text" value="{{select_company.company_review.new_wp}}" name="new_wp" value="0" placeholder="Enter WP">
+                    </div>
+                </div>
+            </div>
+            <!-- <h4 class="text-left">SPASS</h4> -->
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-white">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-4">PRC</th>
+                                    <th class="col-md-4">IND</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <input class="form-control" type="text" name="new_prc" style="min-width:150px" value="{{select_company.company_review.new_prc}}" placeholder="Enter PRC">
+                                </td>
+                                <td>
+                                    <input class="form-control" type="text" name="new_ind" style="min-width:150px" value="{{select_company.company_review.new_ind}}" placeholder="Enter IND">
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+                <div class="submit-section">
+                    <input type="submit" value="Submit" class="btn btn-primary submit-btn">
+                </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,739 @@
+{% extends 'admin-base.html' %}
+{% load base_tags %}
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+<style>
+.table-wrapper {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    height: fit-content;
+    max-height: 70vh;
+}
+
+table {
+    min-width: max-content;
+    border-collapse: separate;
+    border-spacing: 0px;
+}
+
+table th{
+    position: sticky;
+    top: 0px;
+    background-color: #2a2b2b;
+    color: rgb(250, 250, 248);
+    z-index: 1;
+}
+.fixed-td {
+    position: sticky;
+    min-width: 20px;
+    z-index: 2;
+    left: 0;
+    background-color: #fff;
+}
+.fixed-hd {
+    position: sticky;
+    min-width: 20px;
+    top: 0;
+    z-index: 4;
+}
+.left-top-td {
+    position: sticky;
+    min-width: 20px;
+    z-index: 3;
+    left: 0;
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Candidate List ({{title}})</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Candidate Profile</a></li>
+                    <li class="breadcrumb-item active">Candidate List</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' == message.tags %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Message : {{message}}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search Filter -->
+    <form method="get">
+        <div class="row filter-row">
+                <div class="col-sm-6 col-md-3">
+                    <select name="agent-name" class="form-control">
+                        <option value="">Select Name</option>
+                        {% for agent in agents %}
+                            <option value="{{agent.id}}">
+                                {{agent.agent_id|column_num_to_name}}-{{agent.name}}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <select name="search-position" class="form-control">
+                        <option value="">Select Position</option>
+                        {% for pst in positions %}
+                            <option value="{{pst.applied_position}}">
+                                ({{pst.count}}) {{pst.applied_position}}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                        <input type="text" class="form-control form-control-sm" name="keyword" placeholder="Search..">
+                </div>
+                <div class="col-sm-6 col-md-2">
+                    <input type="submit" class="btn-sm btn-success btn-block" value="Search">
+                </div>
+        </div>
+        <div class="search-result">
+            {% if keyword or agent_search %}
+            <h6><u>{{keyword}}</u></h6>
+            <h6>{{result_cnt}} Results found |
+                <a href="/agent-candidate/agent-management-candidate-list" class="text-primary">Clear Filter</a>
+            </h6>
+            {% endif %}
+        </div>
+    </form>
+    <!-- Search Filter -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-wrapper">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="fixed-hd left-top-td">AgentName</th>
+                            <th>CodeNumber</th>
+                            <th>CandName</th>
+                            <th>DOB</th>
+                            <th>PassportNo</th>
+                            <th>HighEdu</th>
+                            <th>AbroadExp</th>
+                            <th>LocalExp</th>
+                            <th>AppliedPass</th>
+                            <th>AppliedPosition</th>
+                            <th>More</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for candidate in candidates %}
+                            <tr>
+                                <td>{{forloop.counter|forcounter_serialno:candidates}}</td>
+                                <td class="fixed-td">{{candidate.agent.agent_id|column_num_to_name}} - {{candidate.agent.name}}</td>
+
+                                <td class="col-lg-1">
+                                    <p id="code-number-column{{candidate.id}}">
+                                        {{candidate.agent.agent_id|column_num_to_name}}{{candidate.code_number}}
+                                        <button onclick="edit_code_number('{{candidate.id}}')" class="btn btn-light btn-sm badge bg-inverse-success">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                    </p>
+
+                                    <div id="code-number-input{{candidate.id}}" class="input-group input-group-sm" style="display: none;">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">{{candidate.agent.agent_id|column_num_to_name}}</span>
+                                        </div>
+                                        <input id="input-value{{candidate.id}}" class="form-control form-control-sm" type="number" value="{{candidate.code_number}}">
+                                        <div class="input-group-append">
+                                            <button id="input-tick-btn{{candidate.id}}" onclick="update_code_number('{{candidate.id}}')" class="btn btn-primary btn-sm" type="button">
+                                                <i class="la la-check"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{candidate.candidate_name}}</td>
+                                <td>{{candidate.candidate_dob|null_handle}}</td>
+                                <td>{{candidate.passport_no|null_handle}}</td>
+                                <td>{{candidate.candidate_high_edu|null_handle}}</td>
+                                <td>{{candidate.abroad_exp|null_handle}}</td>
+                                <td>{{candidate.local_exp|null_handle}}</td>
+                                <td>{{candidate.applied_pass|null_handle}}</td>
+                                <td>{{candidate.applied_position|null_handle}}</td>
+                                <td>
+                                    <a href="#" class="text-warning" data-toggle="modal" data-target="#view_more{{candidate.id}}"><i class="fa fa-list"></i> View</a>
+                                </td>
+                                <td class="text-right">
+                                    <div class="dropdown dropdown-action">
+                                        <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            {% if title == 'Applied' %}
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#applied{{candidate.id}}" title="Remove from APPLIED folder"><i class="fa fa-remove m-r-5"></i> Remove</a>
+                                            {% elif title == 'Withdraw' %}
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#withdraw{{candidate.id}}" title="Remove from WITHDRAW folder"><i class="fa fa-remove m-r-5"></i> Remove</a>
+                                            {% else %}
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#applied{{candidate.id}}"><i class="fa fa-check m-r-5"></i> Applied</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#withdraw{{candidate.id}}"><i class="fa fa-remove m-r-5"></i> Withdraw</a>
+                                            {% endif %}
+                                            <a class="dropdown-item" href="#" data-toggle="modal" onclick="selected_candidate_func('{{candidate.id}}')" data-target="#assign"><i class="fa fa-user m-r-5"></i> Assign</a>
+                                            <a class="dropdown-item" href="/agent-candidate/agent-management-candidate-form/{{candidate.id}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_policy{{candidate.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+				
+			    <div class="modal custom-modal fade" id="delete_policy{{candidate.id}}" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <div class="form-header">
+                                                <h3>Delete {{candidate.candidate_name}}</h3>
+                                                <p>Are you sure want to delete?</p>
+                                            </div>
+                                            <div class="modal-btn delete-action">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <a href="/agent-candidate/agent-management-candidate-delete/{{candidate.id}}" class="btn btn-primary continue-btn">Delete</a>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal custom-modal fade" id="applied{{candidate.id}}" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <div class="form-header">
+                                                <h3>{{candidate.candidate_name}}</h3>
+                                                <p>{% if title == 'Applied' %}
+                                                    Are you sure you want to move it to the OVERALL folder?
+                                                    {% else %}
+                                                    Are you sure you want to move it to the APPLIED folder?
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                            <div class="modal-btn delete-action">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        {% if title == 'Applied' %}
+                                                        <a href="/agent-candidate/update-candidate-status/{{candidate.id}}/applied/1" class="btn btn-primary continue-btn">Remove</a>
+                                                        {% else %}
+                                                        <a href="/agent-candidate/update-candidate-status/{{candidate.id}}/applied/0" class="btn btn-primary continue-btn">Applied</a>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal custom-modal fade" id="withdraw{{candidate.id}}" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <div class="form-header">
+                                                <h3>{{candidate.candidate_name}}</h3>
+                                                <p>
+                                                    {% if title == 'Withdraw' %}
+                                                    Are you sure you want to move it to the OVERALL folder?
+                                                    {% else %}
+                                                    Are you sure you want to move it to the WITHDRAW folder?
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                            <div class="modal-btn delete-action">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        {% if title == 'Withdraw' %}
+                                                        <a href="/agent-candidate/update-candidate-status/{{candidate.id}}/withdraw/1" class="btn btn-primary continue-btn">Remove</a>
+                                                        {% else %}
+                                                        <a href="/agent-candidate/update-candidate-status/{{candidate.id}}/withdraw/0" class="btn btn-primary continue-btn">Withdraw</a>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- View More Model -->
+                            <div id="view_more{{candidate.id}}" class="modal custom-modal fade" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Candidate Info ({{candidate.candidate_name}})</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="form-scroll">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group form-focus focused">
+                                                                        <input type="text" value="{{candidate.applied_position}}" class="form-control floating" placeholder="Applied Position" readonly>
+                                                                        <label class="focus-label">Applied Position</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group form-focus focused">
+                                                                        <input type="text" value="{{candidate.applied_pass}}" class="form-control floating" placeholder="Applied Pass" readonly>
+                                                                        <label class="focus-label">Applied Pass</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group form-focus focused">
+                                                                        <textarea  cols="30" rows="2" class="form-control floating" placeholder="Spouse Details" readonly>{{candidate.spouse_dob}}</textarea>
+                                                                        <label class="focus-label">Spouse Details</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group form-focus focused">
+                                                                        <textarea  cols="30" rows="2" class="form-control floating" placeholder="Specify Note" readonly>{{candidate.specify_note}}</textarea>
+                                                                        <label class="focus-label">Specify Note</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group form-focus focused">
+                                                                        <input type="text" value="{{candidate.specify_physical_challenge}}" class="form-control floating" placeholder="Physical Challenge" readonly>
+                                                                        <label class="focus-label">Physical Challenge</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group form-focus focused">
+                                                                        <input type="text" value="{{candidate.sat_salary}}" class="form-control floating" placeholder="SAT Salary" readonly>
+                                                                        <label class="focus-label">SAT Salary</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group form-focus focused">
+                                                                        <input type="text" value="{{candidate.specify_any_relatives}}" class="form-control floating" placeholder="Relative in SG" readonly>
+                                                                        <label class="focus-label">Relative in SG</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group form-focus focused">
+                                                                        <textarea  cols="30" rows="2" class="form-control floating" placeholder="Selection Cmd" readonly>{{candidate.selection_command}}</textarea>
+                                                                        <label class="focus-label">Selection Cmd</label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h3 class="card-title">Uploaded Files </h3>
+                                                            <div>
+                                                                <ul class="files-list">
+                                                                    {% if candidate.upload_passport.all %}
+                                                                        {% for f in candidate.upload_passport.all %}
+                                                                        <li>
+                                                                            <div class="files-cont">
+                                                                                <div class="file-type">
+                                                                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                                </div>
+                                                                                <div class="files-info">
+                                                                                    <span class="file-name text-ellipsis"><a href="#">Uploaded Passport</a></span>
+                                                                                    <span class="file-author"><a href="{{f.upload_passport.url}}" target="_blank">{{f.upload_passport.name|get_filename}}</a></span>
+                                                                                    <div class="file-size">Size: {{f.upload_passport.size|bytes_to_mb}}</div>
+                                                                                </div>
+                                                                                <ul class="files-action">
+                                                                                    <li class="dropdown dropdown-action">
+                                                                                        <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                                                            <a class="dropdown-item" target="_blank" href="{{f.upload_passport.url}}">Download</a>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </li>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                    {% if candidate.upload_video.all %}
+                                                                        {% for f in candidate.upload_video.all %}
+                                                                        <li>
+                                                                            <div class="files-cont">
+                                                                                <div class="file-type">
+                                                                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                                </div>
+                                                                                <div class="files-info">
+                                                                                    <span class="file-name text-ellipsis"><a href="#">Uploaded Video</a></span>
+                                                                                    <span class="file-author"><a href="{{f.upload_video.url}}" target="_blank">{{f.upload_video.name|get_filename}}</a></span>
+                                                                                    <div class="file-size">Size: {{f.upload_video.size|bytes_to_mb}}</div>
+                                                                                </div>
+                                                                                <ul class="files-action">
+                                                                                    <li class="dropdown dropdown-action">
+                                                                                        <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                                                            <a class="dropdown-item" target="_blank" href="{{f.upload_video.url}}">Download</a>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </li>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                    {% if candidate.upload_cert.all %}
+                                                                        {% for f in candidate.upload_cert.all %}
+                                                                        <li>
+                                                                            <div class="files-cont">
+                                                                                <div class="file-type">
+                                                                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                                </div>
+                                                                                <div class="files-info">
+                                                                                    <span class="file-name text-ellipsis"><a href="#" >Uploaded Cert</a></span>
+                                                                                    <span class="file-author"><a href="{{f.upload_cert.url}}" target="_blank">{{f.upload_cert.name|get_filename}}</a></span>
+                                                                                    <div class="file-size">Size: {{f.upload_cert.size|bytes_to_mb}}</div>
+                                                                                </div>
+                                                                                <ul class="files-action">
+                                                                                    <li class="dropdown dropdown-action">
+                                                                                        <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                                                            <a class="dropdown-item" target="_blank" href="{{f.upload_cert.url}}">Download</a>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </li>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                    {% if candidate.upload_resume.all %}
+                                                                        {% for f in candidate.upload_resume.all %}
+                                                                        <li>
+                                                                            <div class="files-cont">
+                                                                                <div class="file-type">
+                                                                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                                </div>
+                                                                                <div class="files-info">
+                                                                                    <span class="file-name text-ellipsis"><a href="#">Uploaded Resume</a></span>
+                                                                                    <span class="file-author"><a href="{{f.upload_resume.url}}" target="_blank">{{f.upload_resume.name|get_filename}}</a></span>
+                                                                                    <div class="file-size">Size: {{f.upload_resume.size|bytes_to_mb}}</div>
+                                                                                </div>
+                                                                                <ul class="files-action">
+                                                                                    <li class="dropdown dropdown-action">
+                                                                                        <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                                                            <a class="dropdown-item" target="_blank" href="{{f.upload_resume.url}}">Download</a>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </li>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                    {% if candidate.upload_work_video.all %}
+                                                                        {% for f in candidate.upload_work_video.all %}
+                                                                        <li>
+                                                                            <div class="files-cont">
+                                                                                <div class="file-type">
+                                                                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                                </div>
+                                                                                <div class="files-info">
+                                                                                    <span class="file-name text-ellipsis"><a href="#">Uploaded Work Video</a></span>
+                                                                                    <span class="file-author"><a href="{{f.upload_work_video.url}}" target="_blank">{{f.upload_work_video.name|get_filename}}</a></span>
+                                                                                    <div class="file-size">Size: {{f.upload_work_video.size|bytes_to_mb}}</div>
+                                                                                </div>
+                                                                                <ul class="files-action">
+                                                                                    <li class="dropdown dropdown-action">
+                                                                                        <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                                                            <a class="dropdown-item" target="_blank" href="{{f.upload_work_video.url}}">Download</a>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </li>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+
+                                                                    {% if candidate.upload_interview_audio.all %}
+                                                                        {% for f in candidate.upload_interview_audio.all %}
+                                                                        <li>
+                                                                            <div class="files-cont">
+                                                                                <div class="file-type">
+                                                                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                                                                </div>
+                                                                                <div class="files-info">
+                                                                                    <span class="file-name text-ellipsis"><a href="#">Uploaded Interview Audio</a></span>
+                                                                                    <span class="file-author"><a href="{{f.upload_interview_audio.url}}" target="_blank">{{f.upload_interview_audio.name|get_filename}}</a></span>
+                                                                                    <div class="file-size">Size: {{f.upload_interview_audio.size|bytes_to_mb}}</div>
+                                                                                </div>
+                                                                                <ul class="files-action">
+                                                                                    <li class="dropdown dropdown-action">
+                                                                                        <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                                                            <a class="dropdown-item" target="_blank" href="{{f.upload_interview_audio.url}}">Download</a>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </li>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                </ul>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End View More Model -->
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                <div>
+                    {% if candidates.has_other_pages %}
+                        <ul class="pagination">
+                            {% if candidates.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{candidates.previous_page_number}}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for page in candidates.paginator.page_range %}
+                                {% if candidates.number == page %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% elif page > candidates.number|add:'-10' and page < candidates.number|add:'10' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if candidates.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{candidates.next_page_number}}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disable">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="assign" class="modal custom-modal fade" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="candidate-name"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="move-assigned-company">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label class="col-form-label">Assign to <span class="text-danger">*</span></label>
+                                    <select name="company" class="form-control" required>
+                                        <option value="">Select Company</option>
+                                        {% for comp in companies %}
+                                            <option value="{{comp.id}}">{{comp.company_id}} {{comp.company_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" class="form-control" id="hidden-input-candid" name="candidate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="submit-section">
+                            <input type="submit" id="submit-btn" class="btn btn-primary" value="Submit">
+                            <div id="submit-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                <span class="sr-only"></span>
+                            </div>
+                            <span id="error-message" class="text-danger"></span>
+                            <span id="file-load-message" class="text-success"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Page Content -->
+{% endblock %}
+
+{% block jslink %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+<script>
+    function edit_code_number(row_id){
+        let p_tag = document.getElementById(`code-number-column${row_id}`);
+        let code_number_input = document.getElementById(`code-number-input${row_id}`);
+        p_tag.style.display = 'none';
+        code_number_input.style.display = '';
+    }
+
+    function extractAlphabets(str) {
+        var regex = /[a-zA-Z]/g;
+        var result = str.match(regex);
+        return result ? result.join('') : '';
+    }
+
+    function update_code_number(row_id){
+        let p_tag = document.getElementById(`code-number-column${row_id}`);
+        let code_number_input = document.getElementById(`code-number-input${row_id}`);
+        let input_value = document.getElementById(`input-value${row_id}`);
+        let input_tick_btn = document.getElementById(`input-tick-btn${row_id}`);
+        input_tick_btn.setAttribute('disabled', '');
+        if (input_value.value == ''){
+            alert('Please Enter Code Value...');
+        } else{
+            $.ajax({
+                type: 'GET',
+                url: `/agent-candidate/candidate-code-number-update-api/${row_id}/${input_value.value}`,
+                success: function(res){
+                            code_number_input.style.display = 'none';
+                            p_tag.style.display = '';
+                            p_tag.childNodes[0].nodeValue= extractAlphabets(p_tag.innerText) + res.value;
+                            input_tick_btn.removeAttribute('disabled', '');
+                        },
+                    error: function(error) {
+                        code_number_input.style.display = 'none';
+                        p_tag.style.display = '';
+                        input_tick_btn.setAttribute('disabled', '');
+                }
+            });
+        };
+    };
+</script>
+
+<script>
+    function selected_candidate_func(candid){
+        let candidate_name = document.getElementById('candidate-name');
+        let hidden_input = document.getElementById('hidden-input-candid');
+        $.ajax({
+                type: 'GET',
+                url: `/agent-candidate/assign-candidate-to-comp/${candid}`,
+                success: function(res){
+                            candidate_name.innerHTML = res.candidate;
+                            hidden_input.setAttribute('value', candid);
+                        },
+                    error: function(error) {
+                        candidate_name.innerHTML = '<p class="text-danger">Fetching Error (Contact IT team)</p>'
+                }
+            });
+    }
+</script>
+
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+        }
+    var csrftoken = getCookie('csrftoken');
+    $("#move-assigned-company").submit(function(e) {
+        e.preventDefault();
+        let get_spinner = document.getElementById('submit-spinner');
+        let submit_btn = document.getElementById('submit-btn');
+        let error_message= document.getElementById('error-message');
+        let file_load_message= document.getElementById('file-load-message');
+        submit_btn.setAttribute('disabled', '')
+        get_spinner.style.display = '';
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val());
+        let hidden_input = document.getElementById('hidden-input-candid').value;
+        $.ajax({
+                type: 'POST',
+                url: `/agent-candidate/assign-candidate-to-comp/${hidden_input}`,
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                    },
+                mimeType: 'multipart/form-data',
+                success: function(res){
+                            get_spinner.style.display = 'none';
+                            submit_btn.removeAttribute('disabled', '');
+                            res = JSON.parse(res)
+                            console.log(res)
+                            if (res.status != 'success'){
+                                error_message.innerText = res.msg;
+                                file_load_message.innerText = '';
+                                window.location.reload();
+                            }else{
+                                window.location.reload();
+                            }
+                        },
+                    error: function(error) {
+                        get_spinner.style.display = 'none';
+                        submit_btn.removeAttribute('disabled', '');
+                        window.location.reload();
+                }
+            });
+    })
+</script>
+
+{% endblock %}

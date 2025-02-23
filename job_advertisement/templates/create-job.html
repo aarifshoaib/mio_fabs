@@ -1,0 +1,117 @@
+{% extends 'admin-base.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+{% endblock %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3 class="page-title">Create Job Advertisement</h3>
+                    </div>
+                </div>
+            </div>
+            <!-- /Page Header -->
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Message : {{message}}</strong>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>D.O.Application</label>
+                            <input class="form-control" max="2999-12-31" name="do-app" value="{{date_of_app}}" type="date" required>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Job Code</label>
+                            <input class="form-control" name="job-code" value="{{job.job_code}}" placeholder="Ex: MCF-2023-1234567" type="text" required>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>No. Of Vacancy</label>
+                            <input class="form-control" name="no-vacany" value="{{job.no_of_vaccancies}}" placeholder="No. Of Vacancies" type="number" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Range</label>
+                            <input class="form-control" name="range" value="{{job.range_field}}" type="text" placeholder="Enter Range" required>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Designation <span class="text-danger">*</span></label>
+                            <input class="form-control" name="designation" value="{{job.designation}}" type="text" placeholder="Enter: Designation" required>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Company <span class="text-danger"></span></label>
+                            <select name="comp-name" id="select-state" class="form-control">
+                                <option value="">Select Company</option>
+                                {% for comp in companies %}
+                                    {% if comp.company_name == job.comp_name.company_name %}
+                                        <option value="{{comp.id}}" selected>{{comp.company_id}}-{{comp.company_name}}</option>
+                                    {% else %}
+                                        <option value="{{comp.id}}">{{comp.company_id}}-{{comp.company_name}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <!--div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Date of Review</label>
+                            <input class="form-control" max="2999-12-31" name="dor" value="{{date_of_app}}" type="date">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>No. of Application <span class="text-danger"></span></label>
+                            <input class="form-control" name="no_app" value="{{job.no_of_app}}" type="number" placeholder="No. of Applications">
+                        </div>
+                    </div>
+                </div-->
+                <div class="submit-section">
+                    <input type="submit" value="Submit" class="btn btn-primary submit-btn">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- /Page Content -->
+{% endblock %}
+
+{% block jslink %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+      $('select').selectize({
+      });
+  });
+</script>
+{% endblock %}

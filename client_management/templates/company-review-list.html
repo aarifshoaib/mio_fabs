@@ -1,0 +1,176 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Company Review </h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">Company Review List</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+<!-- Search Filter -->
+<div class="main-search">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search... (employeer search: emp=1)">
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="search-result">
+    {% if keyword %}
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    {% endif %}
+    <h6>{{result_cnt}} Results found | <a href="/client-management/company-review-list" class="text-primary">Clear Filter</a></h6>
+</div>
+<!-- /Search Filter -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <colgroup>
+                            <col span="2" style="background-color:red">
+                            <col style="background-color:yellow">
+                    </colgroup>
+                    <tr>
+                        <th style="text-align:center">CompID</th>
+                        <th style="text-align:center">Company</th>
+                        <th style="text-align:center">ROC</th>
+                        <th style="text-align:center">StatusDate</th>
+                        <th style="text-align:center">Status</th>
+                        <th style="text-align:center">Local</th>
+                        <th style="text-align:center">SFA:<a href="/client-management/company-review-list?keyword=sfa:{{sfa_cnt}}">{{sfa_cnt}}</a></th>
+                        <th style="text-align:center">SP:<a href="/client-management/company-review-list?keyword=new_sp:{{new_sp_cnt}}">{{new_sp_cnt}}</a></th>
+                        <th style="text-align:center">WP:<a href="/client-management/company-review-list?keyword=new_wp:{{new_wp_cnt}}">{{new_wp_cnt}}</a></th>
+                        <th style="text-align:center">PRC:<a href="/client-management/company-review-list?keyword=new_prc:{{new_prc_cnt}}">{{new_prc_cnt}}</a></th>
+                        <th style="text-align:center">IND:<a href="/client-management/company-review-list?keyword=new_ind:{{new_ind_cnt}}">{{new_ind_cnt}}</a></th>
+                        <th style="text-align:center">Note:<a href="/client-management/company-review-list?keyword=note:{{note_cnt}}">{{note_cnt}}</a></th>
+                        <th style="text-align:center">Job</th>
+                        <th style="text-align:center">EPOL</th>
+                        <th style="text-align:center">Action</th>
+                        <th style="text-align:center">Order</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in review_lists %}
+                    <tr>
+                        <td style="text-align:center">
+                            <p class="badge bg-inverse-success">{{review.company_id}}</p>
+                        </td>
+                        <td style="text-align:center">{{review.company_name.title}}</td>
+                        <td style="text-align:center">{{review.roc}}</td>
+                        <td style="text-align:center">{% if review.company_review.status_date%}{{review.company_review.status_date}}
+                            {% else %}-{%endif%}</td>
+                        <td style="text-align:center">{% if review.company_review.status%}{{review.company_review.status}}
+                            {% else %}-{%endif%}</td>
+                        <td style="text-align:center">{% if review.company_review.local_col %}{{review.company_review.local_col}}
+                            {% else %}-{%endif%}</td>
+                        <td style="text-align:center">{% if review.company_review.new_sfa%}{{review.company_review.new_sfa}}
+                            {% else %}-{%endif%}</td>
+                        <td style="text-align:center">{% if review.company_review.new_sp%}{{review.company_review.new_sp}}
+                            {% else %}0{%endif%}</td>
+                        <td class="text-success" style="text-align:center">{% if review.company_review.new_wp%}{{review.company_review.new_wp}}
+                            {% else %}0{%endif%}</td>
+                        <td class="text-danger" style="text-align:center">{% if review.company_review.new_prc%}{{review.company_review.new_prc}}
+                            {% else %}0{%endif%}</td>
+                        <td style="text-align:center">{% if review.company_review.new_ind%}{{review.company_review.new_ind}}
+                            {% else %}0{%endif%}</td>
+                        <td class="text-right">
+                            {% if review.company_review.note %}
+                            <a class="badge bg-inverse-success" href="/client-management/company-review-note/{{review.id}}/{{review_lists.number}}">Yes</a>
+                            {% else %}
+                            <a class="badge bg-inverse-danger" href="/client-management/company-review-note/{{review.id}}/{{review_lists.number}}">No</a>
+                            {% endif %}
+                        </td>
+                        <td class="text-right">
+                            <a class="badge bg-inverse-primary" href="/job-advertisement/job-list?keyword={{review.company_name}}"><i class="fa fa-link m-r-5"></i> Click</a>
+                        </td>
+                        <td class="text-right">
+                            <a class="badge bg-inverse-primary" href="/mom-application/work-pass-status?keyword={{review.company_name}}"><i class="fa fa-link m-r-5"></i> Click</a>
+                        </td>
+                        <td class="text-right">
+                            <a class="badge bg-inverse-warning" href="/client-management/company-review-form/{{review.id}}/{{review_lists.number}}/{{return_url}}"><i class="fa fa-pencil m-r-5"></i> Update</a>
+                        </td>
+                        <td style="text-align:center">
+                            <a class="badge bg-inverse-success" href="/client-management/create-order-form/{{review.id}}"><i class="la la-briefcase m-r-5"></i> Create Order</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div>
+                {% if review_lists.has_other_pages %}
+                    <ul class="pagination">
+                        {% if review_lists.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{review_lists.previous_page_number}}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                        {% endif %}
+
+
+                        {% for page in review_lists.paginator.page_range %}
+                            {% if review_lists.number == page %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% elif page > review_lists.number|add:'-5' and page < review_lists.number|add:'5' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if review_lists.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{review_lists.next_page_number}}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disable">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

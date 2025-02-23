@@ -1,0 +1,143 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Entry Report</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">Entry Report</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' == message.tags %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Message : {{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<!-- Search Filter -->
+<!-- <div class="main-search">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search...">
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="search-result">
+    {% if keyword %}
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    {% endif %}
+    <h6>{{result_cnt}} Results found | <a href="/mom-application/cpf-list" class="text-primary">Clear Filter</a></h6>
+</div> -->
+<!-- /Search Filter -->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">CompanyName</th>
+                        <th style="text-align:center">Jan{{current_year}}</th>
+                        <th style="text-align:center">Feb{{current_year}}</th>
+                        <th style="text-align:center">Mar{{current_year}}</th>
+                        <th style="text-align:center">Apr{{current_year}}</th>
+                        <th style="text-align:center">May{{current_year}}</th>
+                        <th style="text-align:center">Jun{{current_year}}</th>
+                        <th style="text-align:center">Jul{{current_year}}</th>
+                        <th style="text-align:center">Aug{{current_year}}</th>
+                        <th style="text-align:center">Sep{{current_year}}</th>
+                        <th style="text-align:center">Oct{{current_year}}</th>
+                        <th style="text-align:center">Nov{{current_year}}</th>
+                        <th style="text-align:center">Dec{{current_year}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comp in companies_page %}
+                    <tr>
+                        <td style="text-align:center">{{forloop.counter|forcounter_serialno:companies_page}}</td>
+                        <td style="text-align:center">{{comp.company_id}}-{{comp.company_name.title}}</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                        <td style="text-align:center">-</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div>
+                {% if companies_page.has_other_pages %}
+                    <ul class="pagination">
+                        {% if companies_page.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{companies_page.previous_page_number}}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                        {% endif %}
+
+
+                        {% for page in companies_page.paginator.page_range %}
+                            {% if companies_page.number == page %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% elif page > companies_page.number|add:'-5' and page < companies_page.number|add:'5' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if companies_page.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{current_url}}page={{companies_page.next_page_number}}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disable">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

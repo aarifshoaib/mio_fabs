@@ -1,0 +1,370 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Projects</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                <li class="breadcrumb-item active">{{title}}</li>
+            </ul>
+        </div>
+        <div class="col-auto float-right ml-auto">
+            <a href="/work-management/create-task" class="btn add-btn"><i class="fa fa-plus"></i> Create New Task</a>
+        </div>
+    </div>
+</div>
+<!-- /Page Header -->
+
+{% if messages %}
+    {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>{{message}}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Search Filter -->
+<div class="main-search">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search...">
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="search-result">
+    {% if keyword %}
+        <h6>Search Result Found For:<u> {{keyword}}</u></h6>
+    {% endif %}
+    <h6>{{result_cnt}} Results found | <a href="/work-management/tasks-list/{{title}}" class="text-primary">Clear Filter</a></h6>
+</div>
+<!-- /Search Filter -->
+
+<div class="row filter-row">
+    <div class="col-sm-2 col-md-2">
+        <select class="form-control form-control-sm" onchange="select_task_option_func(this)">
+            {% for t in task_title_lists %}
+                {% if t == title %}
+                <option value="{{t}}" selected>{{t}}</option>
+                {% else %}
+                <option value="{{t}}">{{t}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-sm-2 col-md-2">
+        <a href="#" class="btn-sm btn-danger" id="delete-seleted-task-id" style="display: none;" 
+          onclick="task_cnt_replace_func();"  data-toggle="modal" data-target="#multideletebntid">Delete</a>
+    </div>
+</div> <br>
+
+<div class="modal custom-modal fade" id="multideletebntid" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-header">
+                    <h3 id="tasks-cnts-id"></h3>
+                    <p>Are you sure want to delete?</p>
+                </div>
+                <div class="modal-btn delete-action">
+                    <div class="row">
+                        <div class="col-6">
+                            <a href="#" class="btn btn-primary continue-btn" onclick="multidelete_func();">Delete
+                                <div id="multidelete-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                    <span class="sr-only"></span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-striped custom-table mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th style="text-align:center">
+                            <input type="checkbox" id="chkbox-select-all-tasks-id" onclick="select_all_chkbok_func()">
+                        </th>
+                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">CreatedDate</th>
+			<th style="text-align:center">Company</th>
+                        <th style="text-align:center">Subject</th>
+                        <th style="text-align:center">AssignedTo</th>
+                        <th style="text-align:center">AssignedBy</th>
+                        <th style="text-align:center">Priority</th>
+                        <th style="text-align:center">Status</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks_list %}
+                    <tr>
+                        <td>
+                            <input name="selector[]" id="chk-box{{task.id}}" class="multi-delete-chk" 
+                                        type="checkbox" rowid="{{task.id}}" onclick="chk_delete_enable_access();">
+                        </td>
+                        <td>
+                            <a href="/work-management/task-view/{{task.id}}">TaskID-{{task.id}}</a>
+                        </td>
+                        <td style="text-align:center">{{task.created_date}}</td>
+			<td style="text-align:center">{{task.company_name.company_name.title}}</td>
+                        <td style="text-align:center">{{task.subject.subject}}</td>
+                        <td style="text-align:center">{{task|mtm_users}}</td>
+                        <td style="text-align:center">{{task.asigned_by.username}}</td>
+                        <td style="text-align:center">{{task.priority}}</td>
+
+                        <td style="text-align:center">
+               
+                            <div class="dropdown action-label">
+                                <a class="btn btn-white btn-sm btn-rounded dropdown-toggle" href="#" data-toggle="dropdown" aria-expanded="false">
+                                    {% if task.status is None %}
+                                        <i class="fa fa-dot-circle-o text-danger"></i>Open
+                                    {% elif task.status == 'Closed' %}
+                                        <i class="fa fa-dot-circle-o text-success"></i>Closed
+                                    {% elif task.status == 'In-Progress' %}
+                                        <i class="fa fa-dot-circle-o text-warning"></i>In-Progress
+                                    {% else %}
+                                        <i class="fa fa-dot-circle-o text-danger"></i>Open
+                                    {% endif %}
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/work-management/tasks-list/status-update/{{task.id}}/Open/tasks-list"><i class="fa fa-dot-circle-o text-info"></i> Open</a>
+                                    <a class="dropdown-item" href="/work-management/tasks-list/status-update/{{task.id}}/Closed/tasks-list"><i class="fa fa-dot-circle-o text-success"></i> Closed</a>
+                                    <a class="dropdown-item" href="/work-management/tasks-list/status-update/{{task.id}}/In-Progress/tasks-list"><i class="fa fa-dot-circle-o text-warning"></i> In-Progress</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="/work-management/create-task/{{task.id}}"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_project{{task.id}}"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#move_task{{task.id}}"><i class="fa fa-users m-r-5"></i> re-assign</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div class="modal custom-modal fade" id="delete_project{{task.id}}" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="form-header">
+                                        <h3>Delete TaskID-{{task.id}}</h3>
+                                        <p>Are you sure want to delete?</p>
+                                    </div>
+                                    <div class="modal-btn delete-action">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a href="/work-management/delete-task/{{task.id}}/tasks-list" class="btn btn-primary continue-btn">Delete</a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="move_task{{task.id}}" class="modal custom-modal fade" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Re-Assign Task (Others)</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/work-management/re-assign/{{task.id}}/task-view">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <label class="col-form-label">Users <span class="text-danger">*</span></label>
+                                                    <select name="name" class="form-control select" required>
+                                                        <option value="">Select User</option>
+                                                        {% for user in users %}
+                                                            <option value="{{user.user.username}}">{{user.user.username}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="submit-section">
+                                            <button class="btn btn-primary submit-btn">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div>
+    {% if tasks_list.has_other_pages %}
+        <ul class="pagination">
+            {% if tenders.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{{current_url}}page={{tasks_list.previous_page_number}}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+            {% endif %}
+
+            {% for page in tasks_list.paginator.page_range %}
+                {% if tasks_list.number == page %}
+                    <li class="page-item active">
+                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                    </li>
+                {% elif page > tasks_list.number|add:'-5' and page < tasks_list.number|add:'5' %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{current_url}}page={{page}}">{{ page }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if tasks_list.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{current_url}}page={{tasks_list.next_page_number}}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disable">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script>
+    function select_task_option_func(sobj){
+        var value = sobj.value;
+        window.location = `/work-management/tasks-list/${value}`   
+    }
+</script>
+<script>
+    function task_cnt_replace_func(){
+        var itms = []
+        const chk = document.querySelectorAll('input[class="multi-delete-chk"]');
+        for (let i = 0; i < chk.length; i++) {
+            if ($(`#chk-box${chk[i].getAttribute('rowid')}`).is(':checked')){
+                itms.push(chk[i].getAttribute('rowid'));
+            }
+        };
+        const task_cnts = document.getElementById('tasks-cnts-id')
+        task_cnts.innerText = `Total Selected Tasks: ${itms.length}`;
+    }
+    function select_all_chkbok_func(){
+        const chkall = document.getElementById('chkbox-select-all-tasks-id');
+        const chk = document.querySelectorAll('input[class="multi-delete-chk"]');
+        if ($('#chkbox-select-all-tasks-id').is(':checked')){
+            for (let i = 0; i < chk.length; i++) {
+                $(`#chk-box${chk[i].getAttribute('rowid')}`).prop("checked",true)
+            }
+        }else{
+            for (let i = 0; i < chk.length; i++) {
+                $(`#chk-box${chk[i].getAttribute('rowid')}`).prop("checked",false)
+            }
+        };
+        chk_delete_enable_access();
+    };
+    function chk_delete_enable_access(){
+        const chk = document.querySelectorAll('input[class="multi-delete-chk"]');
+        let is_chk = false;
+        for (let i = 0; i < chk.length; i++) {
+            if ($(`#chk-box${chk[i].getAttribute('rowid')}`).is(':checked')){
+                is_chk = true;
+            }
+        };
+        if (is_chk){
+            const delete_btn = document.getElementById('delete-seleted-task-id');
+            delete_btn.style.display = '';
+        }else{
+            const delete_btn = document.getElementById('delete-seleted-task-id');
+            delete_btn.style.display = 'none';
+        }
+    };
+    function multidelete_func(){
+        const spinner = document.getElementById('multidelete-spinner');
+        spinner.style.display = '';
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+            }
+        var csrftoken = getCookie('csrftoken');
+        var itms = []
+        const chk = document.querySelectorAll('input[class="multi-delete-chk"]');
+        for (let i = 0; i < chk.length; i++) {
+            if ($(`#chk-box${chk[i].getAttribute('rowid')}`).is(':checked')){
+                itms.push(chk[i].getAttribute('rowid'));
+            }
+        };
+        const task_cnts = document.getElementById('tasks-cnts-id')
+        task_cnts.innerText = `Total Selected Tasks: ${itms.length}`;
+        const items_dict = {'id': itms};
+        $.ajax({
+            url: '/work-management/multi-delete-task-api',
+            type: "POST",
+            data: JSON.stringify(items_dict),
+            processData: false,
+            contentType: false,
+            beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                },
+            contentType: "application/json; charset=UTF-8",
+            success: function(res){
+                if (res.status == 'success'){
+                    spinner.style.display = 'none';
+                    window.location.reload();
+                }else{
+                    spinner.style.display = 'none';
+                    window.location.reload();
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
