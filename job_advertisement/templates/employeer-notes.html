@@ -1061,7 +1061,7 @@
                 }
             });
         } else {
-            alert('dont fetch Values');
+            console.log('dont fetch Values');
         }
     });
 
@@ -1070,7 +1070,7 @@
             $('#employee')[0].selectize.destroy();
             $('#employee').empty();
             $('#employee').append('<option value="">Select Employees</option>');
-            alert($(this).val());
+            
             $.ajax({
                 type: 'GET',
                 url: '/job-advertisement/get_employees_for_company_api/'+$(this).val(),
@@ -1089,7 +1089,7 @@
                 }
             });
         } else {
-            alert('dont fetch Values');
+            console.log('dont fetch Values');
         }
     });
 

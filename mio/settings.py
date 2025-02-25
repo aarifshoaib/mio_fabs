@@ -115,26 +115,26 @@ WSGI_APPLICATION = 'mio.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'miodb_local',
-#         'USER': 'postgres',
-#         'PASSWORD': 'Windows*1',
-#         'HOST': '92.96.112.184',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'miodb',
-        'USER': 'miouser',
-        'PASSWORD': 'MIo@!0864#Oversss',
-        'HOST': '82.112.238.195',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'miodb_local',
+        'USER': 'postgres',
+        'PASSWORD': 'Windows*1',
+        'HOST': '92.96.112.184',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'miodb',
+#         'USER': 'miouser',
+#         'PASSWORD': 'MIo@!0864#Oversss',
+#         'HOST': '82.112.238.195',
+#         'PORT': '5432',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
