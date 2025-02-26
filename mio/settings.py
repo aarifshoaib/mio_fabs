@@ -27,7 +27,7 @@ MOM_APPLICATION = BASE_DIR / 'mom_application' / 'templates'
 SECRET_KEY = 'django-insecure-i$b^qyf_x-jd1+xe(*v#n1vf)tt8zntexmf-v!x1i*snwg@4bu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
