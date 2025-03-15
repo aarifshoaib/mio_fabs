@@ -37,7 +37,7 @@ def send_otp_mail(to_addr, html_text):
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     msg = MIMEMultipart()
-    from_gmail = 'myindiaoverseas.me@gmail.com'
+    from_gmail = 'mioglobal.sg@gmail.com'
     msg['From'] = from_gmail
     msg['To'] = to_addr
     msg['Subject'] = 'My India Overseas Login OTP'
@@ -46,7 +46,7 @@ def send_otp_mail(to_addr, html_text):
 
     mailServer = smtplib.SMTP("smtp.gmail.com", 587)
     mailServer.starttls()
-    mailServer.login(from_gmail, 'melehveeaxbydoce')
+    mailServer.login(from_gmail, 'zuszbilnbcqelcgy')
     mailServer.sendmail(from_gmail, to_addr, msg.as_string())
     mailServer.close()
 

@@ -122,6 +122,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'Windows*1',
         'HOST': '92.96.112.184',
+        'PORT': '5432',
     }
 }
 
@@ -172,7 +173,7 @@ USE_TZ = True
 
 STATIC_DIR = BASE_DIR / "static"
 STATIC_ROOT = "/var/www/mio/static/"
-STATIC_URL = '/static/assets/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [STATIC_DIR,]
 
 MEDIA_ROOT = '/var/www/mio/media/'
